@@ -22,5 +22,21 @@ mykernel.bin: linker.ld $(OBJECTS)
 install: mykernel.bin
 	sudo cp $< /boot/mykernel.bin
 
+kernel-run: mykernel.bin
+	qemu-system-i386 -kernel mykernel.bin  
+
+
+kernel-debug: mykernel.bin
+	qemu-system-i386 -kernel mykernel.bin -serial stdio
+
+iso: mykernel.bin grub.cfg
+	mkdir -p iso/boot/grub
+	cp mykernel.bin iso/boot/
+	cp grub.cfg iso/boot/grub/
+	grub-mkrescue -o myos.iso iso
+
+run-iso: iso
+	qemu-system-i386 -cdrom myos.iso
+
 
 
