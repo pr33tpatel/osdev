@@ -1,4 +1,5 @@
 #include "types.h"
+#include "gdt.h"
 
 void printf(const char* str){
     uint16_t* VideoMemory = (unsigned short*) 0xb8000;
@@ -34,11 +35,13 @@ extern "C" void callConstructors() {
 
 
 extern "C" void kernelMain(unsigned int magicnumber, void *multiboot_structure)  {
-    uint16_t* vga = (unsigned short*)0xb80000;
-    for (int i = 0; i < 80*25; i++) {
-	vga[i] = (0x07 << 8) | ' '; 
-    }
-    printf("turn your dreams into reality \nhi there");
+    printf("\nturn your dreams into reality \nhi there");
+
+
+    // instantiate GDT
+    GlobalDescriptorTable gdt;
+    printf("\nYOO, we got this GDT upp!!");
+
 
     while (1){
         asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage
