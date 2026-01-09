@@ -1,0 +1,21 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-m32",
+      "-ffreestanding",
+      "-fno-use-cxa-atexit",
+      "-fno-builtin",
+      "-fno-rtti",
+      "-fno-exceptions",
+      "-fno-leading-underscore",
+      "-c",
+      "-o",
+      "kernel.o",
+      "kernel.cc"
+    ],
+    "directory": "/home/preet/osdev",
+    "file": "/home/preet/osdev/kernel.cc",
+    "output": "/home/preet/osdev/kernel.o"
+  }
+]
