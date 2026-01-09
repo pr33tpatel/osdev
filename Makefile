@@ -10,7 +10,7 @@ OBJECTS = kernel.o loader.o gdt.o
 
 all: mykernel.bin
 
-%.o: %.cpp
+%.o: %.cc
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.s
