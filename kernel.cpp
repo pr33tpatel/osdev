@@ -17,8 +17,20 @@ void printf(const char* str){
 	    col = 0;
 	    row++;
 	}
-    }
+  }
 }
+
+
+typedef void (*constructor)();
+extern "C" constructor start_ctors;
+extern "C" constructor end_ctors;
+extern "C" void callConstructors() {
+  for(constructor* i = &start_ctors; i != end_ctors, i++) {
+    (*i)();
+  }
+}
+
+
 extern "C" void kernelMain(unsigned int magicnumber, void *multiboot_structure)  {
     unsigned short* vga = (unsigned short*)0xb80000;
     for (int i = 0; i < 80*25; i++) {
