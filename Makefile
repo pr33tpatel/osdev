@@ -2,11 +2,11 @@ CC		= g++
 AS 		= as
 LD 		= ld
 
-CFLAGS		 = -m32 -ffreestanding -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore
+CFLAGS		 = -m32 -ffreestanding -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions 
 ASFLAGS 	 = --32
 LDFLAGS		 = -melf_i386
 
-OBJECTS = kernel.o loader.o gdt.o
+OBJECTS = kernel.o loader.o port.o gdt.o
 
 all: mykernel.bin
 
