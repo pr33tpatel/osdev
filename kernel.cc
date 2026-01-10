@@ -1,20 +1,24 @@
 #include "types.h"
 #include "gdt.h"
+#include "VGA_COLOR_PALETTE.h"
 
 void clearScreen(){
   uint16_t* VideoMemory = (unsigned short*) 0xb8000;
-  for (int row = 0; row < 25; row++){
-    for (int col = 0; col < 80; col++){
-      int index = row * 80 + col;
+  for (uint8_t row = 0; row < 25; row++){
+    for (uint8_t col = 0; col < 80; col++){
+      uint16_t index = row * 80 + col;
       VideoMemory[index] = (0x07 << 8) | ' ';
     }
   }
 }
 
-void printf(const char* str){
+void printf(const char* str, uint8_t fg = VGA_COLOR_LIGHT_GRAY, uint8_t bg = VGA_COLOR_BLACK){
   uint16_t* VideoMemory = (unsigned short*) 0xb8000;
-  static int x = 0;
-  static int y = 0;
+  static uint8_t x = 0;
+  static uint8_t y = 0;
+
+  uint8_t attribute_byte = VGA_MAKE_COLOR(fg, bg); 
+ 
   for (int i = 0; str[i] != '\0'; i++) {
     // handle \n escape sequence for new lines
     if (str[i] == '\n') {
@@ -23,7 +27,7 @@ void printf(const char* str){
       continue;
     }
 
-    int index = x * 80 + y; // set the cursor
+    uint16_t index = x * 80 + y; // set the cursor
 
     /*
      * so, VideoMemory[index] = (0x07 << 8) | str[i] is kinda weird syntax, but its makes sense
@@ -44,7 +48,7 @@ void printf(const char* str){
      *
      */
 
-    VideoMemory[index] = (0x04 << 8) | str[i];
+    VideoMemory[index] = (attribute_byte << 8) | str[i];
     y++;
     
     // line wrap 
@@ -71,6 +75,8 @@ extern "C" void callConstructors() {
 extern "C" void kernelMain(unsigned int magicnumber, void *multiboot_structure)  {
     clearScreen();
     printf("turn your dreams into reality \nhi there\n");
+
+    printf("red on blue", VGA_COLOR_RED, VGA_COLOR_BLUE);
 
     // instantiate GDT
     GlobalDescriptorTable gdt;
