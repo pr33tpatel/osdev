@@ -39,4 +39,6 @@ run-iso: iso
 	qemu-system-i386 -cdrom myos.iso
 
 
-
+.PHONY: clean
+clean:
+	rm -r $(OBJECTS) mykernel.bin 
