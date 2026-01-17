@@ -6,3 +6,6 @@ Diagnostics:
   
 Index:
   Background: Build
+
+Completion:
+  ArgumentLists: FullPlaceholders

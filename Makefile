@@ -6,7 +6,7 @@ CFLAGS		 = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-except
 ASFLAGS 	 = --32
 LDFLAGS		 = -melf_i386
 
-OBJECTS = loader.o gdt.o port.o utils.o interruptstubs.o interrupts.o keyboard.o mouse.o kernel.o
+OBJECTS = loader.o gdt.o driver.o port.o utils.o interruptstubs.o interrupts.o keyboard.o mouse.o kernel.o
 
 all: mykernel.bin
 

@@ -1,0 +1,18 @@
+#include "driver.h"
+
+Driver::Driver(){
+
+};
+
+Driver::~Driver(){
+
+};
+
+void Driver::Activate() {
+  
+};
+
+
+int Driver::Reset(){
+  
+}

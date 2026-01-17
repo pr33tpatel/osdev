@@ -3,7 +3,7 @@
 #define __KEYBOARD_H
 
 
-    void printf(char*);
+    void printf(const char*);
     #include "types.h"
     #include "interrupts.h"
     #include "port.h"
