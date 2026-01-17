@@ -11,10 +11,8 @@ void printf(const char* str)
 {
   static uint16_t* VideoMemory = (uint16_t*)0xb8000;
   static uint8_t x=0,y=0;
-  for(int i = 0; str[i] != '\0'; ++i)
-  {
-    switch(str[i])
-    {
+  for(int i = 0; str[i] != '\0'; ++i) {
+    switch(str[i]) {
       case '\n':
         x = 0;
         y++;
@@ -25,14 +23,12 @@ void printf(const char* str)
         break;
     }
 
-    if(x >= 80)
-    {
+    if(x >= 80){
       x = 0;
       y++;
     }
 
-    if(y >= 25)
-    {
+    if(y >= 25){
       for(y = 0; y < 25; y++)
         for(x = 0; x < 80; x++)
           VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | ' ';
@@ -59,17 +55,51 @@ class PrintfKeyboardEventHandler : public KeyboardEventHandler {
     }
 };
 
+class MouseToConsole : public MouseEventHandler {
+  int8_t x, y;
 
+  public:
+
+  MouseToConsole() {
+  }
+
+  virtual void OnActivate(){
+    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
+    x = 40;
+    y = 12;
+    VideoMemory[80*y+x] = ((VideoMemory[80*y+x] & 0xF000) >> 4)
+      | ((VideoMemory[80*y+x] & 0x0F00) << 4)
+      | ((VideoMemory[80*y+x] & 0x00FF));
+  }
+
+  void OnMouseMove(int8_t x_offset, int8_t y_offset){
+    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
+
+    VideoMemory[80*y+x] = ((VideoMemory[80*y+x] & 0xF000) >> 4)
+      | ((VideoMemory[80*y+x] & 0x0F00) << 4)
+      | ((VideoMemory[80*y+x] & 0x00FF));
+
+    x += (int8_t)x_offset; 
+    if(x<0) x = 0; //prevent mouse overflow
+    if(x>=80) x = 79;
+
+    y += (int8_t)y_offset;
+    if(y<0) y = 0; //prevent mouse overflow
+    if(y>=25) y = 24;
+
+    VideoMemory[80*y+x] = ((VideoMemory[80*y+x] & 0xF000) >> 4)
+      | ((VideoMemory[80*y+x] & 0x0F00) << 4)
+      | ((VideoMemory[80*y+x] & 0x00FF));
+  }
+};
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
-extern "C" void callConstructors()
-{
+extern "C" void callConstructors(){
     for(constructor* i = &start_ctors; i != &end_ctors; i++)
         (*i)();
 }
-
 
 
 extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/)
@@ -83,8 +113,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Initializing Hardware, Stage 1\n");
   
     DriverManager drvManager;
-
-      MouseDriver mouse(&interrupts);
+      
+      MouseToConsole mousehandler;
+      MouseDriver mouse(&interrupts, &mousehandler);
       drvManager.AddDriver(&mouse);
 
       PrintfKeyboardEventHandler kbhandler;

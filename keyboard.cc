@@ -9,7 +9,7 @@ void KeyboardEventHandler::OnKeyDown(char){
 
 }
 
-void KeyboardEventHandler::onKeyUp(char){
+void KeyboardEventHandler::OnKeyUp(char){
 
 }
 

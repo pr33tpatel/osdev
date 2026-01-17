@@ -12,7 +12,7 @@ class KeyboardEventHandler{
     KeyboardEventHandler();
 
     virtual void OnKeyDown(char);
-    virtual void onKeyUp(char);
+    virtual void OnKeyUp(char);
 };
 
 class KeyboardDriver : public InterruptHandler, public Driver
