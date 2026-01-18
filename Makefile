@@ -2,18 +2,31 @@ CC		= g++
 AS 		= as
 LD 		= ld
 
-CFLAGS		 = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings
+CFLAGS		 = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions  -Wno-write-strings -Iinclude
+							# -fno-leading-underscore
 ASFLAGS 	 = --32
 LDFLAGS		 = -melf_i386
 
-OBJECTS = loader.o gdt.o driver.o port.o utils.o interruptstubs.o interrupts.o keyboard.o mouse.o kernel.o
+OBJECTS = obj/loader.o \
+					obj/gdt.o \
+					obj/drivers/driver.o \
+					obj/hardwarecommunication/port.o \
+					obj/hardwarecommunication/interruptstubs.o \
+					obj/hardwarecommunication/interrupts.o \
+					obj/drivers/keyboard.o \
+					obj/drivers/mouse.o \
+					obj/common/utils.o \
+					obj/kernel.o \
+
 
 all: mykernel.bin
 
-%.o: %.cc
+obj/%.o: src/%.cc
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%.o: %.s
+obj/%.o: src/%.s
+	mkdir -p $(@D)
 	$(AS) $(ASFLAGS) -c $< -o $@
 
 mykernel.bin: linker.ld $(OBJECTS)
@@ -62,4 +75,6 @@ run-iso: iso
 
 .PHONY: clean
 clean:
-	rm -r $(OBJECTS) mykernel.bin mykernel.iso
+	rm -rf obj mykernel.bin mykernel.iso
+clean-objects:
+	rm -rf obj 
