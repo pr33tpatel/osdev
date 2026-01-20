@@ -35,7 +35,7 @@ namespace os {
       public:
       MouseDriver(os::hardwarecommunication::InterruptManager* manager, MouseEventHandler* handler);
       ~MouseDriver();
-      virtual uint32_t HandleInterrupt(uint32_t esp);
+      virtual os::common::uint32_t HandleInterrupt(os::common::uint32_t esp);
       virtual void Activate();
     };
   }

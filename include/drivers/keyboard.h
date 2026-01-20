@@ -28,7 +28,7 @@ namespace os {
       public:
       KeyboardDriver(os::hardwarecommunication::InterruptManager* manager, KeyboardEventHandler *handler);
       ~KeyboardDriver();
-      virtual uint32_t HandleInterrupt(os::common::uint32_t esp);
+      virtual os::common::uint32_t HandleInterrupt(os::common::uint32_t esp);
       virtual void Activate();
 
     };

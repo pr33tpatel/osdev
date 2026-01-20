@@ -1,6 +1,7 @@
 #include <common/types.h>
 #include <gdt.h>
 #include <hardwarecommunication/interrupts.h>
+#include <hardwarecommunication/pci.h>
 #include <drivers/keyboard.h>
 #include <drivers/mouse.h>
 #include <drivers/driver.h>
@@ -44,12 +45,14 @@ void printf(const char* str)
   }
 }
 
-void printfHex(uint8_t key){
-  char* foo = "00 ";
-  char* hex = "0123456789ABCDEF";
-  foo[0] = hex[(key >> 4) & 0xF];
-  foo[1] = hex[key & 0xF];
-  printf(foo);
+
+void printfHex(uint8_t key)
+{
+    char* foo = "00";
+    char* hex = "0123456789ABCDEF";
+    foo[0] = hex[(key >> 4) & 0xF];
+    foo[1] = hex[key & 0xF];
+    printf(foo);
 }
 
 class PrintfKeyboardEventHandler : public KeyboardEventHandler {
@@ -127,6 +130,12 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       PrintfKeyboardEventHandler kbhandler;
       KeyboardDriver keyboard(&interrupts, &kbhandler);
       drvManager.AddDriver(&keyboard);
+
+      PeripheralComponentInterconnectController PCIController;
+      PCIController.SelectDrivers(&drvManager);
+
+
+
     printf("Initializing Hardware, Stage 2\n");
       drvManager.ActivateAll();
 

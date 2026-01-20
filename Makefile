@@ -13,6 +13,7 @@ OBJECTS = obj/loader.o \
 					obj/hardwarecommunication/port.o \
 					obj/hardwarecommunication/interruptstubs.o \
 					obj/hardwarecommunication/interrupts.o \
+					obj/hardwarecommunication/pci.o \
 					obj/drivers/keyboard.o \
 					obj/drivers/mouse.o \
 					obj/common/utils.o \
@@ -29,8 +30,8 @@ obj/%.o: src/%.s
 	mkdir -p $(@D)
 	$(AS) $(ASFLAGS) -c $< -o $@
 
-mykernel.bin: linker.ld $(OBJECTS)
-	$(LD) $(LDFLAGS) -T linker.ld -o $@ $(OBJECTS)
+mykernel.bin: src/linker.ld $(OBJECTS)
+	$(LD) $(LDFLAGS) -T src/linker.ld -o $@ $(OBJECTS)
 
 install: mykernel.bin
 	sudo cp $< /boot/mykernel.bin
@@ -40,6 +41,13 @@ kernel-run: mykernel.bin
 
 kernel-run-no-flicker: mykernel.bin
 	qemu-system-i386 -kernel mykernel.bin -no-reboot -no-shutdown
+
+kernel-run-qemu-fix: mykernel.iso
+	qemu-system-i386 -cdrom mykernel.iso  -m 512 -smp 1 
+kernel-run-qemu-fix-no-network: mykernel.iso
+	qemu-system-i386 -cdrom mykernel.iso  -m 512 -smp 1 -net none
+kernel-run-qemu-fix-debug: mykernel.iso
+	qemu-system-i386 -cdrom mykernel.iso -boot d -m 512 -smp 1 
 
 mykernel.iso: mykernel.bin
 	mkdir iso
@@ -55,8 +63,6 @@ mykernel.iso: mykernel.bin
 	echo '}'                                 >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=mykernel.iso iso
 	rm -rf iso
-kernel-run-qemu-fix: mykernel.iso
-	qemu-system-i386 -cdrom mykernel.iso -boot d -m 512 -smp 1 -net none
 
 
 
