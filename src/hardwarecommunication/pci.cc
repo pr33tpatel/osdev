@@ -69,7 +69,7 @@ void PeripheralComponentInterconnectController::SelectDrivers(os::drivers::Drive
         PeripheralComponentInterconnectDeviceDescriptor dev = GetDeviceDescriptor(bus, device, function);
 
         if (dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF)
-          break;
+          continue;
       
         // same output as linux command: "lspci" : list of PCI devcies
         printf("PCI BUS ");
