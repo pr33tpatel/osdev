@@ -16,6 +16,7 @@ OBJECTS = obj/loader.o \
 					obj/hardwarecommunication/pci.o \
 					obj/drivers/keyboard.o \
 					obj/drivers/mouse.o \
+					obj/drivers/vga.o \
 					obj/common/utils.o \
 					obj/kernel.o \
 
