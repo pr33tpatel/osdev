@@ -127,13 +127,6 @@ uint8_t* VideoGraphicsArray::GetFrameBufferSegment(){
   }
 }
 
-
-void VideoGraphicsArray::PutPixel(uint32_t x, uint32_t y, uint8_t colorIndex) {
-  uint8_t* pixelAddress = GetFrameBufferSegment() + 320*y + x; // FIXME: instead of hardcoding the width/height, make it dynamic
-  *pixelAddress = colorIndex;
-}
-
-
 uint8_t VideoGraphicsArray::GetColorIndex(uint8_t r, uint8_t g, uint8_t b) {
   if (r == 0x00 && g == 0x00 && b == 0xA8) { return 0x01; }
   else {
@@ -141,8 +134,22 @@ uint8_t VideoGraphicsArray::GetColorIndex(uint8_t r, uint8_t g, uint8_t b) {
   }
 } 
 
+void VideoGraphicsArray::PutPixel(uint32_t x, uint32_t y, uint8_t colorIndex) {
+  uint8_t* pixelAddress = GetFrameBufferSegment() + 320*y + x; // FIXME: instead of hardcoding the width/height, make it dynamic
+  *pixelAddress = colorIndex;
+}
+
+
+
 
 void VideoGraphicsArray::PutPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b) { // (x,y) coordinate with RGB values
   PutPixel(x,y, GetColorIndex(r,g,b));                                                                                           
 }
 
+void VideoGraphicsArray::FillRectangle(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint8_t r, uint8_t g, uint8_t b) {
+  for (int32_t Y = y; Y < y+h; Y++) {
+    for (int32_t X = x; X < x+w; X++) {
+      PutPixel(X, Y, r, g, b);
+    }
+  }
+}

@@ -135,21 +135,17 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       PeripheralComponentInterconnectController PCIController;
       PCIController.SelectDrivers(&drvManager, &interrupts);
 
-      VideoGraphicsArray vga;
 
     printf("Initializing Hardware, Stage 2\n");
       drvManager.ActivateAll();
 
     printf("Initializing Hardware, Stage 3\n");
-    interrupts.Activate();
+      interrupts.Activate();
 
+    VideoGraphicsArray vga;
     vga.SetMode(320, 200, 8); // 320x200x256
+    vga.FillRectangle(0, 0, 320, 200, 0x00, 0x00, 0xA8);
 
-      for (uint32_t y = 0; y < 200; y++) {
-        for (uint32_t x = 0; x < 320; x++) {
-        vga.PutPixel(x, y, 0x00, 0x00, 0xA8);
-      }
-    }
 
     printf("DracOS MWHAHAHHAH !!");
 
