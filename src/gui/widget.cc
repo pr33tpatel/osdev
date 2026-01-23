@@ -128,6 +128,7 @@ void CompositeWidget::Draw(GraphicsContext* gc) {
 void CompositeWidget::OnMouseDown(int32_t x, int32_t y, uint8_t button) {
   for(int i = 0; i < numChildren; i++) 
     if(children[i]->ContainsCoordinate(x - this->x, y - this->y)) {
+
       children[i]->OnMouseDown(x - this->x, y - this->y, button);
       break;
     }

@@ -17,7 +17,7 @@ namespace os {
         os::common::int32_t MouseY;
 
         // FIXME: this could be a horrible design, why is the MouseSensitivity a part of the Desktop and not the mouse, i dont know ?
-        float MouseSensitivity = 0.25f; // NOTE: used to control the speed of the mouse, higher value means faster
+        float MouseSensitivity = 0.50f; // NOTE: used to control the speed of the mouse, higher value means faster
 
       public:
         Desktop(

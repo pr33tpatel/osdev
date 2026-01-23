@@ -13,8 +13,12 @@ Desktop::Desktop(
   MouseEventHandler()
 {
   // center the mouse
-  MouseX = w/2;
-  MouseY = h/2;
+  // MouseX = w/2;
+  // MouseY = h/2;
+
+  // TEST:
+   MouseX = w/2;
+   MouseY = h/2;
 
   float MouseSensitivity = 0.25f; // NOTE: used to control the speed of the mouse, higher value means faster
 }
@@ -30,10 +34,15 @@ void Desktop::Draw(GraphicsContext *gc) {
 
   for (int i = 0; i < 4; i++) {
     // NOTE: Draw the cursor, each PutPixel is a "stem" of the cursor flower 
-    gc->PutPixel(MouseX-i, MouseY, 0x00, 0x00, 0x00);  
-    gc->PutPixel(MouseX+i, MouseY, 0x00, 0x00, 0x00);
-    gc->PutPixel(MouseX, MouseY-i, 0x00, 0x00, 0x00);
-    gc->PutPixel(MouseX, MouseY+i, 0x00, 0x00, 0x00);
+    // gc->PutPixel(MouseX-i, MouseY, 0xFF, 0xFF, 0xFF);  
+    // gc->PutPixel(MouseX+i, MouseY, 0xFF, 0xFF, 0xFF);
+    // gc->PutPixel(MouseX, MouseY-i, 0xFF, 0xFF, 0xFF);
+    // gc->PutPixel(MouseX, MouseY+i, 0xFF, 0xFF, 0xFF);
+    //
+    gc->PutPixel(MouseX-i, MouseY, 0x00);  
+    gc->PutPixel(MouseX+i, MouseY, 0x00);
+    gc->PutPixel(MouseX, MouseY-i, 0x00);
+    gc->PutPixel(MouseX, MouseY+i, 0x00);
   }
 }
 
@@ -50,10 +59,10 @@ void Desktop::OnMouseUp(uint8_t button) {
 
 void Desktop::OnMouseMove(int x, int y) {
 
-  // x = x / (1/MouseSensitivity); // NOTE: divide by MouseSensitivity^-1 (ex: if MS = 0.25 => x = x / (1/0.25) => x / 4)
-  // y = y / (1/MouseSensitivity);
-  x /= 4;
-  y /= 4;
+  x = x / (1/MouseSensitivity); // NOTE: divide by MouseSensitivity^-1 (ex: if MS = 0.25 => x = x / (1/0.25) => x / 4)
+  y = y / (1/MouseSensitivity);
+  // x /= 4;
+  // y /= 4;
 
 
   // bounds checking for x coordinate
@@ -63,8 +72,11 @@ void Desktop::OnMouseMove(int x, int y) {
   
   // bounds checking for y coordinate
   int newMouseY = MouseY + y;
-  if(newMouseY < 0)   newMouseY = 0;      // bounds check: floor (bottom) of screen
-  if(newMouseY >= h)  newMouseY = h - 1;  // bounds check: ceiling (top) of screen
+  if(newMouseY < 0)   newMouseY = 0;      // bounds check: ceiling (top) of screen
+  // if(newMouseY >= h)  newMouseY = h - 1;  // bounds check: floor (bottom) of screen
+  //
+  // TEST:
+  if(newMouseY >= h)  newMouseY = h - 1;  // bounds check: floor (bottom) of screen
 
 
   CompositeWidget::OnMouseMove(MouseX, MouseY, newMouseX, newMouseY);

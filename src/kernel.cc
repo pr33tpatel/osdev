@@ -7,6 +7,7 @@
 #include <drivers/driver.h>
 #include <drivers/vga.h>
 #include <gui/desktop.h>
+#include <gui/window.h>
 #include <common/utils.h>
 
 
@@ -125,7 +126,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Initializing Hardware, Stage 1\n");
   
     /* NOTE: dont comment out, THIS IS THE DESKTOP */
-    Desktop desktop(320, 200, 0x00, 0x00, 0xA8);
+    Desktop desktop(320, 200, 0xA8, 0x00, 0x00);
 
     DriverManager drvManager;
       
@@ -150,6 +151,11 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Initializing Hardware, Stage 3\n");
 
     vga.SetMode(320, 200, 8); // 320x200x256
+
+    Window win1(&desktop, 10, 10, 20, 20, 0x00, 0x00, 0xA8);
+    desktop.AddChild(&win1);
+    Window win2(&win1, 30, 40, 30, 30, 0x00, 0xA8, 0x00);
+    desktop.AddChild(&win2);
                                                     
     // activate interupts last
     interrupts.Activate();
@@ -157,7 +163,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("DracOS MWHAHAHHAH !!");
 
     while (1){
-        // asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage
+        asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage
         // using "hlt" is better than an while(1) infinite loop because it does not waste CPU cycles, generate heat, drain battery/power, etc.
         desktop.Draw(&vga); 
     }   
