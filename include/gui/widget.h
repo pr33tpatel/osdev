@@ -32,12 +32,12 @@ namespace os {
 
         virtual void GetFocus(Widget* widget);
         virtual void ModelToScreen(common::uint32_t &x, common::uint32_t &y);
-        virtual bool ContainsCoordinate(common::uint32_t x, common::uint32_t y);
+        virtual bool ContainsCoordinate(common::int32_t x, common::int32_t y);
         
         virtual void Draw(common::GraphicsContext* gc);
-        virtual void OnMouseDown(common::uint32_t x, common::uint32_t y, common::uint8_t button);
-        virtual void OnMouseUp(common::uint32_t x, common::uint32_t y, common::uint8_t button);
-        virtual void OnMouseMove(common::uint32_t oldx, common::uint32_t oldy,  common::uint32_t newx, common::uint32_t newy);
+        virtual void OnMouseDown(common::int32_t x, common::int32_t y, common::uint8_t button);
+        virtual void OnMouseUp(common::int32_t x, common::int32_t y, common::uint8_t button);
+        virtual void OnMouseMove(common::int32_t oldx, common::int32_t oldy,  common::int32_t newx, common::int32_t newy);
     };
 
 
@@ -61,9 +61,9 @@ namespace os {
         virtual bool AddChild(Widget *child);
         
         virtual void Draw(common::GraphicsContext* gc);
-        virtual void OnMouseDown(common::uint32_t x, common::uint32_t y, common::uint8_t button);
-        virtual void OnMouseUp(common::uint32_t x, common::uint32_t y, common::uint8_t button);
-        virtual void OnMouseMove(common::uint32_t oldx, common::uint32_t oldy,  common::uint32_t newx, common::uint32_t newy);
+        virtual void OnMouseDown(common::int32_t x, common::int32_t y, common::uint8_t button);
+        virtual void OnMouseUp(common::int32_t x, common::int32_t y, common::uint8_t button);
+        virtual void OnMouseMove(common::int32_t oldx, common::int32_t oldy,  common::int32_t newx, common::int32_t newy);
 
         virtual void OnKeyDown(char str);
         virtual void OnKeyUp(char str);

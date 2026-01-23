@@ -60,7 +60,7 @@ void Widget::Draw(GraphicsContext* gc) {
 }
 
 
-bool Widget::ContainsCoordinate(uint32_t x, uint32_t y) {
+bool Widget::ContainsCoordinate(int32_t x, int32_t y) {
   return 
     // NOTE: a full screen widget would start at (0,0), so full screen widget would always return `true` to ContainsCoordinate
             this->x <= x  // relative x is less than or equal to absolute x (x of coordinate is less than x of widget)
@@ -69,18 +69,18 @@ bool Widget::ContainsCoordinate(uint32_t x, uint32_t y) {
          && y < this->y + this->h; // relative y is less than absolute y + height of widget
 }
 
-void Widget::OnMouseDown(uint32_t x, uint32_t y, uint8_t button) {
+void Widget::OnMouseDown(int32_t x, int32_t y, uint8_t button) {
   if(Foucssable)
     GetFocus(this);
 }
 
 
-void Widget::OnMouseUp(uint32_t x, uint32_t y, uint8_t button) {
+void Widget::OnMouseUp(int32_t x, int32_t y, uint8_t button) {
 
 }
 
 
-void Widget::OnMouseMove(uint32_t oldx, uint32_t oldy,  uint32_t newx, uint32_t newy) {
+void Widget::OnMouseMove(int32_t oldx, int32_t oldy,  int32_t newx, int32_t newy) {
 }
 
 
@@ -125,7 +125,7 @@ void CompositeWidget::Draw(GraphicsContext* gc) {
 }
 
 
-void CompositeWidget::OnMouseDown(uint32_t x, uint32_t y, uint8_t button) {
+void CompositeWidget::OnMouseDown(int32_t x, int32_t y, uint8_t button) {
   for(int i = 0; i < numChildren; i++) 
     if(children[i]->ContainsCoordinate(x - this->x, y - this->y)) {
       children[i]->OnMouseDown(x - this->x, y - this->y, button);
@@ -134,7 +134,7 @@ void CompositeWidget::OnMouseDown(uint32_t x, uint32_t y, uint8_t button) {
 }
 
 
-void CompositeWidget::OnMouseUp(uint32_t x, uint32_t y, uint8_t button) {
+void CompositeWidget::OnMouseUp(int32_t x, int32_t y, uint8_t button) {
   for(int i = 0; i < numChildren; i++) 
     if(children[i]->ContainsCoordinate(x - this->x, y - this->y)) {
       children[i]->OnMouseUp(x - this->x, y - this->y, button);
@@ -143,7 +143,7 @@ void CompositeWidget::OnMouseUp(uint32_t x, uint32_t y, uint8_t button) {
 }
 
 
-void CompositeWidget::OnMouseMove(uint32_t oldx, uint32_t oldy,  uint32_t newx, uint32_t newy) {
+void CompositeWidget::OnMouseMove(int32_t oldx, int32_t oldy,  int32_t newx, int32_t newy) {
   /* FIXME: OnMouseMove code is really ugly. instead there should be functions like OnMouseEnter and OnMouseLeave which are called whenever the mouse is travelling between widgets */
   int firstChild = -1;
   for(int i = 0; i < numChildren; i++) 

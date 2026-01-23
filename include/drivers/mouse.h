@@ -18,7 +18,7 @@ namespace os {
         virtual void OnActivate();
         virtual void OnMouseDown(os::common::uint8_t button);
         virtual void OnMouseUp(os::common::uint8_t button);
-        virtual void OnMouseMove(os::common::int8_t x, os::common::int8_t y);
+        virtual void OnMouseMove(int x, int y);
     };
 
     class MouseDriver : public os::hardwarecommunication::InterruptHandler, public Driver 
