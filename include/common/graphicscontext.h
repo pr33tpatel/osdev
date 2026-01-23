@@ -6,7 +6,7 @@
 
 namespace os {
   namespace common {
-    typedef GraphicsContext VideoGraphicsArray; // NOTE: faked this
+    typedef os::drivers::VideoGraphicsArray GraphicsContext; // NOTE: faked this
                                                 
   }
 }

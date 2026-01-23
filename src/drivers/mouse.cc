@@ -61,13 +61,15 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 
   if(offset == 0) {
     if (buffer[1] != 0 || buffer[2] != 0) {
-      handler->OnMouseMove(buffer[1], -buffer[2]);
+      handler->OnMouseMove(((int)buffer[1]), -((int)buffer[2]));
     }
 
     for (uint8_t i = 0; i < 3; i++) {
       if ((buffer[0] & (0x1<<i)) != (buttons & (0x1<<i))) {
-        if (buttons & (0x1<<i)) { handler -> OnMouseUp(i+1); }
-        else { handler -> OnMouseDown(i+1); }
+        if (buttons & (0x1<<i)) 
+          handler -> OnMouseUp(i+1);
+        else
+          handler -> OnMouseDown(i+1); 
       }
     }
     buttons = buffer[0];
