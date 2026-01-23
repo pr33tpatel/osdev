@@ -9,6 +9,7 @@
 #include <gui/desktop.h>
 #include <gui/window.h>
 #include <common/utils.h>
+#include <multitasking.h>
 
 
 using namespace os;
@@ -109,6 +110,25 @@ class MouseToConsole : public MouseEventHandler {
   }
 };
 
+
+void taskA() {
+  while(true) {
+    printf("A");
+    for (int i =0; i < 100000000; i++);
+    // asm("sti");
+  }
+}
+void taskB() {
+  while(true) {
+    printf("B"); 
+    for (int i =0; i < 100000000; i++);
+    // asm("sti");
+  }
+
+}
+
+
+
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
@@ -124,7 +144,14 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Hello World! :)                                                           \n");
 
     GlobalDescriptorTable gdt;
-    InterruptManager interrupts(0x20, &gdt);
+
+    TaskManager taskManager;
+    Task task1(&gdt, taskA);
+    Task task2(&gdt, taskB);
+    taskManager.AddTask(&task1);
+    taskManager.AddTask(&task2);
+
+    InterruptManager interrupts(0x20, &gdt, &taskManager);
 
     printf("Initializing Hardware, Stage 1\n");
 #ifdef GRAPHICSMODE 
@@ -133,7 +160,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 #endif
 
     DriverManager drvManager;
-      
 
 #ifdef GRAPHICSMODE
     MouseDriver mouse(&interrupts, &desktop); // NOTE: handler: &desktop attaches the mouse to the desktop
@@ -174,7 +200,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // activate interupts last
     interrupts.Activate();
 
-    printf("DracOS MWHAHAHHAH !!");
+    // printf("DracOS MWHAHAHHAH !!");
 
     while (1){
         asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage
