@@ -1,1 +1,3 @@
 - name maybe "DracOS" // pronounced dracos
+- make the mouse cursor a crosshair
+- name the filesystem ScalesFS (for scalability ~hehe)
