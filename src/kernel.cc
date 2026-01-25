@@ -1,5 +1,6 @@
 #include <common/types.h>
 #include <gdt.h>
+#include <memorymanagement.h>
 #include <hardwarecommunication/interrupts.h>
 #include <hardwarecommunication/pci.h>
 #include <drivers/keyboard.h>
@@ -144,6 +145,31 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Hello World! :)                                                           \n");
 
     GlobalDescriptorTable gdt;
+    
+    uint32_t* memupper = (uint32_t*)(((size_t)multiboot_structure) + 8); // HACK: find the upper memory bound in kilobytes, based on multiboot_info struct from GNU
+    size_t heapStart = 10*1024*1024; // NOTE: start of heap is at 10 MiB, address: 0x00A00000
+    size_t padding = 10*1024; // NOTE: padding is 10 KiB
+    size_t heapSize = (*memupper)*1024 - heapStart - padding; // NOTE: (*memupper) returns the total RAM above 1 MB, multiplying by 1024 converts total available RAM above 1 MB to bytes
+    // NOTE: on a 512 MB RAM system, heapSize := 500 MB => (512 MB - ~1 MB) - 10 MiB - 10 KiB = 500 MB
+    /* DIAGRAM: MEMORYDIMENSION at boot
+     - MEMORYDIMENSION := { [ padding (10 KB)], [ ... ], [ heapStart    ...    heapSize ]} 
+
+    */
+    MemoryManager memoryManager(heapStart, (*memupper)*1024 - heapStart - 10*1024); 
+
+    printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
+    printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
+    printfHex((heapStart >> 2*8) & 0xFF); // byte 2       => 0xA0 & 0xFF = 0b(1010 0000) & 0b(1111 1111) = 0b(1010 0000) = 0xA0 
+    printfHex((heapStart >> 1*8 ) & 0xFF); // byte 1      => 0x00 & 0xFF = 0x00
+    printfHex((heapStart      ) & 0xFF); // byte 0 (LSB)  => 0x00 & 0xFF = 0x00
+    void* allocated = memoryManager.malloc(1024); // allocated 
+    printf("\nallocated: 0x");
+    printfHex(((size_t)allocated >> 24) & 0xFF);
+    printfHex(((size_t)allocated >> 16) & 0xFF);
+    printfHex(((size_t)allocated >> 8 ) & 0xFF);
+    printfHex(((size_t)allocated      ) & 0xFF);
+    printf("\n\n");
+
    
      // Multitasking/
     TaskManager taskManager;

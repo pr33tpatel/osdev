@@ -33,7 +33,7 @@ void* MemoryManager::malloc(size_t size) {
 
   // iterate through the memory space and find unallocated space large enough for requested size
   // NOTE: pretty much iterating through a linked list
-  for(MemoryChunk* chunk = first; chunk != 0 && result == 0; chunk = chunk->next) {
+  for(MemoryChunk* chunk = first; chunk != 0 && result == 0; chunk = chunk->next) { // FIXME: O(n) complexity to find unallocated space
     if(size <= chunk->size && !chunk->allocated)
       result = chunk;
   }
@@ -48,7 +48,7 @@ void* MemoryManager::malloc(size_t size) {
   // if the result chunk is more than what we need, then we can partition it into what we need
   // the result will be partitioned into [ (metadata + requested size) | remaining result chunk ]
   if (result->size >= size + sizeof(MemoryChunk) + 1) {  // the result MemoryChunk size is more than the (metadata + requested size), so we can partition
-    MemoryChunk* remaining = (MemoryChunk*)((size_t)result + sizeof(MemoryChunk));  // turn the  remaining unallocated space into MemoryChunk (metadata + size)
+    MemoryChunk* remaining = (MemoryChunk*)((size_t)result + sizeof(MemoryChunk) + size);  // turn the  remaining unallocated space into MemoryChunk (metadata + size)
     remaining->allocated = false;
     remaining->size = result->size - (size + sizeof(MemoryChunk)); // remaining size = result_chunk size - (metadata + requested size)
     remaining->prev = result; 
@@ -87,7 +87,29 @@ void* MemoryManager::malloc(size_t size) {
 
 
 void MemoryManager::free(void* ptr) {
+  if (ptr == 0) 
+    return;
 
+  MemoryChunk* chunk = (MemoryChunk*)((size_t)ptr - sizeof(MemoryChunk));
+  
+  chunk->allocated = false;
+
+  if(chunk->prev != 0 && !chunk->prev->allocated) {
+    chunk->prev->next = chunk->next;
+    chunk->prev->size += chunk->size + sizeof(MemoryChunk);
+
+    if (chunk->next != 0)  
+      chunk->next->prev = chunk->prev;
+
+    chunk = chunk->prev;
+  }
+
+  if(chunk->next != 0 && !chunk->next->allocated) {
+    chunk->size += chunk->next->size + sizeof(MemoryChunk);
+    chunk->next = chunk->next->next;
+    if(chunk->next != 0) // if the new next chunk exists, then set its previous pointer to ourselves
+      chunk->next->prev = chunk;
+  }
 }
 
 /*
