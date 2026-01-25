@@ -152,7 +152,10 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
     case 0x8086: // Intel
         switch(dev.device_id) {
           case 0x7000:
-            printf("Intel Network Card: 82371SB PIIX3 ISA");
+            // driver = (intel_piix3*)MemoryManager::activeMemoryManager->malloc(sizeof(intel_piix3));
+            // if(driver != 0)
+            //   new (driver) intel_piix3(...);
+            // printf("Intel Network Card: 82371SB PIIX3 ISA");
             break;
         }
       break;

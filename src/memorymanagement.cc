@@ -112,24 +112,29 @@ void MemoryManager::free(void* ptr) {
   }
 }
 
-/*
-  struct MemoryChunk { // NOTE: MemoryChunk stores metadata and the actual size allocated
-    // NOTE: sizeof(MemoryChunk) := metadata + size_t size
-    MemoryChunk* next;
-    MemoryChunk* prev;
-    bool allocated;
-    common::size_t size; // NOTE: memory addresses in a 32-bit OS are 32 bits, hence, size_t = uint32_t
-    / NOTE: 
-        - the metadata is not a part of the size of the MemoryChunk
-        - for example: malloc(size_t: 10); // allocate uint32_t * 10 = 320 bytes
-        - this will make the "size_t size = 10 (320 bytes)", but the actual sizeof(MemoryChunk) = metadata + size_t size
-    /
+void* operator new(unsigned size) {
+  if (os::MemoryManager::activeMemoryManager == 0)
+    return 0;
+  return os::MemoryManager::activeMemoryManager->malloc(size);
+}
+void* operator new[](unsigned size) {
+  if (os::MemoryManager::activeMemoryManager == 0)
+    return 0;
+  return os::MemoryManager::activeMemoryManager->malloc(size);
+}
 
-    / DIAGRAM:
-                           DIAGRAM OF MEMORYCHUNK:  
+void* operator new(unsigned size, void* ptr) {
+  return ptr;
+}
+void* operator new[](unsigned size, void* ptr) {
+  return ptr;
+}
 
-       chunk := [| *next | *prev | bool allocated |     ...  size_t size  ...    |]
-       bytes := [|   4   |   4   |       4        |     bytes to be allocated    |]
-    /
-  };
-*/
+void operator delete(void* ptr) {
+  if (os::MemoryManager::activeMemoryManager == 0)
+    os::MemoryManager::activeMemoryManager->free(ptr);
+}
+void operator delete[](void* ptr) {
+  if (os::MemoryManager::activeMemoryManager == 0)
+    os::MemoryManager::activeMemoryManager->free(ptr);
+}

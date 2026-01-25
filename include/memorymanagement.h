@@ -48,5 +48,12 @@ namespace os {
 void* operator new(unsigned size);
 void* operator new[](unsigned size);
 
+// placement new
+void* operator new(unsigned size, void* ptr);
+void* operator new[](unsigned size, void* ptr);
+
+void operator delete(void* ptr);
+void operator delete[](void* ptr);
+
 
 #endif
