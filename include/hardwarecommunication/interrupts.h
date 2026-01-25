@@ -7,6 +7,7 @@
 #include <hardwarecommunication/port.h>
 #include <multitasking.h>
 
+
 namespace os {
   namespace hardwarecommunication {
 

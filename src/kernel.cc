@@ -141,7 +141,8 @@ extern "C" void callConstructors(){
 
 extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/)
 {
-    // clearScreen();
+    os::common::clearScreen();
+    
     printf("Hello World! :)                                                           \n");
 
     GlobalDescriptorTable gdt;
@@ -168,7 +169,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printfHex(((size_t)allocated >> 16) & 0xFF);
     printfHex(((size_t)allocated >> 8 ) & 0xFF);
     printfHex(((size_t)allocated      ) & 0xFF);
-    printf("\n\n");
+    printf("\n");
 
    
      // Multitasking/
@@ -216,6 +217,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       drvManager.ActivateAll();
 
     printf("Initializing Hardware, Stage 3\n");
+    
 
 #ifdef GRAPHICSMODE
     vga.SetMode(320, 200, 8); // 320x200x256
