@@ -1,4 +1,4 @@
-#include "common/types.h"
+#include <common/types.h>
 #include <drivers/amd_am79c973.h>
 
 using namespace os;
@@ -7,6 +7,8 @@ using namespace os::drivers;
 using namespace os::hardwarecommunication;
 
 void printf(const char*);
+void printfHex(uint8_t key);
+void printfHex8Bytes(uint8_t key);
 
 
 amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev, InterruptManager* interrupts) 
@@ -71,17 +73,16 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev,
   initBlock.recvBufferDescrAddress = (uint32_t)recvBufferDescrPtr;
 
   for (uint8_t i = 0; i < 8; i++) {
-    sendBufferDescrPtr[i].address = (((uint32_t) &sendBufferDescMemory[0]) + 15) & ~((uint32_t)0xF);
-    sendBufferDescrPtr[i].flags   = 0x7FF
-                                  | 0xF000; // send the length of the BufferDescriptorPtr
-    sendBufferDescrPtr[i].flags2  = 0;
-    sendBufferDescrPtr[i].avail   = 0;
-
-    recvBufferDescrPtr[i].address = (((uint32_t) &recvBufferDescMemory[0]) + 15) & ~((uint32_t)0xF);
-    recvBufferDescrPtr[i].flags   = 0xF7FF
-                                  | 0x80000000; // send the length of the BufferDescriptorPtr
-    recvBufferDescrPtr[i].flags2  = 0;
-    recvBufferDescrPtr[i].avail   = 0;
+        sendBufferDescrPtr[i].address = (((uint32_t)&sendBuffers[i]) + 15 ) & ~(uint32_t)0xF;
+        sendBufferDescrPtr[i].flags = 0x7FF | 0xF000;
+        sendBufferDescrPtr[i].flags2 = 0;
+        sendBufferDescrPtr[i].avail = 0;
+        
+        recvBufferDescrPtr[i].address = (((uint32_t)&recvBuffers[i]) + 15 ) & ~(uint32_t)0xF;
+        recvBufferDescrPtr[i].flags = 0xF7FF
+                                 | 0x80000000;
+        recvBufferDescrPtr[i].flags2 = 0;
+        sendBufferDescrPtr[i].avail = 0;
   }
 
   registerAddressPort.Write(1);
@@ -97,9 +98,10 @@ amd_am79c973::~amd_am79c973() {
  
 
 void amd_am79c973::Activate() {
-  
+  printf("AMD am79c973 Activating...\n");
+ 
   registerAddressPort.Write(0);
-  registerDataPort.Write(0x41); 
+  registerDataPort.Write(0x41);
 
   registerAddressPort.Write(4);
   uint32_t temp = registerDataPort.Read();
@@ -108,7 +110,6 @@ void amd_am79c973::Activate() {
 
   registerAddressPort.Write(0);
   registerDataPort.Write(0x42); 
-
 }
 
 
@@ -127,10 +128,10 @@ uint32_t amd_am79c973::HandleInterrupt(uint32_t esp) {
 
   if((temp & 0x8000) == 0x8000) printf("AMD am79c973 GENERAL ERROR\n");
   if((temp & 0x2000) == 0x2000) printf("AMD am79c973 COLLISION ERROR\n");
-  if((temp & 0x1000) == 0x1000) printf("AMD am79c973 MISSED FRAME ERROR (too much data)\n");
+  if((temp & 0x1000) == 0x1000) printf("AMD am79c973 MISSED FRAME ERROR\n");
   if((temp & 0x0800) == 0x0800) printf("AMD am79c973 MEMORY ERROR\n");
-  if((temp & 0x0400) == 0x0400) printf("AMD am79c973 DATA RECIEVED !\n");
-  if((temp & 0x0200) == 0x0200) printf("AMD am79c973 DATA SENT !\n");
+  if((temp & 0x0400) == 0x0400) Receive(); 
+  if((temp & 0x0200) == 0x0200) printf("AMD am79c973 DATA SENT\n");
 
   // acknowledge
   registerAddressPort.Write(0);
@@ -139,5 +140,62 @@ uint32_t amd_am79c973::HandleInterrupt(uint32_t esp) {
   if((temp & 0x0100) == 0x0100) printf("AMD am79c973 INIT DONE\n");
 
   return esp;
+
+}
+
+
+void amd_am79c973::Send(uint8_t* buffer, int size) {
+    int sendDescriptor = currentSendBuffer;
+    currentSendBuffer = (currentSendBuffer + 1) % 8;
+    
+    if(size > 1518)
+        size = 1518;
+    
+    for(uint8_t *src = buffer + size -1,
+                *dst = (uint8_t*)(sendBufferDescrPtr[sendDescriptor].address + size -1);
+                src >= buffer; src--, dst--)
+        *dst = *src;
+        
+    printf("\nSEND: ");
+    for(int i = 18 +20; i < (size>64?64:size); i++)
+    {
+        printfHex(buffer[i]);
+        printf(" ");
+    }
+    
+    sendBufferDescrPtr[sendDescriptor].avail = 0;
+    sendBufferDescrPtr[sendDescriptor].flags2 = 0;
+    sendBufferDescrPtr[sendDescriptor].flags = 0x8300F000
+                                          | ((uint16_t)((-size) & 0xFFF));
+
+    registerAddressPort.Write(0);
+    registerDataPort.Write(0x48);
+}
+
+
+void amd_am79c973::Receive() {
+  printf("AMD am79c973 DATA RECEIVED\n");
+  
+  for(; (recvBufferDescrPtr[currentRecvBuffer].flags & 0x80000000) == 0; 
+      currentRecvBuffer = (currentRecvBuffer + 1) % 8)
+  {
+    if(!(recvBufferDescrPtr[currentRecvBuffer].flags & 0x40000000)
+     && (recvBufferDescrPtr[currentRecvBuffer].flags & 0x03000000) == 0x03000000) 
+    {
+      uint32_t size = recvBufferDescrPtr[currentRecvBuffer].flags & 0xFFF;
+      if (size > 64) // 64 bytes is size of ethernet2 frame
+        size -= 4; // remove the last 4 bytes containing the checksum
+      
+      uint8_t* buffer = (uint8_t*)(recvBufferDescrPtr[currentRecvBuffer].address);
+
+      for (int i = 0; i < size; i++) {
+        printfHex(buffer[i]);
+        printf(" ");
+      }
+    }
+
+    recvBufferDescrPtr[currentRecvBuffer].flags2 = 0;
+    recvBufferDescrPtr[currentRecvBuffer].flags = 0x8000F7FF;
+  }
 
 }

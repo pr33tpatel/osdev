@@ -11,6 +11,7 @@
 #include <gui/window.h>
 #include <common/utils.h>
 #include <multitasking.h>
+#include <drivers/amd_am79c973.h>
 
 
 using namespace os;
@@ -62,6 +63,15 @@ void printfHex(uint8_t key)
     foo[0] = hex[(key >> 4) & 0xF];
     foo[1] = hex[key & 0xF];
     printf(foo);
+}
+
+void printfHex8Bytes(uint8_t key) {
+  printf("0x");
+  printfHex((key >> 3*8) & 0xFF); // print 3rd byte
+  printfHex((key >> 2*8) & 0xFF); // print 2nd byte
+  printfHex((key >> 1*8) & 0xFF); // print 1st byte
+  printfHex((key >> 0*8) & 0xFF); // print 0th byte
+
 }
 
 class PrintfKeyboardEventHandler : public KeyboardEventHandler {
@@ -213,11 +223,51 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
       VideoGraphicsArray vga;
 
+      // amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // NOTE: bad idea, for testing it is ok 
+      // eth0->Send((uint8_t*)"DracOS Network",14);
+      //
+      // // TEST: print out letter of english alphabet for each driver in DriverManager
+      // // expected output : ABC, A: keyboard driver, B: mosuedriver, C: amd_am79c973
+      // for (int i = 0; i < drvManager.numDrivers; i++) {
+      //   char c[2] = {char('A' + i), 0};
+      //   printf(c);
+      //   printf("\n");
+      // }
+
+      // amd_am79c973* eth0 = 0;
+      //
+      // if (eth0 != 0) 
+      //   eth0->Send((uint8_t*)"DracOS Network", 14);
+      // else 
+      //   printf("eth0 not Initializing\n");
+
     printf("Initializing Hardware, Stage 2\n");
       drvManager.ActivateAll();
 
     printf("Initializing Hardware, Stage 3\n");
     
+    // amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // NOTE: bad idea, for testing it is ok 
+    // eth0->Send((uint8_t*)"DracOS Network",14);
+
+    amd_am79c973* eth0 = 0;
+    for (int i = 0; i < drvManager.numDrivers; i++) {
+      if (drvManager.drivers[i] != 0) {
+        if (i == 2) {
+          eth0 = (amd_am79c973*) drvManager.drivers[i];
+          printf("Found eth0\n");
+          break;
+        }
+      }
+    }
+
+    if (eth0 != 0) {
+      printf("Welcome to DracOS Network\n");
+      uint8_t test_packet[] = "DracOS Network Test\x00";
+      eth0->Send(test_packet, 18);
+      printf("Packet sent\n");
+    }
+
+
 
 #ifdef GRAPHICSMODE
     vga.SetMode(320, 200, 8); // 320x200x256

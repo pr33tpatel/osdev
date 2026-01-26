@@ -19,7 +19,8 @@ namespace os {
     };
 
     class DriverManager {
-      private:
+      // private:
+      public: // FIXME: change back to private after testing 
         // FIXME: change this when dynamic memory management is implemented
         Driver* drivers[255]; // Array of all the drivers, up to 255
         int numDrivers;

@@ -143,8 +143,15 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
         case 0x2000: // am79c973
           printf("AMD am79c973: ");
           driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
-          if(driver != 0)
+          if(driver != 0) {
             new (driver) amd_am79c973(&dev, interrupts);
+            printf("AMD malloc works\n");
+            // printf("AMD driver created at %p\n", driver);
+          }
+          else {
+            printf("AMD malloc failed\n");
+          }
+            // amd_am79c973* eth0 = new (driver) amd_am79c973(&dev, interrupts);
           return driver;
           break;
       }    

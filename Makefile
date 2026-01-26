@@ -2,8 +2,9 @@ CC		= g++
 AS 		= as
 LD 		= ld
 
-CFLAGS		 = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions  -Wno-write-strings -Iinclude
+CFLAGS		 = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin  -fno-rtti -fno-exceptions  -Wno-write-strings -Iinclude
 							# -fno-leading-underscore
+							# -fno-rtti
 ASFLAGS 	 = --32
 LDFLAGS		 = -melf_i386
 
