@@ -22,7 +22,7 @@ using namespace os::gui;
 
 
 // NOTE: this turns GRAPHICSMODE on/off
-// #define GRAPHICSMODE 
+#define GRAPHICSMODE 
 
 void printf(const char* str)
 {
@@ -168,18 +168,18 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     */
     MemoryManager memoryManager(heapStart, (*memupper)*1024 - heapStart - 10*1024); 
 
-    printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
-    printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
-    printfHex((heapStart >> 2*8) & 0xFF); // byte 2       => 0xA0 & 0xFF = 0b(1010 0000) & 0b(1111 1111) = 0b(1010 0000) = 0xA0 
-    printfHex((heapStart >> 1*8 ) & 0xFF); // byte 1      => 0x00 & 0xFF = 0x00
-    printfHex((heapStart      ) & 0xFF); // byte 0 (LSB)  => 0x00 & 0xFF = 0x00
-    void* allocated = memoryManager.malloc(1024); // allocated 
-    printf("\nallocated: 0x");
-    printfHex(((size_t)allocated >> 24) & 0xFF);
-    printfHex(((size_t)allocated >> 16) & 0xFF);
-    printfHex(((size_t)allocated >> 8 ) & 0xFF);
-    printfHex(((size_t)allocated      ) & 0xFF);
-    printf("\n");
+    // printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
+    // printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
+    // printfHex((heapStart >> 2*8) & 0xFF); // byte 2       => 0xA0 & 0xFF = 0b(1010 0000) & 0b(1111 1111) = 0b(1010 0000) = 0xA0 
+    // printfHex((heapStart >> 1*8 ) & 0xFF); // byte 1      => 0x00 & 0xFF = 0x00
+    // printfHex((heapStart      ) & 0xFF); // byte 0 (LSB)  => 0x00 & 0xFF = 0x00
+    // void* allocated = memoryManager.malloc(1024); // allocated 
+    // printf("\nallocated: 0x");
+    // printfHex(((size_t)allocated >> 24) & 0xFF);
+    // printfHex(((size_t)allocated >> 16) & 0xFF);
+    // printfHex(((size_t)allocated >> 8 ) & 0xFF);
+    // printfHex(((size_t)allocated      ) & 0xFF);
+    // printf("\n");
 
    
      // Multitasking/
@@ -193,7 +193,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     InterruptManager interrupts(0x20, &gdt, &taskManager);
 
-    printf("Initializing Hardware, Stage 1\n");
+    // printf("Initializing Hardware, Stage 1\n");
 #ifdef GRAPHICSMODE 
     /* NOTE: dont comment out, THIS IS THE DESKTOP */
     Desktop desktop(320, 200, 0xA8, 0x00, 0x00);
@@ -241,10 +241,10 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       // else 
       //   printf("eth0 not Initializing\n");
 
-    printf("Initializing Hardware, Stage 2\n");
+    // printf("Initializing Hardware, Stage 2\n");
       drvManager.ActivateAll();
 
-    printf("Initializing Hardware, Stage 3\n");
+    // printf("Initializing Hardware, Stage 3\n");
     
     // amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // NOTE: bad idea, for testing it is ok 
     // eth0->Send((uint8_t*)"DracOS Network",14);
@@ -254,7 +254,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       if (drvManager.drivers[i] != 0) {
         if (i == 2) {
           eth0 = (amd_am79c973*) drvManager.drivers[i];
-          printf("Found eth0\n");
+          printf("Found eth0 ");
           break;
         }
       }
@@ -262,9 +262,42 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     if (eth0 != 0) {
       printf("Welcome to DracOS Network\n");
-      uint8_t test_packet[] = "DracOS Network Test\x00";
-      eth0->Send(test_packet, 18);
-      printf("Packet sent\n");
+
+      // Create a proper 64-byte packet (minimum Ethernet frame size)
+      uint8_t test_packet[64];
+      for(int i = 0; i < 64; i++)
+        test_packet[i] = 0;  // Zero-fill
+
+      // Copy your message to the beginning
+      char* msg = "DracOS Network Test";
+      for(int i = 0; msg[i] != '\0'; i++)
+        test_packet[i] = msg[i];
+
+      eth0->Send(test_packet, 64);  // Send 64 bytes, not 18
+      // printf("Packet sent\n");
+
+      for(int i = 0; i < 10000000; i++);
+      printf("Buffer 0 flags after: 0x");
+      uint32_t flags = eth0->sendBufferDescr[0].flags;
+      printfHex((flags >> 24) & 0xFF);
+      printfHex((flags >> 16) & 0xFF);
+      printfHex((flags >> 8) & 0xFF);
+      printfHex(flags & 0xFF);
+      printf("\n");
+
+      // Check specific bits
+      if(flags & 0x40000000) printf("ERR bit set!\n");
+      if(flags & 0x04000000) printf("BUFF bit set!\n");
+      if(flags & 0x02000000) printf("UFLO bit set!\n");
+      if(flags & 0x08000000) printf("LCOL/LCAR bit set!\n");
+
+      uint32_t csr0 = eth0->registerDataPort.Read();
+      printf("CSR0: 0x");
+      printfHex((csr0 >> 8) & 0xFF);
+      printfHex(csr0 & 0xFF);
+      
+      // printf(" - TINT: %s\n", (csr0 & 0x0200) ? "YES" : "NO");
+
     }
 
 

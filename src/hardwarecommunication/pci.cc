@@ -145,11 +145,25 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
           driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
           if(driver != 0) {
             new (driver) amd_am79c973(&dev, interrupts);
-            printf("AMD malloc works\n");
-            // printf("AMD driver created at %p\n", driver);
-          }
-          else {
-            printf("AMD malloc failed\n");
+            // printf("AMD malloc works\n");
+
+            // enable bus mastering for DMA 
+            uint32_t command = Read(dev.bus, dev.device, dev.function, 0x04);
+            // TEST: printf for debugging
+            // printf("PCI Command before: 0x");
+            // printfHex((command >> 8) & 0xFF);
+            // printfHex((command) & 0xFF);
+            // printf("-------");
+
+            Write(dev.bus, dev.device, dev.function, 0x04, command | 0x4);
+            command = Read(dev.bus, dev.device, dev.function, 0x04);
+            if (((command) & 0x0107) == 0x0107) 
+              printf("DMA set\n");
+            // printf("PCI Command after: 0x");
+            // printfHex((command >> 8) & 0xFF);
+            // printfHex((command) & 0xFF);
+            // printf("-------");
+
           }
             // amd_am79c973* eth0 = new (driver) amd_am79c973(&dev, interrupts);
           return driver;

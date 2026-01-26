@@ -57,7 +57,7 @@ kernel-run-qemu-fix-no-network: mykernel.iso
 	qemu-system-i386 -cdrom mykernel.iso  -m 512 -smp 1 -net none
 
 kernel-run-qemu-fix-debug: mykernel.iso
-	qemu-system-i386 -cdrom mykernel.iso -boot d -m 512 -smp 1 -nic model=pcnet
+	qemu-system-i386 -cdrom mykernel.iso -boot d -m 512 -smp 1 -net nic,model=pcnet \
 
 mykernel.iso: mykernel.bin
 	mkdir iso
