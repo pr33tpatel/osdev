@@ -142,30 +142,12 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
       switch(dev.device_id) {
         case 0x2000: // am79c973
           printf("AMD am79c973: ");
+          EnableBusMastering(&dev); // enable bus mastering DMA so the PCI device can access RAM
           driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
           if(driver != 0) {
             new (driver) amd_am79c973(&dev, interrupts);
-            // printf("AMD malloc works\n");
-
-            // enable bus mastering for DMA 
-            uint32_t command = Read(dev.bus, dev.device, dev.function, 0x04);
-            // TEST: printf for debugging
-            // printf("PCI Command before: 0x");
-            // printfHex((command >> 8) & 0xFF);
-            // printfHex((command) & 0xFF);
-            // printf("-------");
-
-            Write(dev.bus, dev.device, dev.function, 0x04, command | 0x4);
-            command = Read(dev.bus, dev.device, dev.function, 0x04);
-            if (((command) & 0x0107) == 0x0107) 
-              printf("DMA set\n");
-            // printf("PCI Command after: 0x");
-            // printfHex((command >> 8) & 0xFF);
-            // printfHex((command) & 0xFF);
-            // printf("-------");
-
+            // printf("AMD am79c973 driver created");
           }
-            // amd_am79c973* eth0 = new (driver) amd_am79c973(&dev, interrupts);
           return driver;
           break;
       }    
@@ -197,6 +179,17 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
 
 
   return 0;
+}
+
+void PeripheralComponentInterconnectController::EnableBusMastering(uint16_t bus, uint16_t device, uint16_t function) {
+    uint32_t command = Read(bus, device, function, 0x04);
+    if (!(command & 0x4)) { // check if bit 2 is set already
+      Write(bus, device, function, 0x04, command | 0x4); // set bit 2
+    }
+}
+
+void PeripheralComponentInterconnectController::EnableBusMastering(PeripheralComponentInterconnectDeviceDescriptor *dev) {
+  EnableBusMastering(dev->bus, dev->device, dev->function);
 }
 
 PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectController::GetDeviceDescriptor(uint16_t bus, uint16_t device, uint16_t function) {

@@ -22,7 +22,7 @@ using namespace os::gui;
 
 
 // NOTE: this turns GRAPHICSMODE on/off
-#define GRAPHICSMODE 
+// #define GRAPHICSMODE 
 
 void printf(const char* str)
 {
@@ -273,31 +273,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       for(int i = 0; msg[i] != '\0'; i++)
         test_packet[i] = msg[i];
 
-      eth0->Send(test_packet, 64);  // Send 64 bytes, not 18
+      eth0->Send(test_packet, 18);  // Send 64 bytes, not 18
       // printf("Packet sent\n");
-
-      for(int i = 0; i < 10000000; i++);
-      printf("Buffer 0 flags after: 0x");
-      uint32_t flags = eth0->sendBufferDescr[0].flags;
-      printfHex((flags >> 24) & 0xFF);
-      printfHex((flags >> 16) & 0xFF);
-      printfHex((flags >> 8) & 0xFF);
-      printfHex(flags & 0xFF);
-      printf("\n");
-
-      // Check specific bits
-      if(flags & 0x40000000) printf("ERR bit set!\n");
-      if(flags & 0x04000000) printf("BUFF bit set!\n");
-      if(flags & 0x02000000) printf("UFLO bit set!\n");
-      if(flags & 0x08000000) printf("LCOL/LCAR bit set!\n");
-
-      uint32_t csr0 = eth0->registerDataPort.Read();
-      printf("CSR0: 0x");
-      printfHex((csr0 >> 8) & 0xFF);
-      printfHex(csr0 & 0xFF);
-      
-      // printf(" - TINT: %s\n", (csr0 & 0x0200) ? "YES" : "NO");
-
     }
 
 

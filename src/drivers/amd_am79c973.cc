@@ -98,37 +98,37 @@ void amd_am79c973::Activate() {
 
     registerAddressPort.Write(4);
     uint32_t temp = registerDataPort.Read();
-    printf("CSR4 before: 0x");
-    printfHex((temp >> 8) & 0xFF);
-    printfHex(temp & 0xFF);
-    printf("\n");
+    // printf("CSR4 before: 0x");
+    // printfHex((temp >> 8) & 0xFF);
+    // printfHex(temp & 0xFF);
+    // printf("\n");
     
     registerAddressPort.Write(4);
     registerDataPort.Write(temp | 0xC00);  // Bit 11 (0x800) = auto-pad, Bit 10 (0x400) = ?
 
   registerAddressPort.Write(3);
     uint32_t csr3 = registerDataPort.Read();
-    printf("CSR3 before: 0x");
-    printfHex((csr3 >> 8) & 0xFF);
-    printfHex(csr3 & 0xFF);
-    printf("\n");
+    // printf("CSR3 before: 0x");
+    // printfHex((csr3 >> 8) & 0xFF);
+    // printfHex(csr3 & 0xFF);
+    // printf("\n");
     
     registerAddressPort.Write(3);
     registerDataPort.Write(csr3 & ~(1 << 10));  // Clear TINTM (bit 10) to enable TINT interrupts
     
     registerAddressPort.Write(3);
     csr3 = registerDataPort.Read();
-    printf("CSR3 after: 0x");
-    printfHex((csr3 >> 8) & 0xFF);
-    printfHex(csr3 & 0xFF);
-    printf("\n");
+    // printf("CSR3 after: 0x");
+    // printfHex((csr3 >> 8) & 0xFF);
+    // printfHex(csr3 & 0xFF);
+    // printf("\n");
     
     registerAddressPort.Write(4);
     temp = registerDataPort.Read();
-    printf("CSR4 after: 0x");
-    printfHex((temp >> 8) & 0xFF);
-    printfHex(temp & 0xFF);
-    printf("\n");
+    // printf("CSR4 after: 0x");
+    // printfHex((temp >> 8) & 0xFF);
+    // printfHex(temp & 0xFF);
+    // printf("\n");
 
     registerAddressPort.Write(0);
     registerDataPort.Write(0x42);
@@ -190,21 +190,21 @@ void amd_am79c973::Send(uint8_t* buffer, int size)
     sendBufferDescr[sendDescriptor].flags = 0x8300F000
       | ((uint16_t)((-size) & 0xFFF));
 
-    printf("\nBuffer descriptor flags: 0x");
-    printfHex((sendBufferDescr[sendDescriptor].flags >> 24) & 0xFF);
-    printfHex((sendBufferDescr[sendDescriptor].flags >> 16) & 0xFF);
-    printfHex((sendBufferDescr[sendDescriptor].flags >> 8) & 0xFF);
-    printfHex(sendBufferDescr[sendDescriptor].flags & 0xFF);
-    printf("\n");
+    // printf("\nBuffer descriptor flags: 0x");
+    // printfHex((sendBufferDescr[sendDescriptor].flags >> 24) & 0xFF);
+    // printfHex((sendBufferDescr[sendDescriptor].flags >> 16) & 0xFF);
+    // printfHex((sendBufferDescr[sendDescriptor].flags >> 8) & 0xFF);
+    // printfHex(sendBufferDescr[sendDescriptor].flags & 0xFF);
+    // printf("\n");
     registerAddressPort.Write(0);
     registerDataPort.Write(0x48);
 // Read CSR0 immediately after TDMD
     registerAddressPort.Write(0);
     uint32_t csr0 = registerDataPort.Read();
-    printf("CSR0 after TDMD: 0x");
-    printfHex((csr0 >> 8) & 0xFF);
-    printfHex(csr0 & 0xFF);
-    printf("\n");
+    // printf("CSR0 after TDMD: 0x");
+    // printfHex((csr0 >> 8) & 0xFF);
+    // printfHex(csr0 & 0xFF);
+    // printf("\n");
 }
 
 
