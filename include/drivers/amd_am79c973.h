@@ -58,7 +58,7 @@ namespace os {
 
 
     public:
-      amd_am79c973(hardwarecommunication::PeripheralComponentInterconnectDeviceDescriptor dev, hardwarecommunication::InterruptManager* interrupts);
+      amd_am79c973(hardwarecommunication::PeripheralComponentInterconnectDeviceDescriptor *dev, hardwarecommunication::InterruptManager* interrupts);
       ~amd_am79c973();
 
       virtual void Activate();

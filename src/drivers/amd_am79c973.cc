@@ -9,27 +9,27 @@ using namespace os::hardwarecommunication;
 void printf(const char*);
 
 
-amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor dev, InterruptManager* interrupts) 
+amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev, InterruptManager* interrupts) 
 : Driver(),
-  InterruptHandler(interrupts, dev.interrupt + interrupts->HardwareInterruptOffset()),
-  MACAddress0Port(dev.portBase),
-  MACAddress2Port(dev.portBase + 0x02),
-  MACAddress4Port(dev.portBase + 0x04),
-  registerDataPort(dev.portBase + 0x10),
-  registerAddressPort(dev.portBase + 0x12),
-  resetPort(dev.portBase + 0x14),
-  busControlRegisterDataPort(dev.portBase + 0x16)
+  InterruptHandler(interrupts, dev->interrupt + interrupts->HardwareInterruptOffset()),
+  MACAddress0Port(dev->portBase),
+  MACAddress2Port(dev->portBase + 0x02),
+  MACAddress4Port(dev->portBase + 0x04),
+  registerDataPort(dev->portBase + 0x10),
+  registerAddressPort(dev->portBase + 0x12),
+  resetPort(dev->portBase + 0x14),
+  busControlRegisterDataPort(dev->portBase + 0x16)
 { 
 
   currentSendBuffer = 0;
   currentRecvBuffer = 0;
 
-  uint8_t MAC0 = MACAddress0Port.Read() % 256;
-  uint8_t MAC1 = MACAddress0Port.Read() / 256;
-  uint8_t MAC2 = MACAddress2Port.Read() % 256;
-  uint8_t MAC3 = MACAddress2Port.Read() / 256;
-  uint8_t MAC4 = MACAddress4Port.Read() % 256;
-  uint8_t MAC5 = MACAddress4Port.Read() / 256;
+  uint64_t MAC0 = MACAddress0Port.Read() % 256;
+  uint64_t MAC1 = MACAddress0Port.Read() / 256;
+  uint64_t MAC2 = MACAddress2Port.Read() % 256;
+  uint64_t MAC3 = MACAddress2Port.Read() / 256;
+  uint64_t MAC4 = MACAddress4Port.Read() % 256;
+  uint64_t MAC5 = MACAddress4Port.Read() / 256;
 
   uint64_t MAC = MAC5 << 5*8
                | MAC4 << 4*8 
@@ -137,5 +137,7 @@ uint32_t amd_am79c973::HandleInterrupt(uint32_t esp) {
   registerDataPort.Write(temp);
 
   if((temp & 0x0100) == 0x0100) printf("AMD am79c973 INIT DONE\n");
+
+  return esp;
 
 }
