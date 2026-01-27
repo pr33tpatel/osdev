@@ -14,6 +14,8 @@
 #include <multitasking.h>
 #include <drivers/amd_am79c973.h>
 
+#include <sys/io.h>
+
 
 using namespace os;
 using namespace os::common;
@@ -224,48 +226,42 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
       VideoGraphicsArray vga;
 
-      // amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // NOTE: bad idea, for testing it is ok 
-      // eth0->Send((uint8_t*)"DracOS Network",14);
-      //
-      // // TEST: print out letter of english alphabet for each driver in DriverManager
-      // // expected output : ABC, A: keyboard driver, B: mosuedriver, C: amd_am79c973
-      // for (int i = 0; i < drvManager.numDrivers; i++) {
-      //   char c[2] = {char('A' + i), 0};
-      //   printf(c);
-      //   printf("\n");
-      // }
-
-      // amd_am79c973* eth0 = 0;
-      //
-      // if (eth0 != 0) 
-      //   eth0->Send((uint8_t*)"DracOS Network", 14);
-      // else 
-      //   printf("eth0 not Initializing\n");
 
     // printf("Initializing Hardware, Stage 2\n");
       drvManager.ActivateAll();
 
     // printf("Initializing Hardware, Stage 3\n");
+    hardwarecommunication::Port8Bit pic2Mask(0xA1);
+    uint8_t mask = pic2Mask.Read();
+
+    mask |= 0xC0;
+    pic2Mask.Write(mask);
     
-   
-    // primary ATA, interrupt 14
-    AdvancedTechnologyAttachment ata0m(0x1F0, true);
-    // printf("ATA PRIMARY MASTER: ");
+    printf("\nS-ATA primary master: ");
+    AdvancedTechnologyAttachment ata0m(true, 0x1F0);
     ata0m.Identify();
-
-    AdvancedTechnologyAttachment ata0s(0x1F0, false);
-    // printf("ATA PRIMARY SLAVE: ");
+    
+    printf("\nS-ATA primary slave: ");
+    AdvancedTechnologyAttachment ata0s(false, 0x1F0);
     ata0s.Identify();
-
-    char* atabuffer = "Welcome to DracOS Storage";
-    ata0s.Write28(0,(uint8_t*)atabuffer ,26);
+    printf("\n\n\n");
+    ata0s.Write28(0, (uint8_t*)"http://www.AlgorithMan.de", 25);
+    printf("\n");
     ata0s.Flush();
-
-    ata0s.Read28(0, (uint8_t*)atabuffer, 26);
+    ata0s.Read28(0);
+    printf("\n");
+    
+    // printf("\nS-ATA secondary master: ");
+    // AdvancedTechnologyAttachment ata1m(true, 0x170);
+    // ata1m.Identify();
+    //
+    // printf("\nS-ATA secondary slave: ");
+    // AdvancedTechnologyAttachment ata1s(false, 0x170);
+    // ata1s.Identify();
   
-    // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
-    AdvancedTechnologyAttachment ata1m(0x170, true);
-    AdvancedTechnologyAttachment ata1s(0x170, false);
+    // // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
+    // AdvancedTechnologyAttachment ata1m(0x170, true);
+    // AdvancedTechnologyAttachment ata1s(0x170, false);
 
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {
