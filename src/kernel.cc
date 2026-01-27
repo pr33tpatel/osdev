@@ -7,6 +7,7 @@
 #include <drivers/mouse.h>
 #include <drivers/driver.h>
 #include <drivers/vga.h>
+#include <drivers/ata.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
 #include <common/utils.h>
@@ -246,8 +247,25 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     // printf("Initializing Hardware, Stage 3\n");
     
-    // amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // NOTE: bad idea, for testing it is ok 
-    // eth0->Send((uint8_t*)"DracOS Network",14);
+   
+    // primary ATA, interrupt 14
+    AdvancedTechnologyAttachment ata0m(0x1F0, true);
+    // printf("ATA PRIMARY MASTER: ");
+    ata0m.Identify();
+
+    AdvancedTechnologyAttachment ata0s(0x1F0, false);
+    // printf("ATA PRIMARY SLAVE: ");
+    ata0s.Identify();
+
+    char* atabuffer = "Welcome to DracOS Storage";
+    ata0s.Write28(0,(uint8_t*)atabuffer ,26);
+    ata0s.Flush();
+
+    ata0s.Read28(0, (uint8_t*)atabuffer, 26);
+  
+    // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
+    AdvancedTechnologyAttachment ata1m(0x170, true);
+    AdvancedTechnologyAttachment ata1s(0x170, false);
 
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {

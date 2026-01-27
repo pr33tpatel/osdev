@@ -21,6 +21,7 @@ OBJECTS = obj/loader.o \
 					obj/drivers/keyboard.o \
 					obj/drivers/mouse.o \
 					obj/drivers/vga.o \
+					obj/drivers/ata.o \
 					obj/gui/widget.o \
 					obj/gui/window.o \
 					obj/gui/desktop.o \
@@ -56,8 +57,16 @@ kernel-run-qemu-fix: mykernel.iso
 kernel-run-qemu-fix-no-network: mykernel.iso
 	qemu-system-i386 -cdrom mykernel.iso  -m 512 -smp 1 -net none
 
-kernel-run-qemu-fix-debug: mykernel.iso
-	qemu-system-i386 -cdrom mykernel.iso -boot d -m 512 -smp 1 -net nic,model=pcnet \
+kernel-run-qemu-fix-debug: mykernel.iso Image.img
+	qemu-system-i386 \
+		-cdrom mykernel.iso \
+		-boot d \
+		-m 512 \
+		-smp 1 \
+		-net nic,model=pcnet \
+		-drive id=disk,file=Image.img,format=raw,if=none \
+		-device piix4-ide,id=piix4 -device ide-hd,drive=disk,bus=piix4.0
+
 
 mykernel.iso: mykernel.bin
 	mkdir iso
@@ -73,8 +82,9 @@ mykernel.iso: mykernel.bin
 	echo '}'                                 >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=mykernel.iso iso
 	rm -rf iso
-
-
+	
+	qemu-img create -f qcow2 Image.img 128M
+	dd if=mykernel.iso of=Image.img
 
 kernel-debug: mykernel.bin
 	qemu-system-i386 -kernel mykernel.bin -no-reboot -no-shutdown -serial stdio -d cpu,int
@@ -91,6 +101,6 @@ run-iso: iso
 
 .PHONY: clean
 clean:
-	rm -rf obj mykernel.bin mykernel.iso
+	rm -rf obj mykernel.bin mykernel.iso Image.img
 clean-objects:
 	rm -rf obj 

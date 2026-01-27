@@ -1,3 +1,4 @@
 - name maybe "DracOS" // pronounced dracos
 - make the mouse cursor a crosshair
 - name the filesystem ScalesFS (for scalability ~hehe)
+- change the hard drive driver design from PiO (program i/o) to DMA (direct memory access)

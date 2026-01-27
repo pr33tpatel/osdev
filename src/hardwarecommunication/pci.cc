@@ -8,8 +8,7 @@ using namespace os::hardwarecommunication;
 
 void printf(const char* str);
 void printfHex(uint8_t);
-
-
+void printfHexBytes(uint8_t);
 
 PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor(){
 
@@ -21,10 +20,10 @@ PeripheralComponentInterconnectDeviceDescriptor::~PeripheralComponentInterconnec
 
 // constructor
 PeripheralComponentInterconnectController::PeripheralComponentInterconnectController()
-: dataPort(0xCFC),
+  : dataPort(0xCFC),
   commandPort(0xCF8)
 {
-  
+
 }
 
 
@@ -107,7 +106,7 @@ void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* dri
 
 BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressRegister(uint16_t bus, uint16_t device, uint16_t function, uint16_t bar) {
   BaseAddressRegister result;
-  
+
   uint32_t headertype = Read(bus, device, function, 0x0E) & 0x7F;
   int maxBARs = 6 - (4*headertype);
   if(bar >= maxBARs)
@@ -152,16 +151,16 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
           break;
       }    
       break;
-    
+
     case 0x8086: // Intel
-        switch(dev.device_id) {
-          case 0x7000:
-            // driver = (intel_piix3*)MemoryManager::activeMemoryManager->malloc(sizeof(intel_piix3));
-            // if(driver != 0)
-            //   new (driver) intel_piix3(...);
-            // printf("Intel Network Card: 82371SB PIIX3 ISA");
-            break;
-        }
+      switch(dev.device_id) {
+        case 0x7000:
+          // driver = (intel_piix3*)MemoryManager::activeMemoryManager->malloc(sizeof(intel_piix3));
+          // if(driver != 0)
+          //   new (driver) intel_piix3(...);
+          // printf("Intel Network Card: 82371SB PIIX3 ISA");
+          break;
+      }
       break;
 
   }
@@ -182,10 +181,10 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
 }
 
 void PeripheralComponentInterconnectController::EnableBusMastering(uint16_t bus, uint16_t device, uint16_t function) {
-    uint32_t command = Read(bus, device, function, 0x04);
-    if (!(command & 0x4)) { // check if bit 2 is set already
-      Write(bus, device, function, 0x04, command | 0x4); // set bit 2
-    }
+  uint32_t command = Read(bus, device, function, 0x04);
+  if (!(command & 0x4)) { // check if bit 2 is set already
+    Write(bus, device, function, 0x04, command | 0x4); // set bit 2
+  }
 }
 
 void PeripheralComponentInterconnectController::EnableBusMastering(PeripheralComponentInterconnectDeviceDescriptor *dev) {
@@ -193,16 +192,16 @@ void PeripheralComponentInterconnectController::EnableBusMastering(PeripheralCom
 }
 
 PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectController::GetDeviceDescriptor(uint16_t bus, uint16_t device, uint16_t function) {
-PeripheralComponentInterconnectDeviceDescriptor result;
+  PeripheralComponentInterconnectDeviceDescriptor result;
 
-result.bus = bus;
+  result.bus = bus;
   result.device = device;
   result.function =  function;
 
   result.vendor_id = Read(bus, device, function, 0x00);
   result.device_id = Read(bus, device, function, 0x02);
 
-  
+
   result.class_id = Read(bus, device, function, 0x0b);
   result.subclass_id = Read(bus, device, function, 0x0a);
   result.interface_id = Read(bus, device, function, 0x09);
