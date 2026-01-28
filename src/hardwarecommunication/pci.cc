@@ -82,23 +82,23 @@ void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* dri
           driverManager->AddDriver(driver);
 
 
-        // NOTE: same output as linux command: "lspci" : list of PCI devcies
-        printf("PCI BUS ");
-        printfHex(bus & 0xFF);
-
-        printf(", DEVICE ");
-        printfHex(device & 0xFF);
-
-        printf(", FUNCTION ");
-        printfHex(function & 0xFF);
-
-        printf(" = VENDOR ");
-        printfHex((dev.vendor_id & 0xFF00) >> 8);
-        printfHex(dev.vendor_id & 0xFF);
-        printf(", DEVICE ");
-        printfHex((dev.device_id & 0xFF00) >> 8);
-        printfHex(dev.device_id & 0xFF);
-        printf("\n");
+        // // NOTE: same output as linux command: "lspci" : list of PCI devcies
+        // printf("PCI BUS ");
+        // printfHex(bus & 0xFF);
+        //
+        // printf(", DEVICE ");
+        // printfHex(device & 0xFF);
+        //
+        // printf(", FUNCTION ");
+        // printfHex(function & 0xFF);
+        //
+        // printf(" = VENDOR ");
+        // printfHex((dev.vendor_id & 0xFF00) >> 8);
+        // printfHex(dev.vendor_id & 0xFF);
+        // printf(", DEVICE ");
+        // printfHex((dev.device_id & 0xFF00) >> 8);
+        // printfHex(dev.device_id & 0xFF);
+        // printf("\n");
       }
     }
   }

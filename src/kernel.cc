@@ -24,6 +24,7 @@ using namespace os::gui;
 
 // NOTE: this turns GRAPHICSMODE on/off
 // #define GRAPHICSMODE 
+// #define NETWORK
 
 void printf(const char* str)
 {
@@ -224,29 +225,17 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
       VideoGraphicsArray vga;
 
-      // amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]); // NOTE: bad idea, for testing it is ok 
-      // eth0->Send((uint8_t*)"DracOS Network",14);
-      //
-      // // TEST: print out letter of english alphabet for each driver in DriverManager
-      // // expected output : ABC, A: keyboard driver, B: mosuedriver, C: amd_am79c973
-      // for (int i = 0; i < drvManager.numDrivers; i++) {
-      //   char c[2] = {char('A' + i), 0};
-      //   printf(c);
-      //   printf("\n");
-      // }
-
-      // amd_am79c973* eth0 = 0;
-      //
-      // if (eth0 != 0) 
-      //   eth0->Send((uint8_t*)"DracOS Network", 14);
-      // else 
-      //   printf("eth0 not Initializing\n");
 
     // printf("Initializing Hardware, Stage 2\n");
       drvManager.ActivateAll();
 
     // printf("Initializing Hardware, Stage 3\n");
-    
+
+    hardwarecommunication::Port8Bit pic2Mask(0xA1);
+    uint8_t mask = pic2Mask.Read();
+
+    mask |= 0xC0;
+    pic2Mask.Write(mask);
    
     // primary ATA, interrupt 14
     AdvancedTechnologyAttachment ata0m(0x1F0, true);
@@ -257,22 +246,231 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // printf("ATA PRIMARY SLAVE: ");
     ata0s.Identify();
 
-    char* atabuffer = "Welcome to DracOS Storage";
-    ata0s.Write28(0,(uint8_t*)atabuffer ,26);
-    ata0s.Flush();
+    // char writeBuffer[512] = {0};
+    // writeBuffer[0] = 'H';
+    // writeBuffer[1] = 'i';
+    //
+    // ata0m.Write28(0,(uint8_t*)writeBuffer ,2);
+    // ata0m.Flush();
+    //
+    // for (int i =0 ; i< 10000000; i++);
+    //
+    // char readBuffer[512] = {0};
+    //
+    // ata0m.Read28(0, (uint8_t*)readBuffer, 2);
+    //
+    // printf("Write To: [");
+    // // printf(readBuffer);
+    // printfHex(writeBuffer[0]);
+    // printfHex(writeBuffer[1]);
+    // printf("]\n");
+    // printf("Read Back: [");
+    // // printf(readBuffer);
+    // printfHex(readBuffer[0]);
+    // printfHex(readBuffer[1]);
+    // printf("]\n");
+ 
+    // Test 1: Write and read immediately (same boot)
+    // printf("=== TEST 1: Write and immediate read ===");
+    // char writeBuffer1[512] = {0};
+    // writeBuffer1[0] = 'A';
+    // writeBuffer1[1] = 'B';
+    //
+    // ata0m.Write28(0, (uint8_t*)writeBuffer1, 2);
+    // ata0m.Flush();
+    //
+    // char readBuffer1[512] = {0};
+    // ata0m.Read28(0, (uint8_t*)readBuffer1, 2);
+    //
+    // printf("Wrote: [");
+    // printfHex(writeBuffer1[0]);
+    // printfHex(writeBuffer1[1]);
+    // printf("], ");
+    //
+    // printf("Read: [");
+    // printfHex(readBuffer1[0]);
+    // printfHex(readBuffer1[1]);
+    // printf("]\n");
 
-    ata0s.Read28(0, (uint8_t*)atabuffer, 26);
-  
+    // Test 2: Try a different sector
+    // printf("=== TEST 2: Write to sector 1 ===");
+    // char writeBuffer2[512] = {0};
+    // writeBuffer2[0] = 'X';
+    // writeBuffer2[1] = 'Y';
+    //
+    // ata0m.Write28(1, (uint8_t*)writeBuffer2, 2);  // Different sector
+    // ata0m.Flush();
+    //
+    // char readBuffer2[512] = {0};
+    // ata0m.Read28(1, (uint8_t*)readBuffer2, 2);
+    //
+    // printf("Wrote: [");
+    // printfHex(writeBuffer2[0]);
+    // printfHex(writeBuffer2[1]);
+    // printf("], ");
+    //
+    // printf("Read: [");
+    // printfHex(readBuffer2[0]);
+    // printfHex(readBuffer2[1]);
+    // printf("]\n");
+
+    // Test 3: Read sector 0 again to see if Test 1 data is still there
+    // printf("=== TEST 3: Re-read sector 0 ===");
+    // char readBuffer3[512] = {0};
+    // ata0m.Read28(0, (uint8_t*)readBuffer3, 2);
+    //
+    // printf("Read: [");
+    // printfHex(readBuffer3[0]);
+    // printfHex(readBuffer3[1]);
+    // printf("]\n");
+    // printf("=== Reading existing sector 0 ===\n");
+    // char existingData[512] = {0};
+    // ata0m.Read28(0, (uint8_t*)existingData, 512);  // Read full sector
+    //
+    // printf("First 16 bytes of sector 0: ");
+    // for(int i = 0; i < 16; i++) {
+    //   printfHex(existingData[i]);
+    //   printf(" ");
+    // }
+    // printf("\n");
+
+    // Clean test
+    printf("=== CLEAN TEST ===\n");
+
+    // Delete the old Image.img and create fresh one before running QEMU
+
+    char buf[512] = {0};
+    buf[0] = 'Z';
+    buf[1] = 'Z';
+
+    printf("Writing ZZ to sector 5...\n");
+    ata0m.Write28(1, (uint8_t*)buf, 2);
+    ata0m.Flush();
+
+    char read[512] = {0};
+    printf("Reading sector 5...\n");
+    ata0m.Read28(1, (uint8_t*)read, 2);
+
+    printf("Result: [");
+    printfHex(read[0]);
+    printfHex(read[1]);
+    printf("]\n");
+
+    printf("=== FOLLOWUP TEST ===\n");
+
+    // Delete the old Image.img and create fresh one before running QEMU
+
+    char buf2[512] = {0};
+    buf2[0] = '2';
+    buf2[1] = '3';
+
+    printf("Writing 23 to sector 5...\n");
+    ata0m.Write28(5, (uint8_t*)buf2, 2);
+    ata0m.Flush();
+
+    char read2[512] = {0};
+    printf("Reading sector 5...\n");
+    ata0m.Read28(5, (uint8_t*)read2, 2);
+
+    printf("Result: [");
+    printfHex(read2[0]);
+    printfHex(read2[1]);
+    printf("]\n");
+
+    printf("=== FOLLOWUP TEST 2 ===\n");
+
+    // Delete the old Image.img and create fresh one before running QEMU
+
+    char buf3[512] = {0};
+    buf3[0] = 'a';
+    buf3[1] = 'b';
+
+    printf("Writing ab to sector 5...\n");
+    ata0m.Write28(5, (uint8_t*)buf3, 2);
+    ata0m.Flush();
+
+    char read3[512] = {0};
+    printf("Reading sector 5...\n");
+    ata0m.Read28(5, (uint8_t*)read3, 2);
+
+    printf("Result: [");
+    printfHex(read3[0]);
+    printfHex(read3[1]);
+    printf("]\n");
+
+    printf("=== CLEAN TEST ===\n");
+
+    // Delete the old Image.img and create fresh one before running QEMU
+
+    // char buf[512] = {0};
+    buf[0] = 'Z';
+    buf[1] = 'Z';
+
+    printf("Writing ZZ to sector 1...\n");
+    ata0m.Write28(1, (uint8_t*)buf, 2);
+    ata0m.Flush();
+
+    // char read[512] = {0};
+    printf("Reading sector 1...\n");
+    ata0m.Read28(1, (uint8_t*)read, 2);
+
+    printf("Result: [");
+    printfHex(read[0]);
+    printfHex(read[1]);
+    printf("]\n");
+
+    printf("=== CLEAN TEST ===\n");
+    // Delete the old Image.img and create fresh one before running QEMU
+
+    // char buf[512] = {0};
+    buf[0] = 'h';
+    buf[1] = 'i';
+
+    printf("Writing hi to sector 1...\n");
+    ata0m.Write28(1, (uint8_t*)buf, 2);
+    ata0m.Flush();
+
+    // char read[512] = {0};
+    printf("Reading sector 1...\n");
+    ata0m.Read28(1, (uint8_t*)read, 2);
+
+    printf("Result: [");
+    printfHex(read[0]);
+    printfHex(read[1]);
+    printf("]\n");
+
+    printf("=== CLEAN TEST ===\n");
+    // Delete the old Image.img and create fresh one before running QEMU
+
+    // char buf[512] = {0};
+    buf[0] = 'x';
+    buf[1] = 'o';
+
+    printf("Writing hi to sector 0...\n");
+    ata0m.Write28(0, (uint8_t*)buf, 2);
+    ata0m.Flush();
+
+    // char read[512] = {0};
+    printf("Reading sector 0...\n");
+    ata0m.Read28(0, (uint8_t*)read, 2);
+
+    printf("Result: [");
+    printfHex(read[0]);
+    printfHex(read[1]);
+    printf("]\n");
+
+
     // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
     AdvancedTechnologyAttachment ata1m(0x170, true);
     AdvancedTechnologyAttachment ata1s(0x170, false);
 
+#ifdef NETWORK
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {
       if (drvManager.drivers[i] != 0) {
         if (i == 2) {
           eth0 = (amd_am79c973*) drvManager.drivers[i];
-          printf("Found eth0 ");
+          // printf("Found eth0 ");
           break;
         }
       }
@@ -295,6 +493,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       // printf("Packet sent\n");
     }
 
+#endif
 
 
 #ifdef GRAPHICSMODE
