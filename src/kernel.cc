@@ -14,6 +14,8 @@
 #include <multitasking.h>
 #include <drivers/amd_am79c973.h>
 
+#include <sys/io.h>
+
 
 using namespace os;
 using namespace os::common;
@@ -230,12 +232,16 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       drvManager.ActivateAll();
 
     // printf("Initializing Hardware, Stage 3\n");
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
     hardwarecommunication::Port8Bit pic2Mask(0xA1);
     uint8_t mask = pic2Mask.Read();
 
     mask |= 0xC0;
     pic2Mask.Write(mask);
+<<<<<<< HEAD
    
     // primary ATA, interrupt 14
     AdvancedTechnologyAttachment ata0m(0x1F0, true);
@@ -463,6 +469,34 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
     AdvancedTechnologyAttachment ata1m(0x170, true);
     AdvancedTechnologyAttachment ata1s(0x170, false);
+=======
+    
+    printf("\nS-ATA primary master: ");
+    AdvancedTechnologyAttachment ata0m(true, 0x1F0);
+    // ata0m.Identify();
+    
+    printf("\nS-ATA primary slave: ");
+    AdvancedTechnologyAttachment ata0s(false, 0x1F0);
+    // ata0s.Identify();
+    printf("\n\n\n");
+    ata0m.Write28(0, (uint8_t*)"http://www.AlgorithMan.de", 25, 0);
+    printf("\n");
+    ata0m.Flush();
+    ata0m.Read28(0, (uint8_t*)"http://www.AlgorithMan.de", 25, 0);
+    printf("\n");
+    
+    // printf("\nS-ATA secondary master: ");
+    // AdvancedTechnologyAttachment ata1m(true, 0x170);
+    // ata1m.Identify();
+    //
+    // printf("\nS-ATA secondary slave: ");
+    // AdvancedTechnologyAttachment ata1s(false, 0x170);
+    // ata1s.Identify();
+  
+    // // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
+    // AdvancedTechnologyAttachment ata1m(0x170, true);
+    // AdvancedTechnologyAttachment ata1s(0x170, false);
+>>>>>>> main
 
 #ifdef NETWORK
     amd_am79c973* eth0 = 0;

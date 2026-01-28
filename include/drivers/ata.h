@@ -2,38 +2,48 @@
 #define __OS__DRIVERS__ATA_H
 
 #include <drivers/driver.h>
-#include <common/types.h>
 #include <hardwarecommunication/port.h>
+#include <hardwarecommunication/interrupts.h>
+#include <common/types.h>
+
 
 namespace os {
-  namespace drivers {
 
-    class AdvancedTechnologyAttachment {
-      protected:
-        hardwarecommunication::Port16Bit dataPort;
-        hardwarecommunication::Port16Bit errorPort;
-        hardwarecommunication::Port16Bit sectorCountPort;
-        hardwarecommunication::Port16Bit lbaLowPort;
-        hardwarecommunication::Port16Bit lbaMidPort;
-        hardwarecommunication::Port16Bit lbaHiPort;
-        hardwarecommunication::Port16Bit devicePort;
-        hardwarecommunication::Port16Bit commandPort;
-        hardwarecommunication::Port16Bit controlPort;
-        bool master;
+	namespace drivers {
 
-        common::uint16_t bytesPerSector; // NOTE: hardcoded to 512 bytes
+		class AdvancedTechnologyAttachment : public Driver {
+		
+			//protected:
+			public:
+				hardwarecommunication::Port16Bit dataPort;
+				hardwarecommunication::Port8Bit errorPort;
+				hardwarecommunication::Port8Bit sectorCountPort;
+				hardwarecommunication::Port8Bit lbaLowPort;
+				hardwarecommunication::Port8Bit lbaMidPort;
+				hardwarecommunication::Port8Bit lbaHiPort;
+				hardwarecommunication::Port8Bit devicePort;
+				hardwarecommunication::Port8Bit commandPort;
+				hardwarecommunication::Port8Bit controlPort;
 
-      public:
-        AdvancedTechnologyAttachment(common::uint16_t portBase, bool master);
-        ~AdvancedTechnologyAttachment();
+				bool master;
+				common::uint16_t bytesPerSector;
 
-        void Identify();
-        void Read28(common::uint32_t sector, common::uint8_t* data, int count);
-        void Write28(common::uint32_t sector, common::uint8_t* data, int count);
-        void Flush();
-    };
+			public:
+				AdvancedTechnologyAttachment(common::uint16_t portBase, bool master);
+				~AdvancedTechnologyAttachment();
 
-  }
+				bool Identify();
+				void Read28(common::uint32_t sector, common::uint8_t* data, int count, int offset);
+				void Write28(common::uint32_t sector, common::uint8_t* data, int count, int offset);
+				void Flush();
+
+				
+				
+				
+				void ReadPrintSector(common::uint32_t sector, int count);
+				void WritePrintSector(common::uint32_t sector, common::uint8_t* data, int count);
+		};
+	}
 }
 
-#endif 
+#endif

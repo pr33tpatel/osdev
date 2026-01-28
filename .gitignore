@@ -3,4 +3,7 @@ wyoos/
 .cache/clangd/
 dev_scripts/
 Image.img
+*.img
+*.o
+*.bin
 
