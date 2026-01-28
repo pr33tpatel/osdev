@@ -239,16 +239,16 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     
     printf("\nS-ATA primary master: ");
     AdvancedTechnologyAttachment ata0m(true, 0x1F0);
-    ata0m.Identify();
+    // ata0m.Identify();
     
     printf("\nS-ATA primary slave: ");
     AdvancedTechnologyAttachment ata0s(false, 0x1F0);
-    ata0s.Identify();
+    // ata0s.Identify();
     printf("\n\n\n");
-    ata0s.Write28(0, (uint8_t*)"http://www.AlgorithMan.de", 25);
+    ata0m.Write28(0, (uint8_t*)"http://www.AlgorithMan.de", 25, 0);
     printf("\n");
-    ata0s.Flush();
-    ata0s.Read28(0);
+    ata0m.Flush();
+    ata0m.Read28(0, (uint8_t*)"http://www.AlgorithMan.de", 25, 0);
     printf("\n");
     
     // printf("\nS-ATA secondary master: ");
