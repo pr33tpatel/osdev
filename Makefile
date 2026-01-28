@@ -57,6 +57,9 @@ kernel-run-qemu-fix: mykernel.iso
 kernel-run-qemu-fix-no-network: mykernel.iso
 	qemu-system-i386 -cdrom mykernel.iso  -m 512 -smp 1 -net none
 
+Image.img:
+	qemu-img create -f raw Image.img 128M
+
 kernel-run-qemu-fix-debug: mykernel.iso Image.img
 	qemu-system-i386 \
 		-cdrom mykernel.iso \
@@ -64,8 +67,8 @@ kernel-run-qemu-fix-debug: mykernel.iso Image.img
 		-m 512 \
 		-smp 1 \
 		-net nic,model=pcnet \
-		-drive id=disk,file=Image.img,format=raw,if=none \
-		-device piix4-ide,id=piix4 -device ide-hd,drive=disk,bus=piix4.0
+		-drive id=disk,file=Image.img,format=raw,if=ide,index=0
+		# -device piix4-ide,id=piix4 -device ide-hd,drive=disk,bus=piix4.0
 
 
 mykernel.iso: mykernel.bin
@@ -83,8 +86,6 @@ mykernel.iso: mykernel.bin
 	grub-mkrescue --output=mykernel.iso iso
 	rm -rf iso
 	
-	qemu-img create -f qcow2 Image.img 128M
-	dd if=mykernel.iso of=Image.img
 
 kernel-debug: mykernel.bin
 	qemu-system-i386 -kernel mykernel.bin -no-reboot -no-shutdown -serial stdio -d cpu,int
