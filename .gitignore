@@ -2,10 +2,13 @@ wyoos/
 .Trash-1000
 .cache/clangd/
 dev_scripts/
+.clangd
 Image.img
+compile_commands.json
 *.img
 *.o
 *.bin
+
 
 *.o
 *.bin
