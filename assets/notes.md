@@ -1,28 +1,28 @@
 TODO:
-- improve text mode:
-    [ ] add scrolling feature
-    [ ] CLI
-    [ ] better fonts
+- [ ] improve text mode:
+    - [ ] add scrolling feature
+    - [ ] CLI
+    - [ ] better fonts
 
-- create an include/utils/
-    [ ] print.h
-    [ ] math.h
-    [ ] string.h
-    [ ] memory.h
-    [ ] buffer.h
-    [ ] bitmap.h
-- create a test/
-    [ ] test_framework.h
-    [ ] test_runner.cc
-    [ ] hardware/test_{ata,keyboard,mouse,network}.cc
-    [ ] memory/test_{heap,memcpy}.cc
-    [ ] filesystem/test_{io,directory}.cc
-    [ ] system/test_{multitask,syscalls,interrupts}.cc
-    [ ] utils/test_{math,string,print}.cc
-    [ ] benchmarks/benchmarks_{disk,memory,task}.cc
+- [ ] create an include/utils/
+    - [ ] print.h
+    - [ ] math.h
+    - [ ] string.h
+    - [ ] memory.h
+    - [ ] buffer.h
+    - [ ] bitmap.h
+- [ ] create a test/
+    - [ ] test_framework.h
+    - [ ] test_runner.cc
+    - [ ] hardware/test_{ata,keyboard,mouse,network}.cc
+    - [ ] memory/test_{heap,memcpy}.cc
+    - [ ] filesystem/test_{io,directory}.cc
+    - [ ] system/test_{multitask,syscalls,interrupts}.cc
+    - [ ] utils/test_{math,string,print}.cc
+    - [ ] benchmarks/benchmarks_{disk,memory,task}.cc
 
-[ ] change the hard drive driver design from PiO (program i/o) to DMA (direct memory access)
-[ ] make the mouse cursor a crosshair (center dot, outer circle, 4 tick marks in cardinal directions)
+- [ ] change the hard drive driver design from PiO (program i/o) to DMA (direct memory access)
+- [ ] make the mouse cursor a crosshair (center dot, outer circle, 4 tick marks in cardinal directions)
 
 EXTRA:
 - name maybe "DracOS" // pronounced dracos
