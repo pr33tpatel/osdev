@@ -232,25 +232,24 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       drvManager.ActivateAll();
 
     // printf("Initializing Hardware, Stage 3\n");
-<<<<<<< HEAD
 
-=======
->>>>>>> main
     hardwarecommunication::Port8Bit pic2Mask(0xA1);
     uint8_t mask = pic2Mask.Read();
 
     mask |= 0xC0;
     pic2Mask.Write(mask);
-<<<<<<< HEAD
    
     // primary ATA, interrupt 14
     AdvancedTechnologyAttachment ata0m(0x1F0, true);
-    // printf("ATA PRIMARY MASTER: ");
-    ata0m.Identify();
+    if (ata0m.Identify())
+      printf("ATA PRIMARY MASTER FOUND\n");
 
-    AdvancedTechnologyAttachment ata0s(0x1F0, false);
-    // printf("ATA PRIMARY SLAVE: ");
-    ata0s.Identify();
+
+    // AdvancedTechnologyAttachment ata0s(0x1F0, false);
+    // if (ata0s.Identify())
+    //   printf("ATA PRIMARY SLAVE: ");
+    // else 
+    //   printf("ATA PRIMARY SLAVE NOT FOUND\n");
 
     // char writeBuffer[512] = {0};
     // writeBuffer[0] = 'H';
@@ -341,94 +340,94 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // printf("\n");
 
     // Clean test
+    // printf("=== CLEAN TEST ===\n");
+    //
+    // // Delete the old Image.img and create fresh one before running QEMU
+    //
+    // char buf[512] = {0};
+    // buf[0] = 'Z';
+    // buf[1] = 'Z';
+    //
+    // printf("Writing ZZ to sector 5...\n");
+    // ata0m.Write28(1, (uint8_t*)buf, 2);
+    // ata0m.Flush();
+    //
+    // char read[512] = {0};
+    // printf("Reading sector 5...\n");
+    // ata0m.Read28(1, (uint8_t*)read, 2);
+    //
+    // printf("Result: [");
+    // printfHex(read[0]);
+    // printfHex(read[1]);
+    // printf("]\n");
+    //
+    // printf("=== FOLLOWUP TEST ===\n");
+    //
+    // // Delete the old Image.img and create fresh one before running QEMU
+    //
+    // char buf2[512] = {0};
+    // buf2[0] = '2';
+    // buf2[1] = '3';
+    //
+    // printf("Writing 23 to sector 5...\n");
+    // ata0m.Write28(5, (uint8_t*)buf2, 2);
+    // ata0m.Flush();
+    //
+    // char read2[512] = {0};
+    // printf("Reading sector 5...\n");
+    // ata0m.Read28(5, (uint8_t*)read2, 2);
+    //
+    // printf("Result: [");
+    // printfHex(read2[0]);
+    // printfHex(read2[1]);
+    // printf("]\n");
+    //
+    // printf("=== FOLLOWUP TEST 2 ===\n");
+    //
+    // // Delete the old Image.img and create fresh one before running QEMU
+    //
+    // char buf3[512] = {0};
+    // buf3[0] = 'a';
+    // buf3[1] = 'b';
+    //
+    // printf("Writing ab to sector 5...\n");
+    // ata0m.Write28(5, (uint8_t*)buf3, 2);
+    // ata0m.Flush();
+    //
+    // char read3[512] = {0};
+    // printf("Reading sector 5...\n");
+    // ata0m.Read28(5, (uint8_t*)read3, 2);
+    //
+    // printf("Result: [");
+    // printfHex(read3[0]);
+    // printfHex(read3[1]);
+    // printf("]\n");
+    //
+    // printf("=== CLEAN TEST ===\n");
+    //
+    // // Delete the old Image.img and create fresh one before running QEMU
+    //
+    // // char buf[512] = {0};
+    // buf[0] = 'Z';
+    // buf[1] = 'Z';
+    //
+    // printf("Writing ZZ to sector 1...\n");
+    // ata0m.Write28(1, (uint8_t*)buf, 2);
+    // ata0m.Flush();
+    //
+    // // char read[512] = {0};
+    // printf("Reading sector 1...\n");
+    // ata0m.Read28(1, (uint8_t*)read, 2);
+    //
+    // printf("Result: [");
+    // printfHex(read[0]);
+    // printfHex(read[1]);
+    // printf("]\n");
+    //
     printf("=== CLEAN TEST ===\n");
-
     // Delete the old Image.img and create fresh one before running QEMU
 
     char buf[512] = {0};
-    buf[0] = 'Z';
-    buf[1] = 'Z';
-
-    printf("Writing ZZ to sector 5...\n");
-    ata0m.Write28(1, (uint8_t*)buf, 2);
-    ata0m.Flush();
-
-    char read[512] = {0};
-    printf("Reading sector 5...\n");
-    ata0m.Read28(1, (uint8_t*)read, 2);
-
-    printf("Result: [");
-    printfHex(read[0]);
-    printfHex(read[1]);
-    printf("]\n");
-
-    printf("=== FOLLOWUP TEST ===\n");
-
-    // Delete the old Image.img and create fresh one before running QEMU
-
-    char buf2[512] = {0};
-    buf2[0] = '2';
-    buf2[1] = '3';
-
-    printf("Writing 23 to sector 5...\n");
-    ata0m.Write28(5, (uint8_t*)buf2, 2);
-    ata0m.Flush();
-
-    char read2[512] = {0};
-    printf("Reading sector 5...\n");
-    ata0m.Read28(5, (uint8_t*)read2, 2);
-
-    printf("Result: [");
-    printfHex(read2[0]);
-    printfHex(read2[1]);
-    printf("]\n");
-
-    printf("=== FOLLOWUP TEST 2 ===\n");
-
-    // Delete the old Image.img and create fresh one before running QEMU
-
-    char buf3[512] = {0};
-    buf3[0] = 'a';
-    buf3[1] = 'b';
-
-    printf("Writing ab to sector 5...\n");
-    ata0m.Write28(5, (uint8_t*)buf3, 2);
-    ata0m.Flush();
-
-    char read3[512] = {0};
-    printf("Reading sector 5...\n");
-    ata0m.Read28(5, (uint8_t*)read3, 2);
-
-    printf("Result: [");
-    printfHex(read3[0]);
-    printfHex(read3[1]);
-    printf("]\n");
-
-    printf("=== CLEAN TEST ===\n");
-
-    // Delete the old Image.img and create fresh one before running QEMU
-
-    // char buf[512] = {0};
-    buf[0] = 'Z';
-    buf[1] = 'Z';
-
-    printf("Writing ZZ to sector 1...\n");
-    ata0m.Write28(1, (uint8_t*)buf, 2);
-    ata0m.Flush();
-
-    // char read[512] = {0};
-    printf("Reading sector 1...\n");
-    ata0m.Read28(1, (uint8_t*)read, 2);
-
-    printf("Result: [");
-    printfHex(read[0]);
-    printfHex(read[1]);
-    printf("]\n");
-
-    printf("=== CLEAN TEST ===\n");
-    // Delete the old Image.img and create fresh one before running QEMU
-
-    // char buf[512] = {0};
     buf[0] = 'h';
     buf[1] = 'i';
 
@@ -436,7 +435,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     ata0m.Write28(1, (uint8_t*)buf, 2);
     ata0m.Flush();
 
-    // char read[512] = {0};
+    char read[512] = {0};
     printf("Reading sector 1...\n");
     ata0m.Read28(1, (uint8_t*)read, 2);
 
@@ -465,25 +464,27 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printfHex(read[1]);
     printf("]\n");
 
+    printf("=== CLEAN TEST ===\n");
+    // Delete the old Image.img and create fresh one before running QEMU
 
-    // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
-    AdvancedTechnologyAttachment ata1m(0x170, true);
-    AdvancedTechnologyAttachment ata1s(0x170, false);
-=======
-    
-    printf("\nS-ATA primary master: ");
-    AdvancedTechnologyAttachment ata0m(true, 0x1F0);
-    // ata0m.Identify();
-    
-    printf("\nS-ATA primary slave: ");
-    AdvancedTechnologyAttachment ata0s(false, 0x1F0);
-    // ata0s.Identify();
-    printf("\n\n\n");
-    ata0m.Write28(0, (uint8_t*)"http://www.AlgorithMan.de", 25, 0);
-    printf("\n");
+    // char buf[512] = {0};
+    buf[0] = 'o';
+    buf[1] = 'p';
+
+    printf("Writing ab to sector 0...\n");
+    ata0m.Write28(0, (uint8_t*)buf, 2);
     ata0m.Flush();
-    ata0m.Read28(0, (uint8_t*)"http://www.AlgorithMan.de", 25, 0);
-    printf("\n");
+
+    // char read[512] = {0};
+    printf("Reading sector 0...\n");
+    ata0m.Read28(0, (uint8_t*)read, 2);
+
+    printf("Result: [");
+    printfHex(read[0]);
+    printfHex(read[1]);
+    printf("]\n");
+
+
     
     // printf("\nS-ATA secondary master: ");
     // AdvancedTechnologyAttachment ata1m(true, 0x170);
@@ -496,7 +497,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
     // AdvancedTechnologyAttachment ata1m(0x170, true);
     // AdvancedTechnologyAttachment ata1s(0x170, false);
->>>>>>> main
 
 #ifdef NETWORK
     amd_am79c973* eth0 = 0;

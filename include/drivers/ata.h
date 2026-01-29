@@ -33,8 +33,8 @@ namespace os {
 				~AdvancedTechnologyAttachment();
 
 				bool Identify();
-				void Read28(common::uint32_t sector, common::uint8_t* data, int count, int offset);
-				void Write28(common::uint32_t sector, common::uint8_t* data, int count, int offset);
+				void Read28(common::uint32_t sector, common::uint8_t* data, int count);
+				void Write28(common::uint32_t sector, common::uint8_t* data, int count);
 				void Flush();
 
 				
