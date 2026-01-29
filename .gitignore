@@ -5,6 +5,7 @@ dev_scripts/
 .clangd
 Image.img
 compile_commands.json
+grub.cfg
 *.img
 *.o
 *.bin
