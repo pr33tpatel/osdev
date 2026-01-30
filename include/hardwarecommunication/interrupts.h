@@ -16,10 +16,11 @@ namespace os {
     class InterruptHandler
     {
       protected:
-        os::common::uint8_t InterruptNumber;
-        InterruptManager* interruptManager;
         InterruptHandler(InterruptManager* interruptManager, os::common::uint8_t InterruptNumber);
         ~InterruptHandler();
+
+        os::common::uint8_t InterruptNumber;
+        InterruptManager* interruptManager;
       public:
         virtual os::common::uint32_t HandleInterrupt(os::common::uint32_t esp);
         
@@ -79,6 +80,8 @@ namespace os {
       static void HandleInterruptRequest0x0F();
       static void HandleInterruptRequest0x31();
 
+      static void HandleInterruptRequest0x80();
+
       static void HandleException0x00();
       static void HandleException0x01();
       static void HandleException0x02();
@@ -99,6 +102,7 @@ namespace os {
       static void HandleException0x11();
       static void HandleException0x12();
       static void HandleException0x13();
+
 
       static os::common::uint32_t HandleInterrupt(os::common::uint8_t interrupt, os::common::uint32_t esp);
       os::common::uint32_t DoHandleInterrupt(os::common::uint8_t interrupt, os::common::uint32_t esp);

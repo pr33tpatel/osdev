@@ -2,6 +2,7 @@
 #include <gdt.h>
 #include <memorymanagement.h>
 #include <hardwarecommunication/interrupts.h>
+#include <syscalls.h>
 #include <hardwarecommunication/pci.h>
 #include <drivers/keyboard.h>
 #include <drivers/mouse.h>
@@ -14,7 +15,6 @@
 #include <multitasking.h>
 #include <drivers/amd_am79c973.h>
 
-// #include <sys/io.h>
 
 
 using namespace os;
@@ -131,23 +131,36 @@ class MouseToConsole : public MouseEventHandler {
 };
 
 
+// void sysprintf(char* str) {
+//   asm("int $0x80" : : "a" (4), "b" (str));
+// }
 // multitasking test functions, 
 // TODO: move to test/system/multitasking.cc
 void taskA() {
+  /*
   while(true) {
     printf("A");
     for (int i =0; i < 100000000; i++);
     // asm("sti");
   }
+  */
+  while(true){
+    sysprintf("A");
+  }
 }
 void taskB() {
+  /*
   while(true) {
     printf("B"); 
     for (int i =0; i < 100000000; i++);
     // asm("sti");
   }
-
+  */
+  while(true) {
+    sysprintf("B");
+  }
 }
+
 
 
 
@@ -195,14 +208,13 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
    
      // Multitasking/
     TaskManager taskManager;
-    /*
     Task task1(&gdt, taskA);
     Task task2(&gdt, taskB);
     taskManager.AddTask(&task1);
     taskManager.AddTask(&task2);
-    */
 
     InterruptManager interrupts(0x20, &gdt, &taskManager);
+    SyscallHandler syscalls(&interrupts, 0x80);
 
     // printf("Initializing Hardware, Stage 1\n");
 #ifdef GRAPHICSMODE 
@@ -247,250 +259,10 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     pic2Mask.Write(mask);
    
     // primary ATA, interrupt 14
-    AdvancedTechnologyAttachment ata0m(0x1F0, true);
-    if (ata0m.Identify())
-      printf("ATA PRIMARY MASTER FOUND\n");
+    // AdvancedTechnologyAttachment ata0m(0x1F0, true);
+    // if (ata0m.Identify())
+    //   printf("ATA PRIMARY MASTER FOUND\n");
 
-
-    // AdvancedTechnologyAttachment ata0s(0x1F0, false);
-    // if (ata0s.Identify())
-    //   printf("ATA PRIMARY SLAVE: ");
-    // else 
-    //   printf("ATA PRIMARY SLAVE NOT FOUND\n");
-
-    // char writeBuffer[512] = {0};
-    // writeBuffer[0] = 'H';
-    // writeBuffer[1] = 'i';
-    //
-    // ata0m.Write28(0,(uint8_t*)writeBuffer ,2);
-    // ata0m.Flush();
-    //
-    // for (int i =0 ; i< 10000000; i++);
-    //
-    // char readBuffer[512] = {0};
-    //
-    // ata0m.Read28(0, (uint8_t*)readBuffer, 2);
-    //
-    // printf("Write To: [");
-    // // printf(readBuffer);
-    // printfHex(writeBuffer[0]);
-    // printfHex(writeBuffer[1]);
-    // printf("]\n");
-    // printf("Read Back: [");
-    // // printf(readBuffer);
-    // printfHex(readBuffer[0]);
-    // printfHex(readBuffer[1]);
-    // printf("]\n");
- 
-    // Test 1: Write and read immediately (same boot)
-    // printf("=== TEST 1: Write and immediate read ===");
-    // char writeBuffer1[512] = {0};
-    // writeBuffer1[0] = 'A';
-    // writeBuffer1[1] = 'B';
-    //
-    // ata0m.Write28(0, (uint8_t*)writeBuffer1, 2);
-    // ata0m.Flush();
-    //
-    // char readBuffer1[512] = {0};
-    // ata0m.Read28(0, (uint8_t*)readBuffer1, 2);
-    //
-    // printf("Wrote: [");
-    // printfHex(writeBuffer1[0]);
-    // printfHex(writeBuffer1[1]);
-    // printf("], ");
-    //
-    // printf("Read: [");
-    // printfHex(readBuffer1[0]);
-    // printfHex(readBuffer1[1]);
-    // printf("]\n");
-
-    // Test 2: Try a different sector
-    // printf("=== TEST 2: Write to sector 1 ===");
-    // char writeBuffer2[512] = {0};
-    // writeBuffer2[0] = 'X';
-    // writeBuffer2[1] = 'Y';
-    //
-    // ata0m.Write28(1, (uint8_t*)writeBuffer2, 2);  // Different sector
-    // ata0m.Flush();
-    //
-    // char readBuffer2[512] = {0};
-    // ata0m.Read28(1, (uint8_t*)readBuffer2, 2);
-    //
-    // printf("Wrote: [");
-    // printfHex(writeBuffer2[0]);
-    // printfHex(writeBuffer2[1]);
-    // printf("], ");
-    //
-    // printf("Read: [");
-    // printfHex(readBuffer2[0]);
-    // printfHex(readBuffer2[1]);
-    // printf("]\n");
-
-    // Test 3: Read sector 0 again to see if Test 1 data is still there
-    // printf("=== TEST 3: Re-read sector 0 ===");
-    // char readBuffer3[512] = {0};
-    // ata0m.Read28(0, (uint8_t*)readBuffer3, 2);
-    //
-    // printf("Read: [");
-    // printfHex(readBuffer3[0]);
-    // printfHex(readBuffer3[1]);
-    // printf("]\n");
-    // printf("=== Reading existing sector 0 ===\n");
-    // char existingData[512] = {0};
-    // ata0m.Read28(0, (uint8_t*)existingData, 512);  // Read full sector
-    //
-    // printf("First 16 bytes of sector 0: ");
-    // for(int i = 0; i < 16; i++) {
-    //   printfHex(existingData[i]);
-    //   printf(" ");
-    // }
-    // printf("\n");
-
-    // Clean test
-    // printf("=== CLEAN TEST ===\n");
-    //
-    // // Delete the old Image.img and create fresh one before running QEMU
-    //
-    // char buf[512] = {0};
-    // buf[0] = 'Z';
-    // buf[1] = 'Z';
-    //
-    // printf("Writing ZZ to sector 5...\n");
-    // ata0m.Write28(1, (uint8_t*)buf, 2);
-    // ata0m.Flush();
-    //
-    // char read[512] = {0};
-    // printf("Reading sector 5...\n");
-    // ata0m.Read28(1, (uint8_t*)read, 2);
-    //
-    // printf("Result: [");
-    // printfHex(read[0]);
-    // printfHex(read[1]);
-    // printf("]\n");
-    //
-    // printf("=== FOLLOWUP TEST ===\n");
-    //
-    // // Delete the old Image.img and create fresh one before running QEMU
-    //
-    // char buf2[512] = {0};
-    // buf2[0] = '2';
-    // buf2[1] = '3';
-    //
-    // printf("Writing 23 to sector 5...\n");
-    // ata0m.Write28(5, (uint8_t*)buf2, 2);
-    // ata0m.Flush();
-    //
-    // char read2[512] = {0};
-    // printf("Reading sector 5...\n");
-    // ata0m.Read28(5, (uint8_t*)read2, 2);
-    //
-    // printf("Result: [");
-    // printfHex(read2[0]);
-    // printfHex(read2[1]);
-    // printf("]\n");
-    //
-    // printf("=== FOLLOWUP TEST 2 ===\n");
-    //
-    // // Delete the old Image.img and create fresh one before running QEMU
-    //
-    // char buf3[512] = {0};
-    // buf3[0] = 'a';
-    // buf3[1] = 'b';
-    //
-    // printf("Writing ab to sector 5...\n");
-    // ata0m.Write28(5, (uint8_t*)buf3, 2);
-    // ata0m.Flush();
-    //
-    // char read3[512] = {0};
-    // printf("Reading sector 5...\n");
-    // ata0m.Read28(5, (uint8_t*)read3, 2);
-    //
-    // printf("Result: [");
-    // printfHex(read3[0]);
-    // printfHex(read3[1]);
-    // printf("]\n");
-    //
-    // printf("=== CLEAN TEST ===\n");
-    //
-    // // Delete the old Image.img and create fresh one before running QEMU
-    //
-    // // char buf[512] = {0};
-    // buf[0] = 'Z';
-    // buf[1] = 'Z';
-    //
-    // printf("Writing ZZ to sector 1...\n");
-    // ata0m.Write28(1, (uint8_t*)buf, 2);
-    // ata0m.Flush();
-    //
-    // // char read[512] = {0};
-    // printf("Reading sector 1...\n");
-    // ata0m.Read28(1, (uint8_t*)read, 2);
-    //
-    // printf("Result: [");
-    // printfHex(read[0]);
-    // printfHex(read[1]);
-    // printf("]\n");
-    //
-    printf("=== CLEAN TEST ===\n");
-    // Delete the old Image.img and create fresh one before running QEMU
-
-    char buf[512] = {0};
-    buf[0] = 'h';
-    buf[1] = 'i';
-
-    printf("Writing hi to sector 1...\n");
-    ata0m.Write28(1, (uint8_t*)buf, 2);
-    ata0m.Flush();
-
-    char read[512] = {0};
-    printf("Reading sector 1...\n");
-    ata0m.Read28(1, (uint8_t*)read, 2);
-
-
-    printf("Result: [");
-    printfHex(read[0]);
-    printfHex(read[1]);
-    printf("]\n");
-
-    printf("=== CLEAN TEST ===\n");
-    // Delete the old Image.img and create fresh one before running QEMU
-
-    // char buf[512] = {0};
-    buf[0] = 'x';
-    buf[1] = 'o';
-
-    printf("Writing hi to sector 0...\n");
-    ata0m.Write28(0, (uint8_t*)buf, 2);
-    ata0m.Flush();
-
-    // char read[512] = {0};
-    printf("Reading sector 0...\n");
-    ata0m.Read28(0, (uint8_t*)read, 2);
-
-    printf("Result: [");
-    printfHex(read[0]);
-    printfHex(read[1]);
-    printf("]\n");
-
-    printf("=== CLEAN TEST ===\n");
-    // Delete the old Image.img and create fresh one before running QEMU
-
-    // char buf[512] = {0};
-    buf[0] = 'o';
-    buf[1] = 'p';
-
-    printf("Writing ab to sector 0...\n");
-    ata0m.Write28(0, (uint8_t*)buf, 2);
-    ata0m.Flush();
-
-    // char read[512] = {0};
-    printf("Reading sector 0...\n");
-    ata0m.Read28(0, (uint8_t*)read, 2);
-
-    printf("Result: [");
-    printfHex(read[0]);
-    printfHex(read[1]);
-    printf("]\n");
 
 
     
