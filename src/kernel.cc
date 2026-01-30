@@ -14,7 +14,7 @@
 #include <multitasking.h>
 #include <drivers/amd_am79c973.h>
 
-#include <sys/io.h>
+// #include <sys/io.h>
 
 
 using namespace os;
@@ -28,6 +28,8 @@ using namespace os::gui;
 // #define GRAPHICSMODE 
 // #define NETWORK
 
+
+// TODO: move print functions to utils/print.h
 void printf(const char* str)
 {
   static uint16_t* VideoMemory = (uint16_t*)0xb8000;
@@ -78,6 +80,9 @@ void printfHex8Bytes(uint8_t key) {
 
 }
 
+
+// Console Event Handlers
+
 class PrintfKeyboardEventHandler : public KeyboardEventHandler {
   public:
     void OnKeyDown(char c) {
@@ -126,6 +131,8 @@ class MouseToConsole : public MouseEventHandler {
 };
 
 
+// multitasking test functions, 
+// TODO: move to test/system/multitasking.cc
 void taskA() {
   while(true) {
     printf("A");
@@ -439,6 +446,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Reading sector 1...\n");
     ata0m.Read28(1, (uint8_t*)read, 2);
 
+
     printf("Result: [");
     printfHex(read[0]);
     printfHex(read[1]);
@@ -486,18 +494,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
 
     
-    // printf("\nS-ATA secondary master: ");
-    // AdvancedTechnologyAttachment ata1m(true, 0x170);
-    // ata1m.Identify();
-    //
-    // printf("\nS-ATA secondary slave: ");
-    // AdvancedTechnologyAttachment ata1s(false, 0x170);
-    // ata1s.Identify();
-  
-    // // secondary ATA interrupt 15, NOTE: if exists, thrid = 0x1E8, fourth = 0x168
-    // AdvancedTechnologyAttachment ata1m(0x170, true);
-    // AdvancedTechnologyAttachment ata1s(0x170, false);
-
 #ifdef NETWORK
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {

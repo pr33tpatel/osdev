@@ -4,6 +4,14 @@ TODO:
     - [ ] CLI
     - [ ] better fonts
 
+- [ ] DracOS Network:
+    - [ ] UDP
+    - [ ] TCP/IP
+    - [ ] basic html
+
+- [ ] Processes & Threads:
+    - [ ] assign userID and PID to each process created
+
 - [ ] create an include/utils/
     - [ ] print.h
     - [ ] math.h
@@ -11,6 +19,7 @@ TODO:
     - [ ] memory.h
     - [ ] buffer.h
     - [ ] bitmap.h
+    
 - [ ] create a test/
     - [ ] test_framework.h
     - [ ] test_runner.cc
@@ -20,6 +29,10 @@ TODO:
     - [ ] system/test_{multitask,syscalls,interrupts}.cc
     - [ ] utils/test_{math,string,print}.cc
     - [ ] benchmarks/benchmarks_{disk,memory,task}.cc
+
+
+- [ ] Graphics:
+    - [ ] name: ... 
 
 - [ ] change the hard drive driver design from PiO (program i/o) to DMA (direct memory access)
 - [ ] make the mouse cursor a crosshair (center dot, outer circle, 4 tick marks in cardinal directions)
