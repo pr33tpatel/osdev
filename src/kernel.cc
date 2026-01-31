@@ -13,7 +13,9 @@
 #include <gui/window.h>
 #include <common/utils.h>
 #include <multitasking.h>
+
 #include <drivers/amd_am79c973.h>
+#include <net/etherframe.h>
 
 
 
@@ -22,11 +24,12 @@ using namespace os::common;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
 using namespace os::gui;
+using namespace os::net;
 
 
 // NOTE: this turns GRAPHICSMODE on/off
 // #define GRAPHICSMODE 
-// #define NETWORK
+#define NETWORK
 
 
 // TODO: move print functions to utils/print.h
@@ -210,8 +213,10 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     TaskManager taskManager;
     Task task1(&gdt, taskA);
     Task task2(&gdt, taskB);
+    /*
     taskManager.AddTask(&task1);
     taskManager.AddTask(&task2);
+    */
 
     InterruptManager interrupts(0x20, &gdt, &taskManager);
     SyscallHandler syscalls(&interrupts, 0x80);
@@ -267,33 +272,40 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     
 #ifdef NETWORK
+    
+    // identify eth0
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {
       if (drvManager.drivers[i] != 0) {
         if (i == 2) {
           eth0 = (amd_am79c973*) drvManager.drivers[i];
-          // printf("Found eth0 ");
+          printf("Found eth0 ");
           break;
         }
       }
     }
 
-    if (eth0 != 0) {
+    if (eth0 != 0) 
       printf("Welcome to DracOS Network\n");
 
-      // Create a proper 64-byte packet (minimum Ethernet frame size)
-      uint8_t test_packet[64];
-      for(int i = 0; i < 64; i++)
-        test_packet[i] = 0;  // Zero-fill
+    EtherFrameProvider etherframe(eth0);
+    etherframe.Send(0xFFFFFFFFFFFF, 0x0608, (unsigned char*)"DRACOS!" , 7);
+    
 
-      // Copy your message to the beginning
-      char* msg = "DracOS Network Test";
-      for(int i = 0; msg[i] != '\0'; i++)
-        test_packet[i] = msg[i];
 
-      eth0->Send(test_packet, 18);  // Send 64 bytes, not 18
-      // printf("Packet sent\n");
-    }
+      // // Create a proper 64-byte packet (minimum Ethernet frame size)
+      // uint8_t test_packet[64];
+      // for(int i = 0; i < 64; i++)
+      //   test_packet[i] = 0;  // Zero-fill
+      //
+      // // Copy your message to the beginning
+      // char* msg = "DracOS Network Test";
+      // for(int i = 0; msg[i] != '\0'; i++)
+      //   test_packet[i] = msg[i];
+      //
+      // eth0->Send(test_packet, 18);  // Send 64 bytes, not 18
+      // // printf("Packet sent\n");
+    
 
 #endif
 

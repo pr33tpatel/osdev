@@ -10,6 +10,20 @@
 namespace os {
   namespace drivers {
 
+    class amd_am79c973;
+
+    class RawDataHandler {
+      protected:
+        amd_am79c973* backend;
+      public:
+        RawDataHandler(amd_am79c973* backend);
+        ~RawDataHandler();
+
+        bool virtual OnRawDataReceived(common::uint8_t* buffer, common::uint32_t size);
+        void virtual Send(common::uint8_t* buffer, common::uint32_t size);
+
+    };
+
     class amd_am79c973 : public Driver, public hardwarecommunication::InterruptHandler {
 
       public:
@@ -63,6 +77,9 @@ namespace os {
       common::uint8_t currentRecvBuffer;
 
 
+      RawDataHandler* handler;
+
+
       public:
       amd_am79c973(hardwarecommunication::PeripheralComponentInterconnectDeviceDescriptor 
           *dev, hardwarecommunication::InterruptManager* interrupts);
@@ -75,6 +92,9 @@ namespace os {
 
       void Send(common::uint8_t* buffer, int size);
       void Receive();
+
+      void SetHandler(RawDataHandler* handler);
+      common::uint64_t GetMACAddress();
     };
   }
 }
