@@ -95,6 +95,8 @@ namespace os {
 
       void SetHandler(RawDataHandler* handler);
       common::uint64_t GetMACAddress();
+      void SetIPAddress(common::uint32_t IP);
+      common::uint32_t GetIPAddress();
     };
   }
 }
