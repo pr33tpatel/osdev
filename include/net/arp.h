@@ -25,14 +25,17 @@ namespace os {
 
       private:
         // FIXME: implement persistent storage of cache in hard drive
-
-      public:
         common::uint32_t IPcache[128];
         common::uint64_t MACcache[128];
         int numCacheEntries;
+
+      public:
         AddressResolutionProtocol(EtherFrameProvider* backend);
         ~AddressResolutionProtocol();
 
+        void printfIPAddress(common::uint32_t IP);
+        void printfMACAddress(common::uint64_t MAC);
+        void printfARPmsg(AddressResolutionProtocolMessage* arp);
         bool OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
 
         void RequestMACAddress(common::uint32_t IP_BE);

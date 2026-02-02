@@ -79,11 +79,13 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev,
   initBlock.numSendBuffers = 3;
   initBlock.reserved2 = 0;
   initBlock.numRecvBuffers = 3;
-  // initBlock.physicalAddress = MAC;
+  initBlock.physicalAddress = MAC;
 
-  initBlock.physicalAddressLow      = MAC0 | (MAC1 << 8);
-  initBlock.physicalAddressMiddle   = MAC2 | (MAC3 << 8);
-  initBlock.physicalAddressHigh     = MAC4 | (MAC5 << 8);
+  /* TEST: split MAC address into multiple segments to fix compiler error, STATUS: not needed, compiler can handle uint64_t MAC:48
+  // initBlock.physicalAddressLow      = MAC0 | (MAC1 << 8);
+  // initBlock.physicalAddressMiddle   = MAC2 | (MAC3 << 8);
+  // initBlock.physicalAddressHigh     = MAC4 | (MAC5 << 8);
+  */
 
   initBlock.reserved3 = 0;
   initBlock.logicalAddress = 0;
@@ -247,7 +249,7 @@ void amd_am79c973::Receive()
 
 
             //print data
-            printf("Receving Packet: ");
+            printf("\nReceving Packet: ");
             for (int i = 0; i < 64; i++) {
 
               printfHex(buffer[i]);
@@ -269,9 +271,12 @@ void amd_am79c973::SetHandler(RawDataHandler* handler) {
 }
 
 uint64_t amd_am79c973::GetMACAddress() {
+  return initBlock.physicalAddress;
+  /* TEST: from splitting mac address into multiple segments
   return initBlock.physicalAddressLow |
        ((uint64_t)initBlock.physicalAddressMiddle << 16) |
        ((uint64_t)initBlock.physicalAddressHigh << 32);
+  */
 
 }
 

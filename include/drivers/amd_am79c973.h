@@ -36,13 +36,15 @@ namespace os {
         unsigned numRecvBuffers:4;
 
 
-        // common::uint64_t physicalAddress:48;
+        common::uint64_t physicalAddress:48;
         
-        /* TEST: split MAC (physicalAddress) into 3 16bit values, mayble compiler error/padding mistake in the :48 */
+        /* TEST: split MAC (physicalAddress) into 3 16bit values, mayble compiler error/padding mistake in the :48 
 
         common::uint16_t physicalAddressLow;
         common::uint16_t physicalAddressMiddle;
         common::uint16_t physicalAddressHigh;
+
+        */
 
 
         
