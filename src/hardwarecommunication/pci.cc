@@ -140,7 +140,7 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
     case 0x1022: // AMD
       switch(dev.device_id) {
         case 0x2000: // am79c973
-          printf("AMD am79c973: ");
+          // printf("AMD am79c973: ");
           EnableBusMastering(&dev); // enable bus mastering DMA so the PCI device can access RAM
           driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
           if(driver != 0) {
@@ -169,7 +169,7 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
     case 0x03: // graphics
       switch(dev.subclass_id) {
         case 0x00: // VGA graphics
-          printf("VGA: "); 
+          // printf("VGA: "); 
           break;
       }
       break;

@@ -111,11 +111,8 @@ uint64_t AddressResolutionProtocol::Resolve(common::uint32_t IP_BE) {
 
 	if (attempts >= 128) {
 	
-		printf("\nARP Resolve has timed out.\n");
-	} else {
-		printf("\nARP Resolve has NOT timed out.\n");
-	}	
-
+		printf("\nARP Resolve Time Out.\n");
+	}
 	
 	return result;
 }

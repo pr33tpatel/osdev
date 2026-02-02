@@ -34,7 +34,18 @@ namespace os {
         unsigned numSendBuffers:4;
         unsigned reserved2:4;
         unsigned numRecvBuffers:4;
-        common::uint64_t physicalAddress:48;
+
+
+        // common::uint64_t physicalAddress:48;
+        
+        /* TEST: split MAC (physicalAddress) into 3 16bit values, mayble compiler error/padding mistake in the :48 */
+
+        common::uint16_t physicalAddressLow;
+        common::uint16_t physicalAddressMiddle;
+        common::uint16_t physicalAddressHigh;
+
+
+        
         common::uint16_t reserved3;
         common::uint64_t logicalAddress;
         common::uint32_t recvBufferDescrAddress;
@@ -68,12 +79,14 @@ namespace os {
       BufferDescriptor* sendBufferDescr;
       common::uint8_t sendBufferDescrMemory[2048+15];
       common::uint8_t sendBuffers[2*1024+15][8];
+      // common::uint8_t sendBuffers[8][2*1024+15];
       common::uint8_t currentSendBuffer;
 
 
       BufferDescriptor* recvBufferDescr;
       common::uint8_t recvBufferDescrMemory[2048+15];
       common::uint8_t recvBuffers[2*1024+15][8];
+      // common::uint8_t recvBuffers[8][2*1024+15];
       common::uint8_t currentRecvBuffer;
 
 

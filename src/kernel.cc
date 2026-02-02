@@ -83,6 +83,13 @@ void printfHex8Bytes(uint8_t key) {
 
 }
 
+void printfHex32(uint32_t key) {
+    printfHex((key >> 24) & 0xFF);
+    printfHex((key >> 16) & 0xFF);
+    printfHex((key >> 8)  & 0xFF);
+    printfHex((key)       & 0xFF);
+}
+
 
 // Console Event Handlers
 
@@ -342,7 +349,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // activate interupts last
     interrupts.Activate();
 
-    printf("Resolve:\n");
     arp.Resolve(gip_BE);
 
     // printf("DracOS MWHAHAHHAH !!");

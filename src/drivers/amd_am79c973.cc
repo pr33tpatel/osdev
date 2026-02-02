@@ -9,6 +9,7 @@ using namespace os::hardwarecommunication;
 void printf(const char*);
 void printfHex(uint8_t key);
 void printfHex8Bytes(uint8_t key);
+void printfHex32(uint32_t key);
 
 
 RawDataHandler::RawDataHandler(amd_am79c973* backend) {
@@ -72,13 +73,18 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev,
   registerDataPort.Write(0x04);
 
   // initBlock
-  // initBlock.mode = 0x0000; // promiscuous mode = false
-  initBlock.mode = 0x8000; // promiscuous mode = true 
+  initBlock.mode = 0x0000; // promiscuous mode = false
+  // initBlock.mode = 0x8000; // promiscuous mode = true 
   initBlock.reserved1 = 0;
   initBlock.numSendBuffers = 3;
   initBlock.reserved2 = 0;
   initBlock.numRecvBuffers = 3;
-  initBlock.physicalAddress = MAC;
+  // initBlock.physicalAddress = MAC;
+
+  initBlock.physicalAddressLow      = MAC0 | (MAC1 << 8);
+  initBlock.physicalAddressMiddle   = MAC2 | (MAC3 << 8);
+  initBlock.physicalAddressHigh     = MAC4 | (MAC5 << 8);
+
   initBlock.reserved3 = 0;
   initBlock.logicalAddress = 0;
 
@@ -107,11 +113,18 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev,
   registerAddressPort.Write(2);
   registerDataPort.Write(  ((uint32_t)(&initBlock) >> 16) & 0xFFFF );
 
-  printf("\nBuffer 0 Addr: ");
-  printfHex8Bytes((uint32_t)recvBuffers[0]); // or &recvBuffers[0][0]
+  /* TEST: printing out buffer addresses 
+  printf("\nBuffer 0 Address: ");
+  printfHex32((uint32_t)recvBuffers[0]);
   printf("\nBuffer 1 Addr: ");
-  printfHex8Bytes((uint32_t)recvBuffers[1]); // or &recvBuffers[1][0]
+  printfHex32((uint32_t)recvBuffers[1]);
+  printf("\nBuffer 2 Addr: ");
+  printfHex32((uint32_t)recvBuffers[2]);
+  printf("\nBuffer 3 Addr: ");
+  printfHex32((uint32_t)recvBuffers[3]);
   printf("\n");
+
+  */
 
 }
 
@@ -122,62 +135,30 @@ amd_am79c973::~amd_am79c973() {
 
 void amd_am79c973::Activate() {
     printf("AMD am79c973 Activating...\n");
-    
-  //   registerAddressPort.Write(0);
-  //   registerDataPort.Write(0x41);
-  //
-  //   registerAddressPort.Write(4);
-  //   uint32_t temp = registerDataPort.Read();
-  //   // printf("CSR4 before: 0x");
-  //   // printfHex((temp >> 8) & 0xFF);
-  //   // printfHex(temp & 0xFF);
-  //   // printf("\n");
-  //
-  //   registerAddressPort.Write(4);
-  //   registerDataPort.Write(temp | 0xC00);  // Bit 11 (0x800) = auto-pad, Bit 10 (0x400) = ?
-  //
-  // registerAddressPort.Write(3);
-  //   uint32_t csr3 = registerDataPort.Read();
-  //   // printf("CSR3 before: 0x");
-  //   // printfHex((csr3 >> 8) & 0xFF);
-  //   // printfHex(csr3 & 0xFF);
-  //   // printf("\n");
-  //
-  //   registerAddressPort.Write(3);
-  //   // registerDataPort.Write(csr3 & ~(1 << 10));  // Clear TINTM (bit 10) to enable TINT interrupts
-  //   // TEST:
-  //   registerDataPort.Write(csr3 & ~( (1 << 10) | (1 << 9) | (1 << 8) ));  // Clear TINTM (bit 10) to enable TINT interrupts
-  //
-  //   registerAddressPort.Write(3);
-  //   csr3 = registerDataPort.Read();
-  //   // printf("CSR3 after: 0x");
-  //   // printfHex((csr3 >> 8) & 0xFF);
-  //   // printfHex(csr3 & 0xFF);
-  //   // printf("\n");
-  //
-  //   registerAddressPort.Write(4);
-  //   temp = registerDataPort.Read();
-  //   // printf("CSR4 after: 0x");
-  //   // printfHex((temp >> 8) & 0xFF);
-  //   // printfHex(temp & 0xFF);
-  //   // printf("\n");
-  //
-    // registerAddressPort.Write(0);
-    // registerDataPort.Write(0x42);
 
-
-    // TEST:
-
+    // 1. Enable Initialization (INIT) and Interrupts (IENA)
     registerAddressPort.Write(0);
-    registerDataPort.Write(0x41);
+    registerDataPort.Write(0x41); 
 
+    // 2. Set Auto-Pad in CSR4 (Fixes short packets)
     registerAddressPort.Write(4);
     uint32_t temp = registerDataPort.Read();
     registerAddressPort.Write(4);
-    registerDataPort.Write(temp | 0xc00);
+    registerDataPort.Write(temp | 0xC00);
 
+    // 3. CRITICAL: Unmask Receive & Transmit Interrupts in CSR3
+    // By default, these are 1 (Disabled). We must write 0 (Enabled).
+    registerAddressPort.Write(3);
+    uint32_t csr3 = registerDataPort.Read();
+    
+    // Clear Bit 10 (RINTM) - Receive Interrupt Mask
+    // Clear Bit 9  (TINTM) - Transmit Interrupt Mask
+    registerAddressPort.Write(3);
+    registerDataPort.Write(csr3 & ~( (1 << 10) | (1 << 9) ));
+
+    // 4. Start the Card (STRT) and keep Interrupts Enabled (IENA)
     registerAddressPort.Write(0);
-    registerDataPort.Write(0x42);
+    registerDataPort.Write(0x42); 
 }
 
 int amd_am79c973::Reset()
@@ -191,7 +172,7 @@ int amd_am79c973::Reset()
 
 uint32_t amd_am79c973::HandleInterrupt(common::uint32_t esp)
 {
-    printf("\nINTERRUPT FROM AMD am79c973\n");
+    printf("\nNETWORK INTERRUPT: ");
     registerAddressPort.Write(0);
     uint32_t temp = registerDataPort.Read();
     
@@ -199,9 +180,8 @@ uint32_t amd_am79c973::HandleInterrupt(common::uint32_t esp)
     if((temp & 0x2000) == 0x2000) printf("AMD am79c973 COLLISION ERROR\n");
     if((temp & 0x1000) == 0x1000) printf("AMD am79c973 MISSED FRAME\n");
     if((temp & 0x0800) == 0x0800) printf("AMD am79c973 MEMORY ERROR\n");
-    if((temp & 0x0400) == 0x0400) { printf("Data Received\n"); Receive(); }
+    if((temp & 0x0400) == 0x0400) printf("DATA RECEIVED\n"); Receive();
     if((temp & 0x0200) == 0x0200) printf("DATA SENT\n");
-
     // acknowledge
     registerAddressPort.Write(0);
     registerDataPort.Write(temp);
@@ -225,12 +205,13 @@ void amd_am79c973::Send(uint8_t* buffer, int size)
                 src >= buffer; src--, dst--)
         *dst = *src;
         
-    printf("Sending: ");
+    printf("\nSending Packet: ");
     for(int i = 0; i < size; i++)
     {
         printfHex(buffer[i]);
         printf(" ");
     }
+    printf("| Packet END.\n");
     
     sendBufferDescr[sendDescriptor].avail = 0;
     sendBufferDescr[sendDescriptor].flags2 = 0;
@@ -243,7 +224,6 @@ void amd_am79c973::Send(uint8_t* buffer, int size)
 
 void amd_am79c973::Receive()
 {
-    printf("\nRECV: ");
     
     for(; (recvBufferDescr[currentRecvBuffer].flags & 0x80000000) == 0;
         currentRecvBuffer = (currentRecvBuffer + 1) % 8) {
@@ -267,12 +247,14 @@ void amd_am79c973::Receive()
 
 
             //print data
-            printf("Received ");
+            printf("Receving Packet: ");
             for (int i = 0; i < 64; i++) {
 
               printfHex(buffer[i]);
               printf(" ");
             }
+
+            printf("| Packet END.\n");
 
         }
 
@@ -287,7 +269,10 @@ void amd_am79c973::SetHandler(RawDataHandler* handler) {
 }
 
 uint64_t amd_am79c973::GetMACAddress() {
-  return initBlock.physicalAddress;
+  return initBlock.physicalAddressLow |
+       ((uint64_t)initBlock.physicalAddressMiddle << 16) |
+       ((uint64_t)initBlock.physicalAddressHigh << 32);
+
 }
 
 
