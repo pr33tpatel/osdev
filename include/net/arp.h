@@ -10,8 +10,9 @@ namespace os {
     struct AddressResolutionProtocolMessage {
       common::uint16_t hardwareType;
       common::uint16_t protocol;
-      common::uint8_t hardwareAddressSize; // NOTE: hardcoded 6
-      common::uint8_t protoclAddressSize; // NOTE: hardcoded 4
+      common::uint8_t hardwareAddressSize; // NOTE: hardcoded 6, MAC address is 48 bits = 6 bytes
+      common::uint8_t protocolAddressSize; // NOTE: hardcoded 4, ipv4 address is 32 bits = 4 bytes
+      common::uint16_t command;
 
       common::uint64_t srcMAC : 48;
       common::uint32_t srcIP;
@@ -23,17 +24,20 @@ namespace os {
     class AddressResolutionProtocol : public EtherFrameHandler {
 
       private:
+        // FIXME: implement persistent storage of cache in hard drive
+
+      public:
         common::uint32_t IPcache[128];
         common::uint64_t MACcache[128];
         int numCacheEntries;
-
-      public:
         AddressResolutionProtocol(EtherFrameProvider* backend);
         ~AddressResolutionProtocol();
 
         bool OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
+
         void RequestMACAddress(common::uint32_t IP_BE);
         common::uint64_t GetMACFromCache(common::uint32_t IP_BE);
+        common::uint64_t Resolve(common::uint32_t IP_BE);
 
     };
 

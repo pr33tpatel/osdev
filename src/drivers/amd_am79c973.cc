@@ -72,7 +72,8 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev,
   registerDataPort.Write(0x04);
 
   // initBlock
-  initBlock.mode = 0x0000; // promiscuous mode = false
+  // initBlock.mode = 0x0000; // promiscuous mode = false
+  initBlock.mode = 0x8000; // promiscuous mode = true 
   initBlock.reserved1 = 0;
   initBlock.numSendBuffers = 3;
   initBlock.reserved2 = 0;
@@ -106,6 +107,12 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev,
   registerAddressPort.Write(2);
   registerDataPort.Write(  ((uint32_t)(&initBlock) >> 16) & 0xFFFF );
 
+  printf("\nBuffer 0 Addr: ");
+  printfHex8Bytes((uint32_t)recvBuffers[0]); // or &recvBuffers[0][0]
+  printf("\nBuffer 1 Addr: ");
+  printfHex8Bytes((uint32_t)recvBuffers[1]); // or &recvBuffers[1][0]
+  printf("\n");
+
 }
 
 
@@ -116,42 +123,58 @@ amd_am79c973::~amd_am79c973() {
 void amd_am79c973::Activate() {
     printf("AMD am79c973 Activating...\n");
     
+  //   registerAddressPort.Write(0);
+  //   registerDataPort.Write(0x41);
+  //
+  //   registerAddressPort.Write(4);
+  //   uint32_t temp = registerDataPort.Read();
+  //   // printf("CSR4 before: 0x");
+  //   // printfHex((temp >> 8) & 0xFF);
+  //   // printfHex(temp & 0xFF);
+  //   // printf("\n");
+  //
+  //   registerAddressPort.Write(4);
+  //   registerDataPort.Write(temp | 0xC00);  // Bit 11 (0x800) = auto-pad, Bit 10 (0x400) = ?
+  //
+  // registerAddressPort.Write(3);
+  //   uint32_t csr3 = registerDataPort.Read();
+  //   // printf("CSR3 before: 0x");
+  //   // printfHex((csr3 >> 8) & 0xFF);
+  //   // printfHex(csr3 & 0xFF);
+  //   // printf("\n");
+  //
+  //   registerAddressPort.Write(3);
+  //   // registerDataPort.Write(csr3 & ~(1 << 10));  // Clear TINTM (bit 10) to enable TINT interrupts
+  //   // TEST:
+  //   registerDataPort.Write(csr3 & ~( (1 << 10) | (1 << 9) | (1 << 8) ));  // Clear TINTM (bit 10) to enable TINT interrupts
+  //
+  //   registerAddressPort.Write(3);
+  //   csr3 = registerDataPort.Read();
+  //   // printf("CSR3 after: 0x");
+  //   // printfHex((csr3 >> 8) & 0xFF);
+  //   // printfHex(csr3 & 0xFF);
+  //   // printf("\n");
+  //
+  //   registerAddressPort.Write(4);
+  //   temp = registerDataPort.Read();
+  //   // printf("CSR4 after: 0x");
+  //   // printfHex((temp >> 8) & 0xFF);
+  //   // printfHex(temp & 0xFF);
+  //   // printf("\n");
+  //
+    // registerAddressPort.Write(0);
+    // registerDataPort.Write(0x42);
+
+
+    // TEST:
+
     registerAddressPort.Write(0);
     registerDataPort.Write(0x41);
 
     registerAddressPort.Write(4);
     uint32_t temp = registerDataPort.Read();
-    // printf("CSR4 before: 0x");
-    // printfHex((temp >> 8) & 0xFF);
-    // printfHex(temp & 0xFF);
-    // printf("\n");
-    
     registerAddressPort.Write(4);
-    registerDataPort.Write(temp | 0xC00);  // Bit 11 (0x800) = auto-pad, Bit 10 (0x400) = ?
-
-  registerAddressPort.Write(3);
-    uint32_t csr3 = registerDataPort.Read();
-    // printf("CSR3 before: 0x");
-    // printfHex((csr3 >> 8) & 0xFF);
-    // printfHex(csr3 & 0xFF);
-    // printf("\n");
-    
-    registerAddressPort.Write(3);
-    registerDataPort.Write(csr3 & ~(1 << 10));  // Clear TINTM (bit 10) to enable TINT interrupts
-    
-    registerAddressPort.Write(3);
-    csr3 = registerDataPort.Read();
-    // printf("CSR3 after: 0x");
-    // printfHex((csr3 >> 8) & 0xFF);
-    // printfHex(csr3 & 0xFF);
-    // printf("\n");
-    
-    registerAddressPort.Write(4);
-    temp = registerDataPort.Read();
-    // printf("CSR4 after: 0x");
-    // printfHex((temp >> 8) & 0xFF);
-    // printfHex(temp & 0xFF);
-    // printf("\n");
+    registerDataPort.Write(temp | 0xc00);
 
     registerAddressPort.Write(0);
     registerDataPort.Write(0x42);
@@ -176,9 +199,10 @@ uint32_t amd_am79c973::HandleInterrupt(common::uint32_t esp)
     if((temp & 0x2000) == 0x2000) printf("AMD am79c973 COLLISION ERROR\n");
     if((temp & 0x1000) == 0x1000) printf("AMD am79c973 MISSED FRAME\n");
     if((temp & 0x0800) == 0x0800) printf("AMD am79c973 MEMORY ERROR\n");
-    if((temp & 0x0400) == 0x0400) Receive();
+    if((temp & 0x0400) == 0x0400) { printf("Data Received\n"); Receive(); }
     if((temp & 0x0200) == 0x0200) printf("DATA SENT\n");
-    // acknoledge
+
+    // acknowledge
     registerAddressPort.Write(0);
     registerDataPort.Write(temp);
     
@@ -190,7 +214,7 @@ uint32_t amd_am79c973::HandleInterrupt(common::uint32_t esp)
        
 void amd_am79c973::Send(uint8_t* buffer, int size)
 {
-    int sendDescriptor = currentSendBuffer;
+ int sendDescriptor = currentSendBuffer;
     currentSendBuffer = (currentSendBuffer + 1) % 8;
     
     if(size > 1518)
@@ -201,8 +225,8 @@ void amd_am79c973::Send(uint8_t* buffer, int size)
                 src >= buffer; src--, dst--)
         *dst = *src;
         
-    // printf("\nSEND: ");
-    for(int i = 14+20; i < (size>64?64:size); i++)
+    printf("Sending: ");
+    for(int i = 0; i < size; i++)
     {
         printfHex(buffer[i]);
         printf(" ");
@@ -211,23 +235,9 @@ void amd_am79c973::Send(uint8_t* buffer, int size)
     sendBufferDescr[sendDescriptor].avail = 0;
     sendBufferDescr[sendDescriptor].flags2 = 0;
     sendBufferDescr[sendDescriptor].flags = 0x8300F000
-      | ((uint16_t)((-size) & 0xFFF));
-
-    // printf("\nBuffer descriptor flags: 0x");
-    // printfHex((sendBufferDescr[sendDescriptor].flags >> 24) & 0xFF);
-    // printfHex((sendBufferDescr[sendDescriptor].flags >> 16) & 0xFF);
-    // printfHex((sendBufferDescr[sendDescriptor].flags >> 8) & 0xFF);
-    // printfHex(sendBufferDescr[sendDescriptor].flags & 0xFF);
-    // printf("\n");
+                                          | ((uint16_t)((-size) & 0xFFF));
     registerAddressPort.Write(0);
     registerDataPort.Write(0x48);
-// Read CSR0 immediately after TDMD
-    registerAddressPort.Write(0);
-    uint32_t csr0 = registerDataPort.Read();
-    // printf("CSR0 after TDMD: 0x");
-    // printfHex((csr0 >> 8) & 0xFF);
-    // printfHex(csr0 & 0xFF);
-    // printf("\n");
 }
 
 
@@ -236,28 +246,36 @@ void amd_am79c973::Receive()
     printf("\nRECV: ");
     
     for(; (recvBufferDescr[currentRecvBuffer].flags & 0x80000000) == 0;
-        currentRecvBuffer = (currentRecvBuffer + 1) % 8)
-    {
+        currentRecvBuffer = (currentRecvBuffer + 1) % 8) {
         if(!(recvBufferDescr[currentRecvBuffer].flags & 0x40000000)
-         && (recvBufferDescr[currentRecvBuffer].flags & 0x03000000) == 0x03000000) 
-        
-        {
+         && (recvBufferDescr[currentRecvBuffer].flags & 0x03000000) == 0x03000000) {
+
             uint32_t size = recvBufferDescr[currentRecvBuffer].flags & 0xFFF;
             if(size > 64) // remove checksum
                 size -= 4;
             
             uint8_t* buffer = (uint8_t*)(recvBufferDescr[currentRecvBuffer].address);
 
-            for(int i = 14+20; i < (size>64?64:size); i++)
-            {
-                printfHex(buffer[i]);
-                printf(" ");
+
+
+            if (handler != 0) {
+              if (handler->OnRawDataReceived(buffer, size)) {
+                //printf("\nsend in recieve func\n");
+                Send(buffer, size);
+              }
             }
 
-            if(handler != 0)
-                if(handler->OnRawDataReceived(buffer, size))
-                    Send(buffer, size);
+
+            //print data
+            printf("Received ");
+            for (int i = 0; i < 64; i++) {
+
+              printfHex(buffer[i]);
+              printf(" ");
+            }
+
         }
+
         
         recvBufferDescr[currentRecvBuffer].flags2 = 0;
         recvBufferDescr[currentRecvBuffer].flags = 0x8000F7FF;

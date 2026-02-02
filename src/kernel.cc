@@ -16,8 +16,11 @@
 
 #include <drivers/amd_am79c973.h>
 #include <net/etherframe.h>
+#include <net/arp.h>
 
-
+// NOTE: this turns GRAPHICSMODE on/off
+// #define GRAPHICSMODE 
+#define NETWORK
 
 using namespace os;
 using namespace os::common;
@@ -27,9 +30,6 @@ using namespace os::gui;
 using namespace os::net;
 
 
-// NOTE: this turns GRAPHICSMODE on/off
-// #define GRAPHICSMODE 
-#define NETWORK
 
 
 // TODO: move print functions to utils/print.h
@@ -273,6 +273,19 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     
 #ifdef NETWORK
     
+    uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
+    uint32_t ip_BE   = ((uint32_t)ip4   << 24)
+                      |((uint32_t)ip3   << 16)
+                      |((uint32_t)ip2   <<  8)
+                      |((uint32_t)ip1        );
+
+    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
+    uint32_t gip_BE  = ((uint32_t)gip4  << 24)
+                      |((uint32_t)gip3  << 16)
+                      |((uint32_t)gip2  <<  8)
+                      |((uint32_t)gip1       );
+
+
     // identify eth0
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {
@@ -288,8 +301,15 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     if (eth0 != 0) 
       printf("Welcome to DracOS Network\n");
 
-    EtherFrameProvider etherframe(eth0);
-    etherframe.Send(0xFFFFFFFFFFFF, 0x0608, (unsigned char*)"DRACOS!" , 7);
+
+    eth0->SetIPAddress(ip_BE); // tell network card that this is our IP
+
+    EtherFrameProvider etherframe(eth0); // communicates with network card 
+
+    AddressResolutionProtocol arp(&etherframe);  // communicates with etherframe provider middle-layer
+    
+
+    // etherframe.Send(0xFFFFFFFFFFFF, 0x0608, (unsigned char*)"DRACOS!" , 7);
     
 
 
@@ -321,6 +341,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
                                                     
     // activate interupts last
     interrupts.Activate();
+
+    printf("Resolve:\n");
+    arp.Resolve(gip_BE);
 
     // printf("DracOS MWHAHAHHAH !!");
 

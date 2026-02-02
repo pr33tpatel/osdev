@@ -52,7 +52,9 @@ namespace os {
         bool OnRawDataReceived(common::uint8_t* buffer, common::uint32_t size);
         void Send(common::uint64_t dstMAC_BE, common::uint16_t etherType_BE, common::uint8_t* buffer, common::uint32_t size);
 
+        common::uint64_t GetMACAddress();
         common::uint32_t GetIPAddress();
+
     };
 
   }
