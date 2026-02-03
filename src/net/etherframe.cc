@@ -15,7 +15,9 @@ EtherFrameHandler::EtherFrameHandler(EtherFrameProvider* backend, uint16_t ether
 
 
 EtherFrameHandler::~EtherFrameHandler() {
-  backend->handlers[etherType_BE] = 0;
+  if (backend->handlers[etherType_BE] == this)
+    backend->handlers[etherType_BE] = 0;
+
 }
 
 
@@ -41,6 +43,9 @@ EtherFrameProvider::~EtherFrameProvider() {
 }
 
 bool EtherFrameProvider::OnRawDataReceived(uint8_t* buffer, uint32_t size) {
+  if (size < sizeof(EtherFrameHeader))
+    return false;
+
   EtherFrameHeader* frame = (EtherFrameHeader*)buffer;
   bool sendBack = false;
 

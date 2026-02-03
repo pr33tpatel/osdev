@@ -26,7 +26,7 @@ namespace os {
     class EtherFrameHandler {
       protected:
         EtherFrameProvider* backend;
-        uint16_t etherType_BE;
+        common::uint16_t etherType_BE;
 
       public: 
         EtherFrameHandler(EtherFrameProvider* backend, common::uint16_t etherType);
