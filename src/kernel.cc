@@ -34,8 +34,7 @@ using namespace os::net;
 
 
 // TODO: move print functions to utils/print.h
-void printf(const char* str)
-{
+void printf(const char* str) {
   static uint16_t* VideoMemory = (uint16_t*)0xb8000;
   static uint8_t x=0,y=0;
   for(int i = 0; str[i] != '\0'; ++i) {
@@ -50,11 +49,30 @@ void printf(const char* str)
         break;
     }
 
+    /* line wrap */
     if(x >= 80){
       x = 0;
       y++;
     }
 
+    /* scrolling */
+    if (y >= 25) {
+      /* copy all the lines up by 1 (row 1->0, 2->1, 3->2, ...) */
+      for (int row = 0; row < 24; row++) 
+        for (int col = 0; col < 80; col++) 
+          VideoMemory[80*row + col] = VideoMemory[80*(row+1) + col];
+
+      /* clear the row 24 (fill last line with spaces)*/
+      for (int col = 0; col<80; col++) 
+        VideoMemory[80*24 + col] = (VideoMemory[80*24 + col] & 0xFF00) | ' ';
+
+      /* reset cursor to beginning of last line */
+      x = 0;
+      y = 24;
+    }
+
+    /* clear console if full, no scroll */
+    /*
     if(y >= 25){
       for(y = 0; y < 25; y++)
         for(x = 0; x < 80; x++)
@@ -62,6 +80,7 @@ void printf(const char* str)
       x = 0;
       y = 0;
     }
+    */
   }
 }
 
