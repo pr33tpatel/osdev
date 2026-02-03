@@ -66,20 +66,22 @@ bool EtherFrameProvider::OnRawDataReceived(uint8_t* buffer, uint32_t size) {
 
   return sendBack;
 }
-void EtherFrameProvider::Send(uint64_t dstMAC_BE, uint16_t etherType_BE, uint8_t* buffer, uint32_t size) {
-  uint8_t* buffer2  = (uint8_t*)MemoryManager::activeMemoryManager->malloc(sizeof(EtherFrameHeader) + size);
-  EtherFrameHeader* frame = (EtherFrameHeader*)buffer2;
+void EtherFrameProvider::Send(uint64_t dstMAC_BE, uint16_t etherType_BE, uint8_t* data, uint32_t size) {
+  uint8_t* buffer  = (uint8_t*)MemoryManager::activeMemoryManager->malloc(sizeof(EtherFrameHeader) + size);
+  EtherFrameHeader* frame = (EtherFrameHeader*) buffer;
 
   frame->dstMac_BE = dstMAC_BE;
   frame->srcMac_BE = backend->GetMACAddress();
   frame->etherType_BE = etherType_BE;
 
-  uint8_t* src = buffer;
-  uint8_t* dst = buffer2 + sizeof(EtherFrameHeader);
+  uint8_t* src = data;
+  uint8_t* dst = buffer + sizeof(EtherFrameHeader);
   for(uint32_t i = 0; i < size; i++) 
     dst[i] = src[i];
 
-  backend->Send(buffer2, size+sizeof(EtherFrameHeader));
+  backend->Send(buffer, size+sizeof(EtherFrameHeader));
+
+  MemoryManager::activeMemoryManager->free(buffer);
 }
 
 

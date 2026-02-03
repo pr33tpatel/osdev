@@ -17,6 +17,7 @@
 #include <drivers/amd_am79c973.h>
 #include <net/etherframe.h>
 #include <net/arp.h>
+#include <net/ipv4.h>
 
 // NOTE: this turns GRAPHICSMODE on/off
 // #define GRAPHICSMODE 
@@ -280,17 +281,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     
 #ifdef NETWORK
     
-    uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
-    uint32_t ip_BE   = ((uint32_t)ip4   << 24)
-                      |((uint32_t)ip3   << 16)
-                      |((uint32_t)ip2   <<  8)
-                      |((uint32_t)ip1        );
 
-    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
-    uint32_t gip_BE  = ((uint32_t)gip4  << 24)
-                      |((uint32_t)gip3  << 16)
-                      |((uint32_t)gip2  <<  8)
-                      |((uint32_t)gip1       );
 
 
     // identify eth0
@@ -309,31 +300,34 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       printf("Welcome to DracOS Network\n");
 
 
+    /* IP address */
+    uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
+    uint32_t ip_BE   = ((uint32_t)ip4   << 24)
+                      |((uint32_t)ip3   << 16)
+                      |((uint32_t)ip2   <<  8)
+                      |((uint32_t)ip1        );
+
+    /* GatewayIP address  */
+    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
+    uint32_t gip_BE  = ((uint32_t)gip4  << 24)
+                      |((uint32_t)gip3  << 16)
+                      |((uint32_t)gip2  <<  8)
+                      |((uint32_t)gip1       );
+
+    /* Subnet Mask */
+    uint8_t subnet1 = 255, subnet2 = 255, subnet3 = 255, subnet4 = 0;
+    uint32_t subnet_BE  = ((uint32_t)subnet4  << 24)
+                         |((uint32_t)subnet3  << 16)
+                         |((uint32_t)subnet2  <<  8)
+                         |((uint32_t)subnet1       );
+
     eth0->SetIPAddress(ip_BE); // tell network card that this is our IP
 
     EtherFrameProvider etherframe(eth0); // communicates with network card 
 
     AddressResolutionProtocol arp(&etherframe);  // communicates with etherframe provider middle-layer
-    
 
-    // etherframe.Send(0xFFFFFFFFFFFF, 0x0608, (unsigned char*)"DRACOS!" , 7);
-    
-
-
-      // // Create a proper 64-byte packet (minimum Ethernet frame size)
-      // uint8_t test_packet[64];
-      // for(int i = 0; i < 64; i++)
-      //   test_packet[i] = 0;  // Zero-fill
-      //
-      // // Copy your message to the beginning
-      // char* msg = "DracOS Network Test";
-      // for(int i = 0; msg[i] != '\0'; i++)
-      //   test_packet[i] = msg[i];
-      //
-      // eth0->Send(test_packet, 18);  // Send 64 bytes, not 18
-      // // printf("Packet sent\n");
-    
-
+    InternetProtocolProvider ipv4(&etherframe, &arp, gip_BE, subnet_BE);
 #endif
 
 
@@ -349,7 +343,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // activate interupts last
     interrupts.Activate();
 
-    arp.Resolve(gip_BE);
+    // arp.Resolve(gip_BE);
+    ipv4.Send(gip_BE, 0x01, (uint8_t*) "7777777",7);
 
     // printf("DracOS MWHAHAHHAH !!");
 

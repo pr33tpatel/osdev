@@ -17,8 +17,7 @@ namespace os {
 
       /* bits 32-63 */
       common::uint16_t  identification;
-      common::uint8_t   flags : 3;
-      common::uint16_t  fragmentOffset : 13;
+      common::uint16_t  flagsAndOffset;
 
       /* bits 64-95 */
       common::uint8_t   timeToLive;
@@ -66,7 +65,7 @@ namespace os {
         ~InternetProtocolProvider();
 
         bool virtual OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
-        void Send(common::uint32_t dstIP_BE, common::uint8_t protocol, common::uint8_t* buffer, common::uint32_t size);
+        void Send(common::uint32_t dstIP_BE, common::uint8_t protocol, common::uint8_t* data, common::uint32_t size);
 
         static common::uint16_t Checksum(common::uint16_t* data, common::uint32_t lengthInBytes);
     };
