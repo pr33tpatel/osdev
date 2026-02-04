@@ -5,8 +5,10 @@ TODO:
     - [ ] better fonts
 
 - [ ] DracOS Network:
+    - [x] ARP
+    - [x] IP
     - [ ] UDP
-    - [ ] TCP/IP
+    - [ ] TCP
     - [ ] basic html
 
 - [ ] Processes & Threads:

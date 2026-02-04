@@ -220,7 +220,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
      - MEMORYDIMENSION := { [ padding (10 KB)], [ ... ], [ heapStart    ...    heapSize ]} 
 
     */
-    MemoryManager memoryManager(heapStart, (*memupper)*1024 - heapStart - 10*1024); 
+    MemoryManager memoryManager(heapStart, heapSize); 
 
     // printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
     // printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
