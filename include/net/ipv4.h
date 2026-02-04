@@ -67,7 +67,7 @@ namespace os {
         bool virtual OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
         void Send(common::uint32_t dstIP_BE, common::uint8_t protocol, common::uint8_t* data, common::uint32_t size);
 
-        static common::uint16_t Checksum(common::uint16_t* data, common::uint32_t lengthInBytes);
+        static common::uint16_t Checksum(void* data_, common::uint32_t lengthInBytes);
     };
 
   }

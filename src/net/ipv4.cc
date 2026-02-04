@@ -79,7 +79,7 @@ bool InternetProtocolProvider::OnEtherFrameReceived(uint8_t* etherframePayload, 
 
     ip_message->timeToLive = 0x40; // reset time to live to 64 steps, this changes the header so we have to update the checksum
     ip_message->checksum = 0;
-    ip_message->checksum = Checksum((uint16_t*) ip_message, 4*ip_message->headerLength); // recalculate the checksum
+    ip_message->checksum = Checksum((uint16_t*)(void*)ip_message, 4*ip_message->headerLength); // recalculate the checksum
   }
 
   return sendBack;
@@ -107,7 +107,7 @@ void InternetProtocolProvider::Send(uint32_t dstIP_BE, uint8_t protocol, uint8_t
   message->srcIP = backend->GetIPAddress();
 
   message->checksum = 0; // NOTE: initalize with 0 bc this value (0) will also be accounted for in the checksum, any non-zero value will lead to the wrong checksum calculation
-  message->checksum = Checksum((uint16_t*)message, sizeof(InternetProtocolMessage));
+  message->checksum = Checksum((uint16_t*)(void*)message, sizeof(InternetProtocolMessage));
 
   uint8_t* databuffer = buffer + sizeof(InternetProtocolMessage);
   for(int i = 0; i < size; i++) {
@@ -128,8 +128,9 @@ void InternetProtocolProvider::Send(uint32_t dstIP_BE, uint8_t protocol, uint8_t
 }
 
 
-uint16_t InternetProtocolProvider::Checksum(uint16_t* data, uint32_t lengthInBytes) {
+uint16_t InternetProtocolProvider::Checksum(void* data_, uint32_t lengthInBytes) {
   
+  uint16_t* data = (uint16_t*)data_; 
   uint32_t temp = 0;
 
   for (int i = 0; i < lengthInBytes / 2; i++) 

@@ -84,7 +84,7 @@ bool AddressResolutionProtocol::OnEtherFrameReceived(uint8_t* etherframePayload,
         && arp->dstIP == backend->GetIPAddress())
         {
             
-            // printfARPmsg(arp);
+            printfARPmsg(arp);
             switch(arp->command)
             {
                 
