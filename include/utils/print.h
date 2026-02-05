@@ -40,10 +40,18 @@ namespace os {
       return (os::common::uint16_t) char_ | ((os::common::uint8_t) color << 4);
     }
 
-    void clearScreen();
 
+    
+    /* standard print functions */
     void putChar(char c, common::uint8_t color = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR));
     void printf(const char* str, common::uint8_t color = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR));
+    void printByte(common::uint8_t byte);
+    void print4Bytes(common::uint8_t byte);
+    void printNBytes(common::uint8_t byte, common::uint8_t N);
+
+    /* miscellaneous functions */
+    // static void scrollConsole();
+    void clearScreen();
     void setCursorPos(common::uint8_t row, common::uint8_t col);
   }
 }
