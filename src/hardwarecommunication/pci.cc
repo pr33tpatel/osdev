@@ -1,14 +1,13 @@
-#include <common/types.h>
+#include <cwchar>
 #include <hardwarecommunication/pci.h>
 #include <drivers/amd_am79c973.h>
+
 using namespace os::common;
+using namespace os::utils;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
 
 
-void printf(const char* str);
-void printfHex(uint8_t);
-void printfHexBytes(uint8_t);
 
 PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor(){
 
@@ -80,25 +79,41 @@ void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* dri
         Driver* driver = GetDriver(dev, interrupts);
         if(driver != 0) 
           driverManager->AddDriver(driver);
+      }
+    }
+  }
+}
 
+void PeripheralComponentInterconnectController::PrintPCIDrivers() {
+  for(int bus = 0; bus < 8; bus++) {
+    for (int device = 0; device < 32; device++) {
+      int numFunctions = DeviceHasFunctions(bus, device) ? 8 : 1; // if device has functions, then 8 functions, if "no" functions, then at least 1 function is exists
+
+      for (int function = 0; function < numFunctions; function++) {
+        PeripheralComponentInterconnectDeviceDescriptor dev = GetDeviceDescriptor(bus, device, function);
+
+        if (dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF)
+          continue;
 
         // // NOTE: same output as linux command: "lspci" : list of PCI devcies
-        // printf("PCI BUS ");
-        // printfHex(bus & 0xFF);
-        //
-        // printf(", DEVICE ");
-        // printfHex(device & 0xFF);
-        //
-        // printf(", FUNCTION ");
-        // printfHex(function & 0xFF);
-        //
-        // printf(" = VENDOR ");
-        // printfHex((dev.vendor_id & 0xFF00) >> 8);
-        // printfHex(dev.vendor_id & 0xFF);
-        // printf(", DEVICE ");
-        // printfHex((dev.device_id & 0xFF00) >> 8);
-        // printfHex(dev.device_id & 0xFF);
-        // printf("\n");
+        printf("PCI BUS ");
+        printByte(bus & 0xFF);
+
+        printf(", DEVICE ");
+        printByte(device & 0xFF);
+
+        printf(", FUNCTION ");
+        printByte(function & 0xFF);
+
+        printf(" = VENDOR ");
+        printByte((dev.vendor_id & 0xFF00) >> 8);
+        printByte(dev.vendor_id & 0xFF);
+
+        printf(", DEVICE ");
+        printByte((dev.device_id & 0xFF00) >> 8);
+        printByte(dev.device_id & 0xFF);
+
+        printf("\n");
       }
     }
   }

@@ -6,6 +6,7 @@
 #include <hardwarecommunication/port.h>
 #include <hardwarecommunication/interrupts.h>
 #include <memorymanagement.h>
+#include <utils/print.h>
 
 namespace os {
   namespace hardwarecommunication {
@@ -64,6 +65,7 @@ namespace os {
         bool DeviceHasFunctions(os::common::uint16_t bus, os::common::uint16_t device);
 
         void SelectDrivers(os::drivers::DriverManager* driverManager, os::hardwarecommunication::InterruptManager* interrupts);
+        void PrintPCIDrivers();
         os::drivers::Driver* GetDriver(PeripheralComponentInterconnectDeviceDescriptor dev, os::hardwarecommunication::InterruptManager* interrupts);
         PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(os::common::uint16_t bus, os::common::uint16_t device, os::common::uint16_t function);
         BaseAddressRegister GetBaseAddressRegister(os::common::uint16_t bus, os::common::uint16_t device, os::common::uint16_t function, os::common::uint16_t bar); // bar stands for Base Address Register
