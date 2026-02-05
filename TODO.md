@@ -1,6 +1,9 @@
 TODO:
 - [ ] improve text mode:
     - [ ] add scrolling feature
+    - [ ] better printing functions
+        - [ ] make variadic print functions to take multiple arguments 
+        - [ ] parse format specifiers (such as %d, %s, ...)
     - [ ] CLI
     - [ ] better fonts
 
