@@ -3,6 +3,7 @@
 
 #include <common/types.h>
 #include <gdt.h>
+#include <utils/print.h>
 
 namespace os {
 

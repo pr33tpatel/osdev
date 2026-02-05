@@ -3,13 +3,9 @@
 
 using namespace os;
 using namespace os::common;
+using namespace os::utils;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
-
-void printf(const char*);
-void printfHex(uint8_t key);
-void printfHex8Bytes(uint8_t key);
-void printfHex32(uint32_t key);
 
 
 RawDataHandler::RawDataHandler(amd_am79c973* backend) {
@@ -22,7 +18,7 @@ RawDataHandler::~RawDataHandler() {
 }
 
 bool RawDataHandler::OnRawDataReceived(uint8_t* buffer, uint32_t size) {
-
+  return false;
 }
 
 void RawDataHandler::Send(uint8_t* buffer, uint32_t size) {
@@ -115,19 +111,6 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor *dev,
   registerAddressPort.Write(2);
   registerDataPort.Write(  ((uint32_t)(&initBlock) >> 16) & 0xFFFF );
 
-  /* TEST: printing out buffer addresses 
-  printf("\nBuffer 0 Address: ");
-  printfHex32((uint32_t)recvBuffers[0]);
-  printf("\nBuffer 1 Addr: ");
-  printfHex32((uint32_t)recvBuffers[1]);
-  printf("\nBuffer 2 Addr: ");
-  printfHex32((uint32_t)recvBuffers[2]);
-  printf("\nBuffer 3 Addr: ");
-  printfHex32((uint32_t)recvBuffers[3]);
-  printf("\n");
-
-  */
-
 }
 
 
@@ -210,7 +193,7 @@ void amd_am79c973::Send(uint8_t* buffer, int size)
     printf("\nSending Packet: ");
     for(int i = 0; i < size; i++)
     {
-        printfHex(buffer[i]);
+        printByte(buffer[i]);
         printf(" ");
     }
     printf("| Packet END.\n");
@@ -252,7 +235,7 @@ void amd_am79c973::Receive()
             printf("\nReceving Packet: ");
             for (int i = 0; i < 64; i++) {
 
-              printfHex(buffer[i]);
+              printByte(buffer[i]);
               printf(" ");
             }
 

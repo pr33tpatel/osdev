@@ -1,12 +1,10 @@
 #include <net/arp.h>
 
 using namespace os;
-using namespace common;
-using namespace net;
+using namespace os::common;
+using namespace os::utils;
+using namespace os::net;
 
-void printf(const char* str);
-void printfHex(uint8_t key );
-void printfHex8Bytes(uint8_t key );
 
 
 AddressResolutionProtocol::AddressResolutionProtocol(EtherFrameProvider* backend)
@@ -19,27 +17,27 @@ AddressResolutionProtocol::~AddressResolutionProtocol()
 {
 }
 
-void AddressResolutionProtocol::printfIPAddress(common::uint32_t IP) {
+void AddressResolutionProtocol::printIPAddress(common::uint32_t IP) {
   /* little endian x86 machine reading big endian packet */
-  printfHex((IP)       & 0xFF); printf(".");
-  printfHex((IP >>  8) & 0xFF); printf(".");
-  printfHex((IP >> 16) & 0xFF); printf(".");
-  printfHex((IP >> 24) & 0xFF); 
+  printByte((IP)       & 0xFF); printf(".");
+  printByte((IP >>  8) & 0xFF); printf(".");
+  printByte((IP >> 16) & 0xFF); printf(".");
+  printByte((IP >> 24) & 0xFF); 
 
 }
-void AddressResolutionProtocol::printfMACAddress(common::uint64_t MAC) {
+void AddressResolutionProtocol::printMACAddress(common::uint64_t MAC) {
   /* little endian x86 machine reading big endian */
-  printfHex((MAC      ) & 0xFF); printf(".");
-  printfHex((MAC >>  8) & 0xFF); printf(".");
-  printfHex((MAC >> 16) & 0xFF); printf(".");
-  printfHex((MAC >> 24) & 0xFF); printf(".");
-  printfHex((MAC >> 32) & 0xFF); printf(".");
-  printfHex((MAC >> 40) & 0xFF); 
+  printByte((MAC      ) & 0xFF); printf(".");
+  printByte((MAC >>  8) & 0xFF); printf(".");
+  printByte((MAC >> 16) & 0xFF); printf(".");
+  printByte((MAC >> 24) & 0xFF); printf(".");
+  printByte((MAC >> 32) & 0xFF); printf(".");
+  printByte((MAC >> 40) & 0xFF); 
 
 
 }
 
-void AddressResolutionProtocol::printfARPmsg(AddressResolutionProtocolMessage* arp) {
+void AddressResolutionProtocol::printARPmsg(AddressResolutionProtocolMessage* arp) {
   printf("\nARP PACKET:\n");
 
   // opcode
@@ -48,23 +46,23 @@ void AddressResolutionProtocol::printfARPmsg(AddressResolutionProtocolMessage* a
     printf("REQUEST");
   else if (arp->command == 0x0200) 
     printf("REPLY");
-  else printfHex(arp->command);
+  else printByte(arp->command);
 
   // sender MAC 
   printf("\nSource MAC:        ");
-  printfMACAddress(arp->srcMAC);
+  printMACAddress(arp->srcMAC);
 
   // sender IP
   printf("        Source IP:         ");
-  printfIPAddress(arp->srcIP);
+  printIPAddress(arp->srcIP);
 
   // destination MAC
   printf("\nDestination MAC:   ");
-  printfMACAddress(arp->dstMAC);
+  printMACAddress(arp->dstMAC);
 
   // destination IP
   printf("        Destination IP:    ");
-  printfIPAddress(arp->dstIP);
+  printIPAddress(arp->dstIP);
 
   printf("\nARP PACKET END.\n");
 }
@@ -84,7 +82,7 @@ bool AddressResolutionProtocol::OnEtherFrameReceived(uint8_t* etherframePayload,
         && arp->dstIP == backend->GetIPAddress())
         {
             
-            printfARPmsg(arp);
+            printARPmsg(arp);
             switch(arp->command)
             {
                 

@@ -2,11 +2,10 @@
 
 using namespace os;
 using namespace os::common;
+using namespace os::utils;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
 
-void printf(const char*);
-void printfHex(uint8_t);
 
 AdvancedTechnologyAttachment::AdvancedTechnologyAttachment(common::uint16_t portBase, bool master)
 	: dataPort(portBase),
@@ -116,7 +115,7 @@ void AdvancedTechnologyAttachment::Read28(common::uint32_t sector, common::uint8
 		printf("ERROR in ATA READ (BSY)\n");
 		uint8_t error = errorPort.Read();
 		printf("Error code: 0x");
-		printfHex(error);
+		printByte(error);
 		printf("\n");
 		return;
 	}
@@ -250,7 +249,7 @@ void AdvancedTechnologyAttachment::Write28(common::uint32_t sector, common::uint
 		printf("ERROR after writing data\n");
 		uint8_t error = errorPort.Read();
 		printf("Error code: 0x");
-		printfHex(error);
+		printByte(error);
 		printf("\n");
 		return;
 	}
@@ -280,7 +279,7 @@ void AdvancedTechnologyAttachment::Flush() {
 		printf("ERROR IN ATA FLUSH\n");
 		uint8_t error = errorPort.Read();
 		printf("Error code: 0x");
-		printfHex(error);
+		printByte(error);
 		printf("\n");
 		return;
 	}

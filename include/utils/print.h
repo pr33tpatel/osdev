@@ -32,21 +32,26 @@ namespace os {
 
     /* helper to combine foreground (bottom 4 bits) and background (top 4 bits) color */
     static inline common::uint8_t vga_color_entry(enum VGAColor fg, enum VGAColor bg) {
-      return (os::common::uint8_t) fg | ((os::common::uint8_t)bg << 8);
+      return (os::common::uint8_t) fg | ((os::common::uint8_t)bg << 4);
     }
 
     /* helper to combine character byte and color attribute byte */
     static inline common::uint16_t vga_entry(common::uint8_t char_, common::uint8_t color = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR)) {
-      return (os::common::uint16_t) char_ | ((os::common::uint8_t) color << 4);
+      return (os::common::uint16_t) char_ | ((os::common::uint8_t) color << 8);
     }
 
 
     
     /* standard print functions */
-    void putChar(char c, common::uint8_t color = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR));
-    void printf(const char* str, common::uint8_t color = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR));
+    // void putChar(char c, common::uint8_t color = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR));
+    void putChar(char c);
+    void putChar(char c, VGAColor fg, VGAColor bg = BLACK_COLOR);
+
+    void printf(const char* str);
+    void printf(const char* str, VGAColor fg , VGAColor bg = BLACK_COLOR);
+
     void printByte(common::uint8_t byte);
-    void print4Bytes(common::uint8_t byte);
+    void print4Bytes(common::uint32_t byte);
     void printNBytes(common::uint8_t byte, common::uint8_t N);
 
     /* miscellaneous functions */

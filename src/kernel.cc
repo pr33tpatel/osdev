@@ -11,7 +11,6 @@
 #include <drivers/ata.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
-#include <common/utils.h>
 #include <multitasking.h>
 
 #include <drivers/amd_am79c973.h>
@@ -19,12 +18,15 @@
 #include <net/arp.h>
 #include <net/ipv4.h>
 
+#include <utils/print.h>
+
 // NOTE: this turns GRAPHICSMODE on/off
 // #define GRAPHICSMODE 
 #define NETWORK
 
 using namespace os;
 using namespace os::common;
+using namespace os::utils;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
 using namespace os::gui;
@@ -33,92 +35,14 @@ using namespace os::net;
 
 
 
-// TODO: move print functions to utils/print.h
-void printf(const char* str) {
-  static uint16_t* VideoMemory = (uint16_t*)0xb8000;
-  static uint8_t x=0,y=0;
-  for(int i = 0; str[i] != '\0'; ++i) {
-    switch(str[i]) {
-      case '\n':
-        x = 0;
-        y++;
-        break;
-      default:
-        VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | str[i];
-        x++;
-        break;
-    }
-
-    /* line wrap */
-    if(x >= 80){
-      x = 0;
-      y++;
-    }
-
-    /* scrolling */
-    if (y >= 25) {
-      /* copy all the lines up by 1 (row 1->0, 2->1, 3->2, ...) */
-      for (int row = 0; row < 24; row++) 
-        for (int col = 0; col < 80; col++) 
-          VideoMemory[80*row + col] = VideoMemory[80*(row+1) + col];
-
-      /* clear the row 24 (fill last line with spaces)*/
-      for (int col = 0; col<80; col++) 
-        VideoMemory[80*24 + col] = (VideoMemory[80*24 + col] & 0xFF00) | ' ';
-
-      /* reset cursor to beginning of last line */
-      x = 0;
-      y = 24;
-    }
-
-    /* clear console if full, no scroll */
-    /*
-    if(y >= 25){
-      for(y = 0; y < 25; y++)
-        for(x = 0; x < 80; x++)
-          VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | ' ';
-      x = 0;
-      y = 0;
-    }
-    */
-  }
-}
-
-
-void printfHex(uint8_t key)
-{
-    char* foo = "00";
-    char* hex = "0123456789ABCDEF";
-    foo[0] = hex[(key >> 4) & 0xF];
-    foo[1] = hex[key & 0xF];
-    printf(foo);
-}
-
-void printfHex8Bytes(uint8_t key) {
-  printf("0x");
-  printfHex((key >> 3*8) & 0xFF); // print 3rd byte
-  printfHex((key >> 2*8) & 0xFF); // print 2nd byte
-  printfHex((key >> 1*8) & 0xFF); // print 1st byte
-  printfHex((key >> 0*8) & 0xFF); // print 0th byte
-
-}
-
-void printfHex32(uint32_t key) {
-    printfHex((key >> 24) & 0xFF);
-    printfHex((key >> 16) & 0xFF);
-    printfHex((key >> 8)  & 0xFF);
-    printfHex((key)       & 0xFF);
-}
-
-
 // Console Event Handlers
-
 class PrintfKeyboardEventHandler : public KeyboardEventHandler {
   public:
     void OnKeyDown(char c) {
-      char* foo = " ";
-      foo[0] = c;
-      printf(foo);
+      // char* foo = " ";
+      // foo[0] = c;
+      // printf(foo);
+      putChar(c);
     }
 };
 
@@ -203,9 +127,8 @@ extern "C" void callConstructors(){
 }
 
 
-extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/)
-{
-    os::common::clearScreen();
+extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/) {
+    clearScreen();
     
     printf("Hello World! :)                                                           \n");
 
@@ -275,6 +198,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
       PeripheralComponentInterconnectController PCIController;
       PCIController.SelectDrivers(&drvManager, &interrupts);
+      PCIController.PrintPCIDrivers();
 
       VideoGraphicsArray vga;
 
@@ -365,7 +289,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // arp.Resolve(gip_BE);
     ipv4.Send(gip_BE, 0x01, (uint8_t*) "7777777",7);
 
-    // printf("DracOS MWHAHAHHAH !!");
+    printf("DracOS MWHAHAHHAH !!");
 
     while (1){
         asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage

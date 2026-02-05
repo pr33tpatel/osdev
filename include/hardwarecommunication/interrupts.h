@@ -6,6 +6,7 @@
 #include <common/types.h>
 #include <hardwarecommunication/port.h>
 #include <multitasking.h>
+#include <utils/print.h>
 
 
 namespace os {

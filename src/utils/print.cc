@@ -35,7 +35,9 @@ static void scrollConsole() {
 
 /* => print functions */
 
-void putChar(char c, uint8_t color) {
+// void putChar(char c, VGAColor fg, VGAColor bg = BLACK_COLOR);
+void putChar(char c, VGAColor fg, VGAColor bg) {
+  uint8_t color = vga_color_entry(fg, bg);
   /* default color:= vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR) */  
   if (c == '\n') {
     cursorCol = 0;
@@ -59,40 +61,39 @@ void putChar(char c, uint8_t color) {
   }
 }
 
+void putChar(char c) {
+  putChar(c, LIGHT_BLUE_COLOR, BLACK_COLOR);
+}
 
 // TODO: add variable arguments to printf such as %d
-void printf(const char* str, uint8_t color) {
-  for (size_t i = 0; i != '\0'; i++) {
-    putChar(str[i], color);
+void printf(const char* str, VGAColor fg, VGAColor bg) {
+  for (size_t i = 0; str[i] != '\0'; i++) {
+    putChar(str[i], fg, bg);
   }
 }
 
+void printf(const char* str) {
+  printf(str, RED_COLOR, BLACK_COLOR);
+}
 
 void printByte(uint8_t byte) {
-  char* hexChar = "00"; // "00" are default placeholder values 
   char* hexSet = "0123456789ABCDEF";
 
-  hexChar[0] = hexSet[(byte >> 4) & 0xF]; 
-  hexChar[1] = hexSet[byte & 0xF];
-  printf(hexChar);
+  putChar(hexSet[(byte >> 4) & 0xF]); // print high nibble
+  putChar(hexSet[byte & 0xF]); // print low nibble
 
   /* DIAGRAM: Printing a byte in hexademcial
-
      example byte: 23_10 => 0x17=> 0b 0001 0111
-
      hexChar[0]: (byte >> 4) & 0xF := 0000 0001 
                                     & 0000 1111 = 0000 0001 => 0x1 => '1' 
-
      hexChar[1]: (byte) & 0xF      := 0001 0111
                                     & 0000 1111 = 0000 0111 => 0x7 => '7'
-
      char* hexChar := ['1','7']
-      
   */
 }
 
 
-void print4Bytes(uint8_t byte) {
+void print4Bytes(uint32_t byte) {
   // N = 4
   printf("0x");
   printByte((byte >> 3*8) & 0xFF); // print byte 3
@@ -102,11 +103,11 @@ void print4Bytes(uint8_t byte) {
 }
 
 void printNBytes(uint8_t byte, uint8_t N) {
-  printf("0x");
-  for (uint8_t i = N-1 ; i >= 0; i--)  {
-    printByte((byte >> (i*8)) & 0xFF);
-    N--;
-  }
+  // printf("0x");
+  // for (uint8_t i = N-1 ; i >= 0; i--)  {
+  //   printByte((byte >> (i*8)) & 0xFF);
+  //   N--;
+  // }
 }
 
 

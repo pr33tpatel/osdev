@@ -1,12 +1,13 @@
 TODO:
 - [ ] improve text mode:
     - [ ] add scrolling feature
-    - [ ] better printing functions
-        - [ ] make variadic print functions to take multiple arguments 
-        - [ ] parse format specifiers (such as %d, %s, ...)
+    - [x] better printing functions
     - [ ] implement more keyboard interrupts (full alpha-numeric, etc.)
     - [ ] CLI
     - [ ] better fonts
+    OPTIONAL:
+    - [ ] make variadic print functions to take multiple arguments 
+    - [ ] parse format specifiers (such as %d, %s, ...)
 
 - [ ] DracOS Network:
     - [x] ARP
@@ -19,6 +20,7 @@ TODO:
     - [ ] assign userID and PID to each process created
 
 - [ ] create an include/utils/
+    - [ ] utils.h // cumulative utilties file that contains all other utilties
     - [ ] print.h
     - [ ] math.h
     - [ ] string.h

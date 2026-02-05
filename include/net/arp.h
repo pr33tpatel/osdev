@@ -3,6 +3,7 @@
 
 #include <common/types.h>
 #include <net/etherframe.h>
+#include <utils/print.h>
 
 namespace os {
   namespace net {
@@ -33,9 +34,9 @@ namespace os {
         AddressResolutionProtocol(EtherFrameProvider* backend);
         ~AddressResolutionProtocol();
 
-        void printfIPAddress(common::uint32_t IP);
-        void printfMACAddress(common::uint64_t MAC);
-        void printfARPmsg(AddressResolutionProtocolMessage* arp);
+        void printIPAddress(common::uint32_t IP);
+        void printMACAddress(common::uint64_t MAC);
+        void printARPmsg(AddressResolutionProtocolMessage* arp);
         bool OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
 
         void RequestMACAddress(common::uint32_t IP_BE);

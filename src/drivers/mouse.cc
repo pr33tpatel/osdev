@@ -1,5 +1,7 @@
 #include <drivers/mouse.h>
+
 using namespace os::common;
+using namespace os::utils;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
 
@@ -29,7 +31,6 @@ MouseDriver::~MouseDriver()
 
 }
 
-void printf(char*);
 
 void MouseDriver::Activate(){
   offset = 0;

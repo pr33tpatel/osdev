@@ -2,9 +2,9 @@
 
 using namespace os;
 using namespace os::common;
+using namespace os::utils;
 using namespace os::hardwarecommunication;
 
-void printf(const char* str);
 
 
 SyscallHandler::SyscallHandler(InterruptManager* interruptManager, uint8_t InterruptNumber )

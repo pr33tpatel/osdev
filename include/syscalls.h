@@ -2,6 +2,7 @@
 #define __OS__SYSCALLS_H
 
 #include <common/types.h>
+#include <utils/print.h>
 #include <hardwarecommunication/interrupts.h>
 #include <multitasking.h>
 

@@ -3,11 +3,8 @@
 
 using namespace os;
 using namespace os::common;
+using namespace os::utils;
 using namespace os::hardwarecommunication;
-
-
-void printf(const char* str);
-void printfHex(uint8_t);
 
 
 InterruptHandler::InterruptHandler(InterruptManager* interruptManager, uint8_t InterruptNumber)
@@ -170,9 +167,6 @@ uint32_t InterruptManager::HandleInterrupt(uint8_t interrupt, uint32_t esp)
 
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interrupt, uint32_t esp)
 {
-    // // TEST:
-    // printfHex(interrupt);
-    // printf(" ");
 
     if(handlers[interrupt] != 0)
     {
@@ -181,18 +175,16 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interrupt, uint32_t esp)
     else if(interrupt != hardwareInterruptOffset)
     {
         printf("UNHANDLED INTERRUPT 0x00");
-        printfHex(interrupt);
+        printByte(interrupt);
     }
 
     if(interrupt == hardwareInterruptOffset) {
-      // printf("SCHED"); 
       esp = (uint32_t)taskManager->Schedule((CPUState*)esp);
     }
 
     // hardware interrupts must be acknowledged
     if(hardwareInterruptOffset <= interrupt && interrupt < hardwareInterruptOffset+16)
     {
-      // printf("E");
         programmableInterruptControllerMasterCommandPort.Write(0x20);
         if(hardwareInterruptOffset + 8 <= interrupt)
             programmableInterruptControllerSlaveCommandPort.Write(0x20);

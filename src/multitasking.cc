@@ -2,9 +2,8 @@
 
 using namespace os;
 using namespace os::common;
+using namespace os::utils;
 
-void printf(const char* str);
-void printfHex(uint8_t);
 
 Task::Task(GlobalDescriptorTable* gdt, void entrypoint()) 
 {
@@ -76,7 +75,7 @@ CPUState* TaskManager::Schedule(CPUState* cpustate) {
   // scheduleCount++;
   // if (scheduleCount % 10 == 0) // print every 10th call
   // {   printf("\n");
-  //   printfHex(scheduleCount);
+  //   printByte(scheduleCount);
   //   printf("\n");
   // } 
 

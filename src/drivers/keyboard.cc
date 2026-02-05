@@ -1,7 +1,7 @@
-
 #include <drivers/keyboard.h>
 
 using namespace os::common;
+using namespace os::utils;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
 
@@ -29,8 +29,6 @@ KeyboardDriver::~KeyboardDriver()
 {
 }
 
-void printf(const char*);
-void printfHex(uint8_t key);
 
 void KeyboardDriver::Activate() {
   while(commandport.Read() & 0x1)
@@ -104,7 +102,7 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
             default:
             {
               printf("KEYBOARD 0x");
-              printfHex(key);
+              printByte(key);
               break;
             }
         }

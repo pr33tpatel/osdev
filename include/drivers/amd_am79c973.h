@@ -6,6 +6,7 @@
 #include <hardwarecommunication/interrupts.h>
 #include <hardwarecommunication/pci.h>
 #include <hardwarecommunication/port.h>
+#include <utils/print.h>
 
 namespace os {
   namespace drivers {
