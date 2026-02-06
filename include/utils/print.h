@@ -3,6 +3,7 @@
 
 #include <common/types.h>
 #include <hardwarecommunication/port.h>
+#include <stdarg.h>
 
 namespace os {
   namespace utils {
@@ -48,8 +49,11 @@ namespace os {
     void putChar(char c);
     void putChar(char c, VGAColor fg, VGAColor bg = BLACK_COLOR);
 
-    void printf(const char* str);
-    void printf(const char* str, VGAColor fg , VGAColor bg = BLACK_COLOR);
+    void printf(const char* fmt, ...);
+    void printf(VGAColor fg , VGAColor bg, const char* fmt, ...);
+    void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args);
+
+    void printNumber(int number, int base, VGAColor fg, VGAColor bg);
 
     void printByte(common::uint8_t byte);
     void printByte(common::uint8_t byte, VGAColor fg, VGAColor bg = BLACK_COLOR);

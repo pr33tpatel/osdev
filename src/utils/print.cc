@@ -95,10 +95,101 @@ void putChar(char c, VGAColor fg, VGAColor bg) {
 }
 
 
-void printf(const char* str, VGAColor fg, VGAColor bg) {
-  for (size_t i = 0; str[i] != '\0'; i++) {
-    putChar(str[i], fg, bg);
+void printNumber(int number, int base, VGAColor fg, VGAColor bg) {
+  char buffer[32];
+  int pos = 0;
+
+  if (number == 0) {
+    putChar('0', fg, bg);
+    return;
   }
+
+  if (number < 0 && base == 10) { // NOTE: negative numbers only for base10, base16 will only be positive
+    putChar('-', fg, bg);
+    number = -number;
+  }
+
+  // convert number to string
+  unsigned int uNumber = (unsigned int)number;
+
+  const char* digits = "0123456789ABCDEF";
+
+  while (uNumber > 0) {
+    buffer[pos++] = digits[uNumber % base];
+    uNumber /= base;
+  }
+  
+  // print the buffer in reverse
+  for (int i = pos-1; i >= 0; i--) {
+    putChar(buffer[i], fg, bg);
+  }
+}
+
+void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args) {
+  for (size_t i = 0; fmt[i] != '\0'; i++) {
+    
+    // if not % specifier, print the value
+    if (fmt[i] != '%') {
+      putChar(fmt[i], fg, bg);
+      continue;
+    }
+
+    // if % has been found, look at the next character
+    i++;
+    switch (fmt[i]) 
+    {
+      case 'c':  // character
+        {
+          char c = (char) va_arg(args, int);
+          putChar(c, fg, bg);
+          break;
+        }
+
+      case 's':  // string
+        {
+          const char* str = va_arg(args, const char*);
+          for (size_t j = 0; str[j] != '\0'; j++)
+            putChar(str[j], fg, bg);
+
+          break;
+        }
+
+      case 'd': // decimal integer 
+        {
+          int x = va_arg(args, int);
+          printNumber(x, 10, fg, bg);
+          break;
+        }
+
+      case 'x': // hexadecimal
+        {
+          int x = va_arg(args,int);
+          putChar('0', fg, bg); putChar('x', fg, bg); // print "0x" prefix
+          printNumber(x, 16, fg, bg);
+          break;
+        }
+
+      case '%': // escaped sequence for %
+        {
+          putChar('%', fg, bg);
+          break;
+        }
+
+      default:  // unknown, so just print specifier (e.g."... %q ...")
+        {
+          putChar('%', fg, bg);
+          putChar(fmt[i], fg, bg);
+          break;
+        }
+    }
+  }
+}
+
+void printf(VGAColor fg , VGAColor bg, const char* fmt, ...){
+  va_list args;
+  va_start(args, fmt);
+  printfInternal(fg, bg, fmt, args);
+  va_end(args);
 }
 
 void printByte(uint8_t byte, VGAColor fg, VGAColor bg) {
@@ -134,8 +225,11 @@ void putChar(char c) {
   putChar(c, LIGHT_GRAY_COLOR, BLACK_COLOR); 
 }
 
-void printf(const char* str) {
-  printf(str, RED_COLOR, BLACK_COLOR);
+void printf(const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  printfInternal(LIGHT_GRAY_COLOR, BLACK_COLOR, fmt, args);
+  va_end(args);
 }
 
 void printByte(uint8_t byte) {

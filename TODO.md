@@ -1,13 +1,14 @@
 TODO:
-- [ ] improve text mode:
-    - [ ] add scrolling feature
+- [x] improve text mode:
+    - [x] add down scrolling feature
     - [x] better printing functions
     - [x] implement more keyboard interrupts (full alpha-numeric, etc.)
-    - [ ] CLI
-    - [ ] better fonts
-    - [ ] OPTIONAL:
-        - [ ] make variadic print functions to take multiple arguments 
-        - [ ] parse format specifiers (such as %d, %s, ...)
+    - [x] better fonts
+    - [x] make variadic print functions to take multiple arguments 
+    - [x] parse format specifiers (such as %d, %s, ...)
+
+- [ ] CLI:
+    - [ ] cursor navigation
 
 - [ ] DracOS Network:
     - [x] ARP

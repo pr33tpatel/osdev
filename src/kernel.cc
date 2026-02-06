@@ -289,7 +289,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // arp.Resolve(gip_BE);
     ipv4.Send(gip_BE, 0x01, (uint8_t*) "7777777",7);
 
-    printf("DracOS MWHAHAHHAH !!");
+    int test = 23;
+    printf("DracOS MWHAHAHHAH !! %d", test);
 
     while (1){
         asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage
