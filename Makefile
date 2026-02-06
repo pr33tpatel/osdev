@@ -69,8 +69,8 @@ Image.img:
 
 run: mykernel.iso Image.img
 	qemu-system-i386 \
-		-cdrom mykernel.iso \
 		-boot d \
+		-cdrom mykernel.iso \
 		-m 512 \
 		-smp 1 \
 		-net nic,model=pcnet -net user \

@@ -96,24 +96,25 @@ void PeripheralComponentInterconnectController::PrintPCIDrivers() {
           continue;
 
         // // NOTE: same output as linux command: "lspci" : list of PCI devcies
-        printf("PCI BUS ");
-        printByte(bus & 0xFF);
-
-        printf(", DEVICE ");
-        printByte(device & 0xFF);
-
-        printf(", FUNCTION ");
-        printByte(function & 0xFF);
-
-        printf(" = VENDOR ");
-        printByte((dev.vendor_id & 0xFF00) >> 8);
-        printByte(dev.vendor_id & 0xFF);
-
-        printf(", DEVICE ");
-        printByte((dev.device_id & 0xFF00) >> 8);
-        printByte(dev.device_id & 0xFF);
-
-        printf("\n");
+        printf("PCI BUS %x, DEVICE %x, VENDOR %x\n", bus, device, function);
+        // printf("PCI BUS ");
+        // printByte(bus & 0xFF);
+        //
+        // printf(", DEVICE ");
+        // printByte(device & 0xFF);
+        //
+        // printf(", FUNCTION ");
+        // printByte(function & 0xFF);
+        //
+        // printf(" = VENDOR ");
+        // printByte((dev.vendor_id & 0xFF00) >> 8);
+        // printByte(dev.vendor_id & 0xFF);
+        //
+        // printf(", DEVICE ");
+        // printByte((dev.device_id & 0xFF00) >> 8);
+        // printByte(dev.device_id & 0xFF);
+        //
+        // printf("\n");
       }
     }
   }

@@ -157,21 +157,21 @@ int amd_am79c973::Reset()
 
 uint32_t amd_am79c973::HandleInterrupt(common::uint32_t esp)
 {
-    printf("\nNETWORK INTERRUPT: ");
     registerAddressPort.Write(0);
     uint32_t temp = registerDataPort.Read();
     
-    if((temp & 0x8000) == 0x8000) printf("AMD am79c973 ERROR\n");
-    if((temp & 0x2000) == 0x2000) printf("AMD am79c973 COLLISION ERROR\n");
-    if((temp & 0x1000) == 0x1000) printf("AMD am79c973 MISSED FRAME\n");
-    if((temp & 0x0800) == 0x0800) printf("AMD am79c973 MEMORY ERROR\n");
-    if((temp & 0x0400) == 0x0400) printf("DATA RECEIVED\n"); Receive();
-    if((temp & 0x0200) == 0x0200) printf("DATA SENT\n");
+    if((temp & 0x8000) == 0x8000) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 ERROR\n");
+    if((temp & 0x2000) == 0x2000) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 COLLISION ERROR\n");
+    if((temp & 0x1000) == 0x1000) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 MISSED FRAME\n");
+    if((temp & 0x0800) == 0x0800) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 MEMORY ERROR\n");
+    if((temp & 0x0400) == 0x0400) printf(LIGHT_BLUE_COLOR, BLACK_COLOR, "NETWORK INTERRUPT: DATA RECEIVED\n"); Receive();
+    if((temp & 0x0200) == 0x0200) printf(LIGHT_BLUE_COLOR, BLACK_COLOR, "NETWORK INTERRUPT: DATA SENT\n");
     // acknowledge
     registerAddressPort.Write(0);
     registerDataPort.Write(temp);
     
-    if((temp & 0x0100) == 0x0100) printf("AMD am79c973 INIT DONE\n");
+    // NOTE: printing INIT DONE got annoying so commented out
+    // if((temp & 0x0100) == 0x0100) printf("AMD am79c973 INIT DONE\n");
     
     return esp;
 }
