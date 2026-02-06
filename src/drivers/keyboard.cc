@@ -23,6 +23,7 @@ dataport(0x60),
 commandport(0x64)
 {
   this->handler = handler;
+  this->Shift = false;
 }
 
 KeyboardDriver::~KeyboardDriver()
@@ -49,55 +50,83 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 
     if(handler==0) return esp;
 
+    if (key == 0x2A || key == 0x36)  // left shfit := 0x2A, right shift := 0x36 
+      Shift = true;
+
+    if (key == 0xAA || key == 0xB6) {
+      Shift = false;
+    }
+
+    /* ignore break code (break codes are when the key is release) */
+    if (key & 0x80) 
+      return esp; // usually, code > 0x80 is a break code (a key being released, which we don't care about)
+    
+    char ascii = 0;
+
     if(key < 0x80)
     {
         switch(key)
         {
-            case 0x02: handler->OnKeyDown('1'); break;
-            case 0x03: handler->OnKeyDown('2'); break;
-            case 0x04: handler->OnKeyDown('3'); break;
-            case 0x05: handler->OnKeyDown('4'); break;
-            case 0x06: handler->OnKeyDown('5'); break;
-            case 0x07: handler->OnKeyDown('6'); break;
-            case 0x08: handler->OnKeyDown('7'); break;
-            case 0x09: handler->OnKeyDown('8'); break;
-            case 0x0A: handler->OnKeyDown('9'); break;
-            case 0x0B: handler->OnKeyDown('0'); break;
+            case 0x02: ascii = Shift ? '!' : '1'; break;
+            case 0x03: ascii = Shift ? '@' : '2'; break;
+            case 0x04: ascii = Shift ? '#' : '3'; break;
+            case 0x05: ascii = Shift ? '$' : '4'; break;
+            case 0x06: ascii = Shift ? '%' : '5'; break;
+            case 0x07: ascii = Shift ? '^' : '6'; break;
+            case 0x08: ascii = Shift ? '&' : '7'; break;
+            case 0x09: ascii = Shift ? '*' : '8'; break;
+            case 0x0A: ascii = Shift ? '(' : '9'; break;
+            case 0x0B: ascii = Shift ? ')' : '0'; break;
+            case 0x0C: ascii = Shift ? '_' : '-'; break;
+            case 0x0D: ascii = Shift ? '+' : '='; break;
 
-            case 0x10: handler->OnKeyDown('q'); break;
-            case 0x11: handler->OnKeyDown('w'); break;
-            case 0x12: handler->OnKeyDown('e'); break;
-            case 0x13: handler->OnKeyDown('r'); break;
-            case 0x14: handler->OnKeyDown('t'); break;
-            case 0x15: handler->OnKeyDown('y'); break;
-            case 0x16: handler->OnKeyDown('u'); break;
-            case 0x17: handler->OnKeyDown('i'); break;
-            case 0x18: handler->OnKeyDown('o'); break;
-            case 0x19: handler->OnKeyDown('p'); break;
+            case 0x10: ascii = Shift ? 'Q' : 'q'; break;
+            case 0x11: ascii = Shift ? 'W' : 'w'; break;
+            case 0x12: ascii = Shift ? 'E' : 'e'; break;
+            case 0x13: ascii = Shift ? 'R' : 'r'; break;
+            case 0x14: ascii = Shift ? 'T' : 't'; break;
+            case 0x15: ascii = Shift ? 'Y' : 'y'; break;
+            case 0x16: ascii = Shift ? 'U' : 'u'; break;
+            case 0x17: ascii = Shift ? 'I' : 'i'; break;
+            case 0x18: ascii = Shift ? 'O' : 'o'; break;
+            case 0x19: ascii = Shift ? 'P' : 'p'; break;
+            case 0x1A: ascii = Shift ? '{' : '['; break;
+            case 0x1B: ascii = Shift ? '}' : ']'; break;
+            case 0x2B: ascii = Shift ? '|' : '\\'; break;
 
-            case 0x1E: handler->OnKeyDown('a'); break;
-            case 0x1F: handler->OnKeyDown('s'); break;
-            case 0x20: handler->OnKeyDown('d'); break;
-            case 0x21: handler->OnKeyDown('f'); break;
-            case 0x22: handler->OnKeyDown('g'); break;
-            case 0x23: handler->OnKeyDown('h'); break;
-            case 0x24: handler->OnKeyDown('j'); break;
-            case 0x25: handler->OnKeyDown('k'); break;
-            case 0x26: handler->OnKeyDown('l'); break;
+            case 0x1E: ascii = Shift ? 'A' : 'a'; break;
+            case 0x1F: ascii = Shift ? 'S' : 's'; break;
+            case 0x20: ascii = Shift ? 'D' : 'd'; break;
+            case 0x21: ascii = Shift ? 'F' : 'f'; break;
+            case 0x22: ascii = Shift ? 'G' : 'g'; break;
+            case 0x23: ascii = Shift ? 'H' : 'h'; break;
+            case 0x24: ascii = Shift ? 'J' : 'j'; break;
+            case 0x25: ascii = Shift ? 'K' : 'k'; break;
+            case 0x26: ascii = Shift ? 'L' : 'l'; break;
+            case 0x27: ascii = Shift ? ':' : ';'; break;
+            case 0x28: ascii = Shift ? '"' : '\''; break;
+            case 0x29: ascii = Shift ? '~' : '`'; break;
 
-            case 0x2C: handler->OnKeyDown('z'); break;
-            case 0x2D: handler->OnKeyDown('x'); break;
-            case 0x2E: handler->OnKeyDown('c'); break;
-            case 0x2F: handler->OnKeyDown('v'); break;
-            case 0x30: handler->OnKeyDown('b'); break;
-            case 0x31: handler->OnKeyDown('n'); break;
-            case 0x32: handler->OnKeyDown('m'); break;
-            case 0x33: handler->OnKeyDown(','); break;
-            case 0x34: handler->OnKeyDown('.'); break;
-            case 0x35: handler->OnKeyDown('-'); break;
+            case 0x2C: ascii = Shift ? 'Z' : 'z'; break;
+            case 0x2D: ascii = Shift ? 'X' : 'x'; break;
+            case 0x2E: ascii = Shift ? 'C' : 'c'; break;
+            case 0x2F: ascii = Shift ? 'V' : 'v'; break;
+            case 0x30: ascii = Shift ? 'B' : 'b'; break;
+            case 0x31: ascii = Shift ? 'N' : 'n'; break;
+            case 0x32: ascii = Shift ? 'M' : 'm'; break;
+            case 0x33: ascii = Shift ? '<' : ','; break;
+            case 0x34: ascii = Shift ? '>' :'.'; break;
+            case 0x35: ascii = Shift ? '?' :'/'; break;
 
-            case 0x1C: handler->OnKeyDown('\n'); break;
-            case 0x39: handler->OnKeyDown(' '); break;
+            case 0x0E: ascii = '\b'; break;
+            case 0x0F: ascii = '\t'; break;
+            case 0x1C: ascii = '\n'; break;
+            case 0x39: ascii = ' '; break;
+
+            // IGNORE CASES
+            case 0x2A: case 0x36: break; // left shift and right shift
+            case 0x1D: break; // ctrl key
+            case 0x48: case 0x4D: case 0x50: case 0x4B: ; break; // arrow keys
 
             default:
             {
@@ -107,5 +136,11 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
             }
         }
     }
+
+    if (ascii != 0) {
+      handler->OnKeyDown(ascii);
+    }
+
+
     return esp;
 }

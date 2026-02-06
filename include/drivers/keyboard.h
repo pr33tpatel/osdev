@@ -22,15 +22,19 @@ namespace os {
 
     class KeyboardDriver : public os::hardwarecommunication::InterruptHandler, public Driver
     {
-      os::hardwarecommunication::Port8Bit dataport;
-      os::hardwarecommunication::Port8Bit commandport;
+        os::hardwarecommunication::Port8Bit dataport;
+        os::hardwarecommunication::Port8Bit commandport;
 
-      KeyboardEventHandler* handler;
+        KeyboardEventHandler* handler;
+
+        bool Shift;
+
       public:
-      KeyboardDriver(os::hardwarecommunication::InterruptManager* manager, KeyboardEventHandler *handler);
-      ~KeyboardDriver();
-      virtual os::common::uint32_t HandleInterrupt(os::common::uint32_t esp);
-      virtual void Activate();
+
+        KeyboardDriver(os::hardwarecommunication::InterruptManager* manager, KeyboardEventHandler *handler);
+        ~KeyboardDriver();
+        virtual os::common::uint32_t HandleInterrupt(os::common::uint32_t esp);
+        virtual void Activate();
 
     };
   }

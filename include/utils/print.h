@@ -2,6 +2,7 @@
 #define __OS__UTILS__PRINT_H
 
 #include <common/types.h>
+#include <hardwarecommunication/port.h>
 
 namespace os {
   namespace utils {
@@ -51,12 +52,18 @@ namespace os {
     void printf(const char* str, VGAColor fg , VGAColor bg = BLACK_COLOR);
 
     void printByte(common::uint8_t byte);
+    void printByte(common::uint8_t byte, VGAColor fg, VGAColor bg = BLACK_COLOR);
+
     void print4Bytes(common::uint32_t byte);
+    void print4Bytes(common::uint32_t byte, VGAColor fg, VGAColor bg = BLACK_COLOR);
+
     void printNBytes(common::uint8_t byte, common::uint8_t N);
+    void printNBytes(common::uint8_t byte, common::uint8_t N, VGAColor fg, VGAColor bg = BLACK_COLOR);
 
     /* miscellaneous functions */
     // static void scrollConsole();
     void clearScreen();
+    void enableCursor(common::uint8_t cursorStart, common::uint8_t cursorEnd);
     void setCursorPos(common::uint8_t row, common::uint8_t col);
   }
 }
