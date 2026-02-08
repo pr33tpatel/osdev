@@ -59,6 +59,10 @@ void putChar(char c, VGAColor fg, VGAColor bg) {
     cursorRow++;
   } 
 
+  else if (c == '\t') { // tab is 4 spaces
+    cursorCol += 4;
+  }
+
   else if (c == '\b') { // backspace
     if (cursorCol > 0) {
       cursorCol--;
