@@ -19,6 +19,7 @@
 #include <net/ipv4.h>
 
 #include <utils/print.h>
+#include <utils/string.h>
 
 // NOTE: this turns GRAPHICSMODE on/off
 // #define GRAPHICSMODE 
@@ -288,11 +289,14 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // activate interupts last
     interrupts.Activate();
 
+    char* send_data = "7777777";
     // arp.Resolve(gip_BE);
-    ipv4.Send(gip_BE, 0x01, (uint8_t*) "7777777",7);
+    ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
+    printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d,\t", strlen(send_data));
+    printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s", send_data);
 
-    int test = 23;
-    printf("DracOS MWHAHAHHAH !! %d", test);
+
+    //printf("DracOS MWHAHAHHAH !!");
 
     while (1){
         asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage

@@ -1,4 +1,4 @@
-TODO:
+todo:
 - [x] improve text mode:
     - [x] add down scrolling feature
     - [x] better printing functions
@@ -6,29 +6,32 @@ TODO:
     - [x] better fonts
     - [x] make variadic print functions to take multiple arguments 
     - [x] parse format specifiers (such as %d, %s, ...)
-    - [ ] add width and better formatting to specifiers
+    - [x] add width and better formatting to specifiers
 
-- [ ] CLI:
+- [ ] cli:
     - [ ] cursor navigation
 
-- [ ] DracOS Network:
-    - [x] ARP
-    - [x] IP
-    - [ ] UDP
-    - [ ] TCP
+- [ ] dracos network:
+    - [x] arp
+    - [x] ip
+    - [ ] udp
+    - [ ] tcp
     - [ ] basic html
 
-- [ ] Processes & Threads:
-    - [ ] assign userID and PID to each process created
+- [ ] processes & threads:
+    - [ ] assign userid and pid to each process created
 
 - [ ] create an include/utils/
     - [ ] utils.h // cumulative utilties file that contains all other utilties
     - [x] print.h
     - [ ] math.h
-    - [ ] string.h
+    - [x] string.h
     - [ ] memory.h
     - [ ] buffer.h
     - [ ] bitmap.h
+
+- [ ] hardware
+    - [ ] pit timer
     
 - [ ] create a test/
     - [ ] test_framework.h
@@ -41,12 +44,14 @@ TODO:
     - [ ] benchmarks/benchmarks_{disk,memory,task}.cc
 
 
-- [ ] Graphics (v2):
+- [ ] graphics (v2):
     - [ ] name: ... 
+    - [ ] make the mouse cursor a crosshair (center dot, outer circle, 4 tick marks in cardinal directions)
+    - [ ] bitmap font (reference & inspiration: https://www.dafont.com/alagard.font, give credit)
+    - [ ] windowing
 
-- [ ] change the hard drive driver design from PiO (program i/o) to DMA (direct memory access)
-- [ ] make the mouse cursor a crosshair (center dot, outer circle, 4 tick marks in cardinal directions)
+- [ ] change the hard drive driver design from pio (program i/o) to dma (direct memory access)
 
-EXTRA:
-- name maybe "DracOS" // pronounced dracos
-- name the filesystem ScalesFS (for scalability ~hehe)
+extra:
+- name maybe "dracos" // pronounced dracos
+- name the filesystem scalesfs (for scalability ~hehe)
