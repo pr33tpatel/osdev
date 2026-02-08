@@ -53,7 +53,7 @@ namespace os {
     void printf(VGAColor fg , VGAColor bg, const char* fmt, ...);
     void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args);
 
-    void printNumber(int number, int base, VGAColor fg, VGAColor bg);
+    void printNumber(int number, int base, VGAColor fg, VGAColor bg, int width, char paddingChar);
 
     void printByte(common::uint8_t byte);
     void printByte(common::uint8_t byte, VGAColor fg, VGAColor bg = BLACK_COLOR);

@@ -95,7 +95,7 @@ void putChar(char c, VGAColor fg, VGAColor bg) {
 }
 
 
-void printNumber(int number, int base, VGAColor fg, VGAColor bg) {
+void printNumber(int number, int base, VGAColor fg, VGAColor bg, int width, char paddingChar) {
   char buffer[32];
   int pos = 0;
 
@@ -118,6 +118,12 @@ void printNumber(int number, int base, VGAColor fg, VGAColor bg) {
     buffer[pos++] = digits[uNumber % base];
     uNumber /= base;
   }
+
+  while (pos < width) {
+    putChar(paddingChar, fg, bg);
+    width--;
+  }
+
   
   // print the buffer in reverse
   for (int i = pos-1; i >= 0; i--) {
@@ -136,6 +142,20 @@ void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args) {
 
     // if % has been found, look at the next character
     i++;
+    
+    int width = 0;
+    char paddingChar = ' ';
+
+    if (fmt[i] == '0') {
+      paddingChar = '0';
+      i++;
+    }
+
+    while (fmt[i] >= '0' && fmt[i] <= '9') {
+      width = width * 10 + (fmt[i] - '0');
+      i++;
+    }
+
     switch (fmt[i]) 
     {
       case 'c':  // character
@@ -154,18 +174,21 @@ void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args) {
           break;
         }
 
+      case 'i':
       case 'd': // decimal integer 
         {
           int x = va_arg(args, int);
-          printNumber(x, 10, fg, bg);
+          printNumber(x, 10, fg, bg, width, paddingChar);
           break;
         }
 
+      case 'X':
       case 'x': // hexadecimal
         {
           int x = va_arg(args,int);
-          putChar('0', fg, bg); putChar('x', fg, bg); // print "0x" prefix
-          printNumber(x, 16, fg, bg);
+          // putChar('0', fg, bg); putChar('x', fg, bg); // print "0x" prefix
+          // now, with the paddingChar, "%08x" will produce "00001234"
+          printNumber(x, 16, fg, bg, width, paddingChar);
           break;
         }
 

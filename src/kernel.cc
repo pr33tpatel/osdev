@@ -145,7 +145,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     */
     MemoryManager memoryManager(heapStart, heapSize); 
 
-    printf("Heap Start: %d\n", heapStart);
+    printf("Heap Start: 0x%08x = %d MiB\n", heapStart, (heapStart / (1024*1024)));
 
     // printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
     // printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
@@ -200,7 +200,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
       PeripheralComponentInterconnectController PCIController;
       PCIController.SelectDrivers(&drvManager, &interrupts);
-      PCIController.PrintPCIDrivers();
+      // PCIController.PrintPCIDrivers();
 
       VideoGraphicsArray vga;
 
@@ -275,8 +275,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     InternetProtocolProvider ipv4(&etherframe, &arp, gip_BE, subnet_BE);
 #endif
 
-    // TEST:
-      PCIController.PrintPCIDrivers();
 
 #ifdef GRAPHICSMODE
     vga.SetMode(320, 200, 8); // 320x200x256

@@ -6,6 +6,7 @@ TODO:
     - [x] better fonts
     - [x] make variadic print functions to take multiple arguments 
     - [x] parse format specifiers (such as %d, %s, ...)
+    - [ ] add width and better formatting to specifiers
 
 - [ ] CLI:
     - [ ] cursor navigation
@@ -22,7 +23,7 @@ TODO:
 
 - [ ] create an include/utils/
     - [ ] utils.h // cumulative utilties file that contains all other utilties
-    - [ ] print.h
+    - [x] print.h
     - [ ] math.h
     - [ ] string.h
     - [ ] memory.h
@@ -40,7 +41,7 @@ TODO:
     - [ ] benchmarks/benchmarks_{disk,memory,task}.cc
 
 
-- [ ] Graphics:
+- [ ] Graphics (v2):
     - [ ] name: ... 
 
 - [ ] change the hard drive driver design from PiO (program i/o) to DMA (direct memory access)
