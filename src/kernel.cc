@@ -207,6 +207,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       drvManager.AddDriver(&keyboard);
 
       PeripheralComponentInterconnectController PCIController;
+      shell.SetPCI(&PCIController); 
       PCIController.SelectDrivers(&drvManager, &interrupts);
       // PCIController.PrintPCIDrivers();
 
@@ -241,14 +242,34 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {
       if (drvManager.drivers[i] != 0) {
-        if (i == 2) {
+        // We assume the network card is the one that ISN'T the mouse or keyboard
+        // (You can also check by casting if you have RTTI, but this is standard for osdev)
+        if (drvManager.drivers[i] != &mouse && drvManager.drivers[i] != &keyboard) {
           eth0 = (amd_am79c973*) drvManager.drivers[i];
-          printf("Found eth0 ");
+          printf("Network Driver Found at Index: %d\n", i); // Debug print
           break;
         }
       }
     }
 
+    // --- CRITICAL SAFETY CHECK ---
+    if (eth0 == 0) {
+      printf("ERROR: No Network Card found!\n");
+      printf("Possible causes:\n");
+      printf("1. PCI Driver did not detect device 0x1022:0x2000\n");
+      printf("2. MemoryManager::malloc failed (Heap full?)\n");
+      while(1); // Freeze kernel here so you can see the error
+    }
+    // for (int i = 0; i < drvManager.numDrivers; i++) {
+    //   if (drvManager.drivers[i] != 0) {
+    //     if (i == 2) {
+    //       eth0 = (amd_am79c973*) drvManager.drivers[i];
+    //       printf("Found eth0 ");
+    //       break;
+    //     }
+    //   }
+    // }
+    //
     if (eth0 != 0) 
       printf("Welcome to DracOS Network\n");
 
@@ -281,6 +302,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     AddressResolutionProtocol arp(&etherframe);  // communicates with etherframe provider middle-layer
 
     InternetProtocolProvider ipv4(&etherframe, &arp, gip_BE, subnet_BE);
+
+    shell.SetARP(&arp);
 #endif
 
 

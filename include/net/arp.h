@@ -36,6 +36,8 @@ namespace os {
 
         void printIPAddress(common::uint32_t IP);
         void printMACAddress(common::uint64_t MAC);
+        void printSrcIPAddress();
+        void printSrcMACAddress();
         void printARPmsg(AddressResolutionProtocolMessage* arp);
         bool OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
 

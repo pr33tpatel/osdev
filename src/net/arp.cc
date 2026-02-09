@@ -25,6 +25,8 @@ void AddressResolutionProtocol::printIPAddress(common::uint32_t IP) {
   printByte((IP >> 24) & 0xFF); 
 
 }
+
+
 void AddressResolutionProtocol::printMACAddress(common::uint64_t MAC) {
   /* little endian x86 machine reading big endian */
   printByte((MAC      ) & 0xFF); printf(".");
@@ -33,9 +35,20 @@ void AddressResolutionProtocol::printMACAddress(common::uint64_t MAC) {
   printByte((MAC >> 24) & 0xFF); printf(".");
   printByte((MAC >> 32) & 0xFF); printf(".");
   printByte((MAC >> 40) & 0xFF); 
-
-
 }
+
+
+void AddressResolutionProtocol::printSrcIPAddress() {
+  uint32_t srcIP = backend->GetIPAddress();
+  printIPAddress(srcIP);
+}
+
+
+void AddressResolutionProtocol::printSrcMACAddress() {
+  uint32_t srcMAC = backend->GetMACAddress();
+  printMACAddress(srcMAC);
+}
+
 
 void AddressResolutionProtocol::printARPmsg(AddressResolutionProtocolMessage* arp) {
   printf("\nARP PACKET:\n");
