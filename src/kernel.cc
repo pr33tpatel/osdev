@@ -13,6 +13,8 @@
 #include <gui/window.h>
 #include <multitasking.h>
 
+#include <cli/shell.h>
+
 #include <drivers/amd_am79c973.h>
 #include <net/etherframe.h>
 #include <net/arp.h>
@@ -32,6 +34,7 @@ using namespace os::drivers;
 using namespace os::hardwarecommunication;
 using namespace os::gui;
 using namespace os::net;
+using namespace os::cli;
 
 
 
@@ -182,6 +185,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     DriverManager drvManager;
 
+    Shell shell;
+
 #ifdef GRAPHICSMODE
     MouseDriver mouse(&interrupts, &desktop); // NOTE: handler: &desktop attaches the mouse to the desktop
 #else
@@ -194,8 +199,10 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 #ifdef GRAPHICSMODE
       KeyboardDriver keyboard(&interrupts, &desktop);
 #else
-      PrintfKeyboardEventHandler kbhandler;
-      KeyboardDriver keyboard(&interrupts, &kbhandler);
+      // PrintfKeyboardEventHandler kbhandler;
+      // KeyboardDriver keyboard(&interrupts, &kbhandler);
+      KeyboardDriver keyboard(&interrupts, &shell);
+
 #endif
       drvManager.AddDriver(&keyboard);
 
@@ -292,8 +299,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     char* send_data = "7777777";
     // arp.Resolve(gip_BE);
     ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
-    printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d,\t", strlen(send_data));
-    printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s", send_data);
+    printf(YELLOW_COLOR, BLACK_COLOR,"Length of data sent: %d Chars\t\t", strlen(send_data));
+    printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
+    printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
 
 
     //printf("DracOS MWHAHAHHAH !!");

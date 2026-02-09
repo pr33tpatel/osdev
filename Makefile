@@ -31,6 +31,7 @@ OBJECTS = obj/loader.o \
 					obj/net/ipv4.o \
 					obj/utils/print.o \
 					obj/utils/string.o \
+					obj/cli/shell.o \
 					obj/kernel.o \
 
 
