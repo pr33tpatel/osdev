@@ -30,6 +30,7 @@ OBJECTS = obj/loader.o \
 					obj/net/etherframe.o \
 					obj/net/arp.o \
 					obj/net/ipv4.o \
+					obj/net/icmp.o \
 					obj/utils/print.o \
 					obj/utils/string.o \
 					obj/cli/shell.o \

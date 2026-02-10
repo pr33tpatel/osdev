@@ -20,6 +20,7 @@
 #include <net/etherframe.h>
 #include <net/arp.h>
 #include <net/ipv4.h>
+#include <net/icmp.h>
 
 #include <utils/print.h>
 #include <utils/string.h>
@@ -307,7 +308,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     InternetProtocolProvider ipv4(&etherframe, &arp, gip_BE, subnet_BE);
 
-    shell.SetARP(&arp);
+    InternetControlMessageProtocol icmp(&ipv4);
+
+    shell.SetNetwork(&arp, &icmp);
 #endif
 
 
@@ -323,6 +326,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     // activate interupts last
     interrupts.Activate();
 
+
     char* send_data = "7777777";
     // arp.Resolve(gip_BE);
     ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
@@ -330,15 +334,10 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
     printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
 
-    // TEST: pit Wait()
-
-    printf("Wait() test: 5 seconds...");
-    printf("test start: %d\n", timer.ticks);
-    timer.Wait(500);
-    // while (timer.ticks < test_ticks_start + 200);
-    printf("Done\n");
-    printf("test end: %d\n", timer.ticks);
-
+    clearScreen();
+    arp.BroadcastMACAddress(gip_BE);
+    icmp.Ping(gip_BE);
+    
 
 
     //printf("DracOS MWHAHAHHAH !!");

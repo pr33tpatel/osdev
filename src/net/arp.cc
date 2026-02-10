@@ -140,8 +140,8 @@ void AddressResolutionProtocol::RequestMACAddress(uint32_t IP_BE)
   arp.dstIP = IP_BE;
 
   this->Send(arp.dstMAC, (uint8_t*)&arp, sizeof(AddressResolutionProtocolMessage));
-
 }
+
 
 uint64_t AddressResolutionProtocol::GetMACFromCache(uint32_t IP_BE)
 {
@@ -151,30 +151,39 @@ uint64_t AddressResolutionProtocol::GetMACFromCache(uint32_t IP_BE)
     return 0xFFFFFFFFFFFF; // broadcast address
 }
 
-uint64_t AddressResolutionProtocol::Resolve(common::uint32_t IP_BE) {
 
-
+uint64_t AddressResolutionProtocol::Resolve(uint32_t IP_BE) {
 	uint64_t result = GetMACFromCache(IP_BE);
-
 	if (result == 0xffffffffffff) {
-	
 		RequestMACAddress(IP_BE);
 	}
-
 	
 	uint8_t attempts = 0;
-
 	while (result == 0xffffffffffff && attempts < 128) {
-	
 		result = this->GetMACFromCache(IP_BE);
 		attempts++;
-
 	}
-
 	if (attempts >= 128) {
-	
 		printf("\nARP Resolve Time Out.\n");
 	}
-	
 	return result;
+}
+
+void AddressResolutionProtocol::BroadcastMACAddress(uint32_t IP_BE) {
+
+  AddressResolutionProtocolMessage arp;
+  arp.hardwareType = 0x0100; // ethernet
+  arp.protocol = 0x0008; // ipv4
+  arp.hardwareAddressSize = 6; // mac
+  arp.protocolAddressSize = 4; // ipv4
+  arp.command = 0x0200; // response 
+
+  arp.srcMAC = backend->GetMACAddress();
+  arp.srcIP = backend->GetIPAddress();
+  arp.dstMAC = Resolve(IP_BE); // if user wants to input dst IP
+  // arp.dstMAC = 0xFFFFFFFFFFFF; // or if user wants to broadcast MAC to all devices in LAN
+  arp.dstIP = IP_BE;
+
+  this->Send(arp.dstMAC, (uint8_t*)&arp, sizeof(AddressResolutionProtocolMessage));
+
 }
