@@ -4,6 +4,7 @@
 #include <common/types.h>
 #include <net/etherframe.h>
 #include <net/arp.h>
+#include <utils/print.h>
 
 namespace os {
   namespace net {
@@ -44,7 +45,7 @@ namespace os {
         InternetProtocolHandler(InternetProtocolProvider* backend, common::uint8_t protocol);
         ~InternetProtocolHandler();
 
-        bool virtual OnInternetProtcolReceived(common::uint32_t srcIP_BE, common::uint32_t dstIP_BE, common::uint8_t* internetprotocolPayload, common::uint32_t size);
+        bool virtual OnInternetProtocolReceived(common::uint32_t srcIP_BE, common::uint32_t dstIP_BE, common::uint8_t* internetprotocolPayload, common::uint32_t size);
         void Send(common::uint32_t dstIP_BE, common::uint8_t* internetprotocolPayload, common::uint32_t size);
 
     };

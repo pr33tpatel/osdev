@@ -1,4 +1,6 @@
+#include "utils/math.h"
 #include "utils/print.h"
+#include "utils/string.h"
 #include <cli/shell.h>
 #include <net/arp.h>
 
@@ -199,14 +201,68 @@ void Shell::ExecuteCommand() {
      }
    }
 
-   ifCmd("ping") {
-     char* ip_str = strtok(0, " ");
-     uint32_t ip = strToInt(ip_str);
-     if (ip != 0) {
-       icmp->Ping(ip);
-     } else {
-       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "Usage: ping <ip_address>\n");
+   ifCmd("convert") {
+     // Usage: convert <number> <from_base> <to_base>
+
+     char* num_str = strtok(0, " ");
+     char* from_base_str = strtok(0, " ");
+     char* to_base_str = strtok(0, " "); 
+
+     if (num_str && from_base_str && to_base_str) {
+       uint32_t from_base = strToInt(from_base_str, 10);
+       uint32_t to_base = strToInt(to_base_str, 10);
+       uint32_t num = strToInt(num_str, from_base);
+
+       char result[32];
+       intToStr(num, result, to_base);
+       
+       char prefix[3] = "";
+       if(to_base == 2) { strcpy(prefix, "0b"); }
+       if(to_base == 16) { strcpy(prefix, "0x"); }
+     
+       
+       if (to_base == 2 || to_base == 16) {
+         printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "%s%s\n",prefix, result);
+       } else 
+         printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "%s\n", result);
+
      }
+     else {
+       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "Usage: convert <number> <from_base> <to_base>\n");
+     }
+   }
+
+   ifCmd("ping") {
+     if (this->icmp == 0) {
+       printf(GREEN_COLOR, BLACK_COLOR, "ERROR: ICMP NOT INITALIZED\n");
+       return;
+     }
+
+     char* ip_str = strtok(0, " ");
+     if (ip_str == 0) {
+       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "Usage: ping <ip.address>\n");
+       return;
+     }
+
+     uint32_t ip_parts[4] = {0, 0, 0, 0};
+     int8_t part_index = 0;
+     for (int i = 0; ip_str[i] != '\0' && part_index < 4; i++) {
+       char c = ip_str[i];
+       if (c == '.') {
+         part_index++;
+         continue;
+       } 
+       else {
+         ip_parts[part_index] = strToInt(&c);
+         
+       }
+     }
+
+     uint32_t targetIP_BE = convertToBigEndian(ip_parts[3], ip_parts[2], ip_parts[1], ip_parts[0]);
+
+     // FIXME: bug in printing out ip address to user
+     printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "Pinging %02x.%02x.%02x.%02x...\n", ip_parts[0], ip_parts[1], ip_parts[2], ip_parts[3]);
+     this->icmp->Ping(targetIP_BE);
    }
 
    ifCmd("lspci") 

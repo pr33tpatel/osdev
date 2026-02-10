@@ -310,6 +310,36 @@ int strToInt(char* str, common::uint16_t base) {
    */
 }
 
+char* intToStr(int value, char* str, uint32_t base) {
+  char* rc = str;
+  char* ptr = str;
+  char* low;
+
+  // Set constants for digits
+  if (base < 2 || base > 36) {
+    *str = '\0';
+    return str;
+  }
+
+  // Convert to string (in reverse)
+  do {
+    *ptr++ = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[value % base];
+    value /= base;
+  } while (value);
+
+  *ptr-- = '\0'; // Null terminate
+
+  // Reverse the string
+  low = rc;
+  while (low < ptr) {
+    char tmp = *low;
+    *low++ = *ptr;
+    *ptr-- = tmp;
+  }
+  return rc;
+}
+
+
 
 int strToInt(char* str) {
   return strToInt(str, 10);

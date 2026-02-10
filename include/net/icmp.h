@@ -22,10 +22,7 @@ namespace os {
         InternetControlMessageProtocol(InternetProtocolProvider* backend);
         ~InternetControlMessageProtocol();
 
-        bool OnInternetProtocolMessageReceived(common::uint32_t srcIP_BE, 
-                                               common::uint32_t dstIP_BE,
-                                               common::uint8_t* internetprotocolPayload,
-                                               common::uint32_t size);
+        bool OnInternetProtocolReceived(common::uint32_t srcIP_BE, common::uint32_t dstIP_BE, common::uint8_t* internetprotocolPayload, common::uint32_t size) override;
         void Ping(common::uint32_t ip_BE); 
 
 

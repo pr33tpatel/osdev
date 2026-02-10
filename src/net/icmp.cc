@@ -17,7 +17,8 @@ InternetControlMessageProtocol::~InternetControlMessageProtocol() {
 }
 
 
-bool InternetControlMessageProtocol::OnInternetProtocolMessageReceived(uint32_t srcIP_BE, uint32_t dstIP_BE, uint8_t* internetprotocolPayload, uint32_t size) {
+bool InternetControlMessageProtocol::OnInternetProtocolReceived(uint32_t srcIP_BE, uint32_t dstIP_BE, uint8_t* internetprotocolPayload, uint32_t size) {
+  printf("ICMP RECV\n");
   if(size < sizeof(InternetControlMessageProtocolMessage)) 
     return false;
 
@@ -27,7 +28,7 @@ bool InternetControlMessageProtocol::OnInternetProtocolMessageReceived(uint32_t 
 
     case 0: // answer to ping
       printf("ping response from: 0x%08x\n", srcIP_BE);
-      break;
+      return false;
 
     case 8:
       msg->type = 0; // response

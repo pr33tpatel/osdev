@@ -4,10 +4,12 @@
 #include <common/types.h>
 #include <drivers/keyboard.h>
 #include <hardwarecommunication/pci.h>
-#include <utils/string.h>
-#include <utils/print.h>
 #include <net/arp.h>
 #include <net/icmp.h>
+
+#include <utils/string.h>
+#include <utils/print.h>
+#include <utils/math.h>
 
 namespace os {
   namespace cli {

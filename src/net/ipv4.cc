@@ -3,6 +3,7 @@
 using namespace os;
 using namespace os::common;
 using namespace os::net;
+using namespace os::utils;
 
 
 InternetProtocolHandler::InternetProtocolHandler(InternetProtocolProvider* backend, uint8_t protocol) {
@@ -18,7 +19,7 @@ InternetProtocolHandler::~InternetProtocolHandler() {
 }
 
 
-bool InternetProtocolHandler::OnInternetProtcolReceived(uint32_t srcIP_BE, uint32_t dstIP_BE, uint8_t* internetprotocolPayload, uint32_t size) {
+bool InternetProtocolHandler::OnInternetProtocolReceived(uint32_t srcIP_BE, uint32_t dstIP_BE, uint8_t* internetprotocolPayload, uint32_t size) {
   return false; // default case
 }
 
@@ -57,16 +58,23 @@ bool InternetProtocolProvider::OnEtherFrameReceived(uint8_t* etherframePayload, 
     if (length > size) 
       length = size;
 
+    // TEST:
+    // printf("Packet for me, Protocol:%d, Handler:%x\n",ip_message->protocol, (uint32_t)handlers[ip_message->protocol]);
+
     if(handlers[ip_message->protocol] != 0) {
       sendBack = handlers[ip_message->protocol]->
-        OnInternetProtcolReceived(
+        OnInternetProtocolReceived(
             ip_message->srcIP,
             ip_message->dstIP,
             etherframePayload + 4*ip_message->headerLength, /* the ip message header is arranged into 4 byte (32 bit) chunks */
             size - 4*ip_message->headerLength
             );
-      
     }
+    else {
+      printf("IPV4 error: no handler for protocol %d\n", ip_message->protocol);
+    }
+  } else {
+    printf("IPV4 drop: DstIP: %08x != MyIP %08x\n", ip_message->dstIP, ip_message->srcIP);
   }
 
   if (sendBack) {

@@ -67,6 +67,8 @@ namespace os {
     int strToInt(char* str);
     int strToInt(char* str, common::uint16_t base);
 
+    char* intToStr(int value, char* str, common::uint32_t base);
+
     /* miscellaneous functions */
     // static void scrollConsole();
     void clearScreen();
