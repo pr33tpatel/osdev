@@ -329,14 +329,15 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     char* send_data = "7777777";
     // arp.Resolve(gip_BE);
-    ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
-    printf(YELLOW_COLOR, BLACK_COLOR,"Length of data sent: %d Chars\t\t", strlen(send_data));
-    printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
-    printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
-
-    clearScreen();
+    // ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
+    // printf(YELLOW_COLOR, BLACK_COLOR,"Length of data sent: %d Chars\t\t", strlen(send_data));
+    // printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
+    // printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
+    //
+    // clearScreen();
     arp.BroadcastMACAddress(gip_BE);
     icmp.Ping(gip_BE);
+
     
 
 

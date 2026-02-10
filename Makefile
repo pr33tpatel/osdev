@@ -33,6 +33,7 @@ OBJECTS = obj/loader.o \
 					obj/net/icmp.o \
 					obj/utils/print.o \
 					obj/utils/string.o \
+					obj/utils/math.o \
 					obj/cli/shell.o \
 					obj/kernel.o \
 
