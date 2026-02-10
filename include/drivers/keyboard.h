@@ -8,6 +8,16 @@
 #include <hardwarecommunication/port.h>
 #include <utils/print.h>
 
+#define ARROW_UP     0x91
+#define ARROW_RIGHT  0x92 
+#define ARROW_DOWN   0x93
+#define ARROW_LEFT   0x94
+
+#define SHIFT_ARROW_UP     0x95
+#define SHIFT_ARROW_RIGHT  0x96 
+#define SHIFT_ARROW_DOWN   0x97
+#define SHIFT_ARROW_LEFT   0x98
+
 namespace os {
   namespace drivers {
 

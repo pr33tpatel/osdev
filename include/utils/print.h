@@ -69,6 +69,7 @@ namespace os {
     void clearScreen();
     void enableCursor(common::uint8_t cursorStart, common::uint8_t cursorEnd);
     void setCursorPos(common::uint8_t row, common::uint8_t col);
+    void moveCursor(common::int8_t dx,common::int8_t dy);
   }
 }
 

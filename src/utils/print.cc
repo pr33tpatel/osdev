@@ -284,18 +284,6 @@ void clearScreen() {
   updateCursor();
 }
 
-void enableCursor(uint8_t cursorStart, uint8_t cursorEnd) {
-
-  vgaIndexPort.Write(0x0A);
-  uint8_t start_val = vgaDataPort.Read();
-  vgaIndexPort.Write(0x0A);
-  vgaDataPort.Write((start_val & 0xC0) | cursorStart);
-
-  vgaIndexPort.Write(0x0B);
-  uint8_t end_val = vgaDataPort.Read();
-  vgaIndexPort.Write(0x0B);
-  vgaDataPort.Write((end_val & 0xE0) | cursorEnd);
-}
 
 void setCursorPos(uint8_t row, uint8_t col) {
   if ((row < VGA_HEIGHT) && (col < VGA_WIDTH)) {
@@ -308,6 +296,25 @@ void setCursorPos(uint8_t row, uint8_t col) {
   }
 }
 
+
+void moveCursor(int8_t dx, int8_t dy) {
+  cursorCol += dx;
+  cursorRow += dy;
+  updateCursor();
+}
+
+void enableCursor(uint8_t cursorStart, uint8_t cursorEnd) {
+
+  vgaIndexPort.Write(0x0A);
+  uint8_t start_val = vgaDataPort.Read();
+  vgaIndexPort.Write(0x0A);
+  vgaDataPort.Write((start_val & 0xC0) | cursorStart);
+
+  vgaIndexPort.Write(0x0B);
+  uint8_t end_val = vgaDataPort.Read();
+  vgaIndexPort.Write(0x0B);
+  vgaDataPort.Write((end_val & 0xE0) | cursorEnd);
+}
 
 } // namespace utils
 } // namespace os

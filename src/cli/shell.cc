@@ -1,3 +1,4 @@
+#include "utils/print.h"
 #include <cli/shell.h>
 #include <net/arp.h>
 
@@ -31,6 +32,52 @@ void Shell::SetARP(AddressResolutionProtocol* arpController) {
 
 
 void Shell::OnKeyDown(char c) {
+  
+  // cursor navigation
+  if ((uint8_t)c == ARROW_UP) {
+    moveCursor(0,-1);
+    return;
+  }
+  if ((uint8_t)c == ARROW_RIGHT) {
+    moveCursor(1,0);
+    cursorIndex++;
+    return;
+  }
+  if ((uint8_t)c == ARROW_DOWN) {
+    moveCursor(0,1);
+    return;
+  }
+  if ((uint8_t)c == ARROW_LEFT) {
+    moveCursor(-1,0);
+    cursorIndex--;
+    return;
+  }
+
+  
+  // TODO: handle writing where data already exists by shifting existing data to the right
+  /*
+  if (cursorIndex < bufferIndex) {
+    for (int i = bufferIndex; i > cursorIndex; i--) {
+      commandbuffer[i] = commandbuffer[i-1];
+    }
+    commandbuffer[cursorIndex] = c;
+    bufferIndex++;
+    cursorIndex++;
+
+    // TODO: printRestOfLine(commandbuffer, cursorIndex);
+  }
+  */
+
+
+  // history
+  if ((uint8_t) c == SHIFT_ARROW_UP) {
+    printf("history");
+    return;
+  }
+
+
+
+
   if (c == '\n') { // 'Enter' is pressed
     putChar('\n'); // print new line if 'Enter'
 
@@ -38,6 +85,7 @@ void Shell::OnKeyDown(char c) {
       commandbuffer[bufferIndex] = '\0'; // signal end of command
       bufferIndex = 0; // reset buffer index
       ExecuteCommand();
+      // PrintPreviousCmd();
     }
     PrintPrompt();
   } 
@@ -75,7 +123,12 @@ void Shell::PrintPrompt() {
 
 void Shell::PrintPreviousCmd() {
   printf(RED_COLOR, BLACK_COLOR, "Command Received: ");
-  printf(LIGHT_GRAY_COLOR, BLACK_COLOR,"%s", commandbuffer);
+  printf(LIGHT_GRAY_COLOR, BLACK_COLOR,"%s\n", commandbuffer);
+}
+
+
+void Shell::ShellInit() {
+  PrintPrompt();
 }
 
 
@@ -108,6 +161,9 @@ void Shell::ExecuteCommand() {
 
    ifCmd("clear") 
      clearScreen();
+
+   ifCmd("lspci") 
+     pci->PrintPCIDrivers();
 
    
 

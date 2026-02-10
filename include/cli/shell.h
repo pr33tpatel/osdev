@@ -14,7 +14,10 @@ namespace os {
     class Shell : public os::drivers::KeyboardEventHandler{
       private:
         char commandbuffer[256];  // [stores characters in command buffer]
+        
+        char commandHistory[10][256];
         common::uint16_t bufferIndex; // [indexer for the command buffer]
+        common::uint16_t cursorIndex; // [indexer for the cursor position]
 
         // reference to PCI to run 'lspci'
         os::hardwarecommunication::PeripheralComponentInterconnectController* pci;
@@ -44,8 +47,16 @@ namespace os {
         void PrintPrompt();
         void PrintPreviousCmd();
 
+
+        void ShellInit();
+
     };
   }
 }
 
 #endif
+
+/* TEST:
+aaa
+*/
+
