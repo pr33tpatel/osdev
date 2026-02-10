@@ -7,6 +7,7 @@
 #include <utils/string.h>
 #include <utils/print.h>
 #include <net/arp.h>
+#include <net/icmp.h>
 
 namespace os {
   namespace cli {
@@ -22,6 +23,7 @@ namespace os {
         // reference to PCI to run 'lspci'
         os::hardwarecommunication::PeripheralComponentInterconnectController* pci;
         os::net::AddressResolutionProtocol* arp;
+        os::net::InternetControlMessageProtocol* icmp;
 
 
         void virtual ExecuteCommand();
@@ -42,7 +44,7 @@ namespace os {
 
         // [link the pci driver to the shell]
         void SetPCI(os::hardwarecommunication::PeripheralComponentInterconnectController* pciController);  
-        void SetARP(os::net::AddressResolutionProtocol* arpController);  
+        void SetNetwork(os::net::AddressResolutionProtocol* arpController, os::net::InternetControlMessageProtocol* icmpController);  
 
         void PrintPrompt();
         void PrintPreviousCmd();

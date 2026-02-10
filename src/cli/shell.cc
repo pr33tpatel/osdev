@@ -26,8 +26,9 @@ void Shell::SetPCI(PeripheralComponentInterconnectController* pciController)  {
 }
 
 
-void Shell::SetARP(AddressResolutionProtocol* arpController) {
+void Shell::SetNetwork(AddressResolutionProtocol* arpController, InternetControlMessageProtocol* icmpController) {
   this->arp = arpController;
+  this->icmp = icmpController;
 }
 
 
@@ -161,6 +162,52 @@ void Shell::ExecuteCommand() {
 
    ifCmd("clear") 
      clearScreen();
+
+   ifCmd("echo") {
+     char* arg = strtok(0, " ");
+
+     while (arg != 0) {
+       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "%s ", arg);
+       arg = strtok(0, " ");
+     }
+     printf("\n");
+   }
+
+   ifCmd("strToInt") {
+     char* arg_str = strtok(0, " ");
+     if (arg_str == 0) {
+       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "Usage: strToInt <number> <base=10>\n");
+     }
+     char* arg_base = strtok(0, " ");
+
+     uint16_t base = 10; 
+     uint32_t result = 0;
+    
+     if (arg_base != 0) { // if the base argument is not NULL
+       uint32_t parsedBase = strToInt(arg_base, 10);
+       if (parsedBase != 0) {
+         base = (uint16_t)parsedBase;
+       }
+     }
+
+     result = strToInt(arg_str, base);
+     if (base == 16) {
+       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "%08x\n", result);
+     }
+     else {
+       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "%d\n", result);
+     }
+   }
+
+   ifCmd("ping") {
+     char* ip_str = strtok(0, " ");
+     uint32_t ip = strToInt(ip_str);
+     if (ip != 0) {
+       icmp->Ping(ip);
+     } else {
+       printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "Usage: ping <ip_address>\n");
+     }
+   }
 
    ifCmd("lspci") 
      pci->PrintPCIDrivers();

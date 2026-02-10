@@ -1,3 +1,4 @@
+#include "utils/string.h"
 #include <common/types.h>
 #include <utils/print.h>
 
@@ -265,6 +266,53 @@ void printByte(uint8_t byte) {
 
 void print4Bytes(uint32_t byte) {
   print4Bytes(byte, LIGHT_GRAY_COLOR, BLACK_COLOR);
+}
+
+
+/* => conversion functions */
+ 
+int strToInt(char* str, common::uint16_t base) {
+  int num = 0;
+  char c = 0;
+  uint8_t value = 0;
+  
+  for (uint32_t i = 0; str[i] != '\0'; i++) { // loop through string
+    c = str[i];
+    // if (c == '-')
+    //   value = -value;
+    if (c >= '0' && c <= '9')
+      value = c - '0';
+    else if (c >= 'A' && c <= 'F')
+      value = c - 'A' + 10;
+    else if (c >= 'a' && c <= 'f')
+      value = c - 'a' + 10;
+    else
+     continue; // skip non-numeric chars
+
+    if (value >= base) continue; // digit cannot exceed the base
+    num = num * base + value; 
+    } 
+
+  if (str[0] == '-') 
+    num = -num;
+  return num;
+
+  /* ALGORITHM: Conversion of string to integer
+   * [1] convert the char to an int via offsetting the ascii value by 48 or '0', see ascii table 
+   * [2] mulitply current result by base (10) and add new int to the result (step 1)
+   *
+   * example: str = "123"
+   * -> 0 * 10 + ('1' - '0') => 0 + (49 - 48) = 1
+   * -> 1 * 10 + ('2' - '0') => 10 + (50 - 48) = 12
+   * -> 12 * 10 + ('3' - '0') => 120 + (51 - 48) = 123
+   *  return result == 123;
+   *
+   */
+}
+
+
+int strToInt(char* str) {
+  return strToInt(str, 10);
 }
 
 

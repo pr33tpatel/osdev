@@ -64,6 +64,9 @@ namespace os {
     void printNBytes(common::uint8_t byte, common::uint8_t N);
     void printNBytes(common::uint8_t byte, common::uint8_t N, VGAColor fg, VGAColor bg = BLACK_COLOR);
 
+    int strToInt(char* str);
+    int strToInt(char* str, common::uint16_t base);
+
     /* miscellaneous functions */
     // static void scrollConsole();
     void clearScreen();
