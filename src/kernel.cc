@@ -2,6 +2,7 @@
 #include <gdt.h>
 #include <memorymanagement.h>
 #include <hardwarecommunication/interrupts.h>
+#include <drivers/timer.h>
 #include <syscalls.h>
 #include <hardwarecommunication/pci.h>
 #include <drivers/keyboard.h>
@@ -187,6 +188,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
     Shell shell;
 
+    ProgrammableIntervalTimer timer(&interrupts, 100); // [PIT timer, frequency := 1000Hz => tick = 1ms]
+    uint64_t startTicks = timer.ticks; // [tracks ticks passed from boot]
+
 #ifdef GRAPHICSMODE
     MouseDriver mouse(&interrupts, &desktop); // NOTE: handler: &desktop attaches the mouse to the desktop
 #else
@@ -260,16 +264,16 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
       printf("2. MemoryManager::malloc failed (Heap full?)\n");
       while(1); // Freeze kernel here so you can see the error
     }
-    // for (int i = 0; i < drvManager.numDrivers; i++) {
-    //   if (drvManager.drivers[i] != 0) {
-    //     if (i == 2) {
-    //       eth0 = (amd_am79c973*) drvManager.drivers[i];
-    //       printf("Found eth0 ");
-    //       break;
-    //     }
-    //   }
-    // }
-    //
+    for (int i = 0; i < drvManager.numDrivers; i++) {
+      if (drvManager.drivers[i] != 0) {
+        if (i == 2) {
+          eth0 = (amd_am79c973*) drvManager.drivers[i];
+          printf("Found eth0 ");
+          break;
+        }
+      }
+    }
+
     if (eth0 != 0) 
       printf("Welcome to DracOS Network\n");
 
@@ -325,6 +329,16 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf(YELLOW_COLOR, BLACK_COLOR,"Length of data sent: %d Chars\t\t", strlen(send_data));
     printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
     printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
+
+    // TEST: pit Wait()
+
+    printf("Wait() test: 5 seconds...");
+    printf("test start: %d\n", timer.ticks);
+    timer.Wait(500);
+    // while (timer.ticks < test_ticks_start + 200);
+    printf("Done\n");
+    printf("test end: %d\n", timer.ticks);
+
 
 
     //printf("DracOS MWHAHAHHAH !!");

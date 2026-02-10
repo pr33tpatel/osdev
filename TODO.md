@@ -9,7 +9,8 @@ todo:
     - [x] add width and better formatting to specifiers
 
 - [ ] cli:
-    - [ ] cursor navigation
+    - [x] cursor navigation
+    - [ ] VIM keybinds?
 
 - [ ] dracos network:
     - [x] arp
@@ -26,12 +27,13 @@ todo:
     - [x] print.h
     - [ ] math.h
     - [x] string.h
-    - [ ] memory.h
+    - [x] memory.h
+    - [ ] random.h
     - [ ] buffer.h
     - [ ] bitmap.h
 
 - [ ] hardware
-    - [ ] pit timer
+    - [x] pit timer
     
 - [ ] create a test/
     - [ ] test_framework.h
