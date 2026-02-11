@@ -30,6 +30,7 @@ PeripheralComponentInterconnectController::PeripheralComponentInterconnectContro
 PeripheralComponentInterconnectController::~PeripheralComponentInterconnectController() {
 }
 
+
 uint32_t PeripheralComponentInterconnectController::Read(uint16_t bus, uint16_t device, uint16_t function, uint32_t registeroffest) {
   uint32_t id = 
     0x1 << 31
@@ -41,8 +42,9 @@ uint32_t PeripheralComponentInterconnectController::Read(uint16_t bus, uint16_t 
   commandPort.Write(id);
   uint32_t result = dataPort.Read();
   return result >> (8* (registeroffest % 4));
-
 }
+
+
 void PeripheralComponentInterconnectController::Write(uint16_t bus, uint16_t device, uint16_t function, uint32_t registeroffest, uint32_t value) {
   uint32_t id = 
     0x1 << 31
@@ -55,9 +57,11 @@ void PeripheralComponentInterconnectController::Write(uint16_t bus, uint16_t dev
   dataPort.Write(value);
 }
 
+
 bool PeripheralComponentInterconnectController::DeviceHasFunctions(uint16_t bus, uint16_t device){
   return Read(bus, device, 0, 0x0E) & (1<<7); // only need the 7th bit of this address
 }
+
 
 void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* driverManager, InterruptManager* interrupts) {
   for(int bus = 0; bus < 8; bus++) {
@@ -83,6 +87,7 @@ void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* dri
     }
   }
 }
+
 
 void PeripheralComponentInterconnectController::PrintPCIDrivers() {
   for(int bus = 0; bus < 8; bus++) {
@@ -120,6 +125,7 @@ void PeripheralComponentInterconnectController::PrintPCIDrivers() {
   }
 }
 
+
 BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressRegister(uint16_t bus, uint16_t device, uint16_t function, uint16_t bar) {
   BaseAddressRegister result;
 
@@ -140,12 +146,11 @@ BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressReg
       case 2: // 64 bit Mode
         break;
     }
-
-  } else { // InputOutput case
+  }
+  else { // InputOutput case
     result.address = (uint8_t*)(bar_value & ~0x3); // set to the bar value but cancel the last two bits
     result.prefetchable = false;
   }
-
 
   return result;
 }
