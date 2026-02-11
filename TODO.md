@@ -10,20 +10,51 @@ todo:
 
 - [ ] cli:
     - [x] cursor navigation
-    - [ ] VIM keybinds?
+    - [ ] edit command buffer and shift data
+    - [ ] command history
+    - [ ] highlighting
+    - [ ] copy and paste
+    - [ ] Cmd struct
+         
+    - [ ] Optional:
+        - [ ] VIM keybinds?
+
+- [ ] CommandList: 
+    - [ ] general:
+        - [x] echo
+        - [ ] clear
+        - [ ] stats (display system information and metrics)
+        - [ ]  heap (display heap stats)
+        - [ ] stats (display system information and metrics)
+
+    - [ ] filesystem:
+        - [ ] ls
+        - [ ] cat
+        - [ ] type
+
+    - [ ] network:
+        - [ ] ping
+        - [ ] curl
+
+    - [ ] processes:
+        - [ ] ps
+        - [ ] top
+
 
 - [ ] dracos network:
     - [x] arp
     - [x] ip
+    - [x] icmp
     - [ ] udp
     - [ ] tcp
     - [ ] basic html
+    - [ ] better display and parsing for packets
 
 - [ ] processes & threads:
     - [ ] assign userid and pid to each process created
 
 - [ ] create an include/utils/
-    - [ ] utils.h // cumulative utilties file that contains all other utilties
+    - [ ] utils.h (cumulative utilties file that contains all other utilties)
     - [x] print.h
     - [ ] math.h
     - [x] string.h
@@ -36,8 +67,8 @@ todo:
     - [x] pit timer
     
 - [ ] create a test/
-    - [ ] test_framework.h
-    - [ ] test_runner.cc
+    - [ ] testSkeleton.h
+    - [ ] testRunner.cc
     - [ ] hardware/test_{ata,keyboard,mouse,network}.cc
     - [ ] memory/test_{heap,memcpy}.cc
     - [ ] filesystem/test_{io,directory}.cc
