@@ -1,0 +1,46 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+
+# --- INDENTATION ---
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+# --- POINTER ALIGNMENT ---
+# "char* name" (Left)
+PointerAlignment: Left
+DerivePointerAlignment: false
+
+# --- LINE LENGTH ---
+# namespaces (e.g. os::hardwarecommunication) are very long.
+# Standard 80 is too short. I bumped it to 120 to prevent ugly wrapping.
+ColumnLimit: 120 
+
+# --- INCLUDES ---
+# include blocks grouped "drivers" separate from "utils" with a blank line.
+# This setting tells clang-format NOT to merge those blocks.
+# SortIncludes: true
+# IncludeBlocks: Preserve
+
+# --- ARGUMENTS (From your previous request) ---
+# Even though header has one-line args, this ensures that if they
+# get too long (like fillCommandBuffer), they split vertically.
+BinPackArguments: false
+BinPackParameters: false
+AlignAfterOpenBracket: BlockIndent 
+PenaltyBreakBeforeFirstCallParameter: 70
+
+# --- CLASS LAYOUT ---
+# Keeps "public:" and "private:" usage clean.
+AccessModifierOffset: -1
+BreakBeforeBraces: Attach
+
+# --- SPACING ---
+# sometimes use 2 blank lines. Standard is usually 1.
+# We allow up to 2 to preserve your visual spacing.
+MaxEmptyLinesToKeep: 2
+
+AllowShortFunctionsOnASingleLine: None
+
+...
