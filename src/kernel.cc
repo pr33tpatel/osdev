@@ -240,9 +240,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     
 #ifdef NETWORK
     
-
-
-
     // identify eth0
     amd_am79c973* eth0 = 0;
     for (int i = 0; i < drvManager.numDrivers; i++) {
@@ -336,7 +333,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     //
     // clearScreen();
     arp.BroadcastMACAddress(gip_BE);
-    icmp.Ping(gip_BE);
+    // icmp.Ping(gip_BE);
 
     
 

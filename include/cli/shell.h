@@ -14,6 +14,12 @@
 namespace os {
   namespace cli {
 
+    struct Cmd {
+      char* name;
+      char** flagsList;
+      common::int32_t numFlags;
+    };
+
     class Shell : public os::drivers::KeyboardEventHandler{
       private:
         char commandbuffer[256];  // [stores characters in command buffer]
@@ -50,6 +56,8 @@ namespace os {
 
         void PrintPrompt();
         void PrintPreviousCmd();
+
+        void PrintCmdFlags(char* cmd, char** flagsList);
 
 
         void ShellInit();
