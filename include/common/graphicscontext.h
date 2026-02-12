@@ -5,10 +5,10 @@
 #include <drivers/vga.h>
 
 namespace os {
-  namespace common {
-    typedef os::drivers::VideoGraphicsArray GraphicsContext; // NOTE: faked this
-                                                
-  }
-}
+namespace common {
+typedef os::drivers::VideoGraphicsArray GraphicsContext;  // NOTE: faked this
 
-#endif 
+}
+}  // namespace os
+
+#endif

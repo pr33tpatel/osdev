@@ -1,6 +1,6 @@
-#include "utils/string.h"
 #include <common/types.h>
 #include <utils/print.h>
+
 
 using namespace os;
 using namespace os::common;
@@ -8,7 +8,7 @@ using namespace os::utils;
 using namespace os::hardwarecommunication;
 
 
-namespace os    {
+namespace os {
 namespace utils {
 
 /* static variable to track cursor position */
@@ -21,8 +21,8 @@ static Port8Bit vgaDataPort(0x3D5);
 
 static void updateCursor() {
   uint16_t position = cursorRow * VGA_WIDTH + cursorCol;
-  
-  // set high byte for cursor position 
+
+  // set high byte for cursor position
   vgaIndexPort.Write(0x0E);
   vgaDataPort.Write((uint8_t)(position >> 8) & 0xFF);
 
@@ -34,18 +34,16 @@ static void updateCursor() {
 /* scrolling function */
 static void scrollConsole() {
   /* move all data up by 1 row*/
-  for (int y = 0; y < VGA_HEIGHT - 1; y++) 
-    for (int x = 0; x < VGA_WIDTH; x++)
-      VideoMemory[y * VGA_WIDTH + x] =  VideoMemory[(y+1) * VGA_WIDTH + x];
+  for (int y = 0; y < VGA_HEIGHT - 1; y++)
+    for (int x = 0; x < VGA_WIDTH; x++) VideoMemory[y * VGA_WIDTH + x] = VideoMemory[(y + 1) * VGA_WIDTH + x];
 
   /* clear row 24 (the last line) */
   uint16_t space = vga_entry(' ');
-  for (int x = 0; x < VGA_WIDTH; x++) 
-    VideoMemory[(VGA_HEIGHT - 1) * VGA_WIDTH + x] = space;
+  for (int x = 0; x < VGA_WIDTH; x++) VideoMemory[(VGA_HEIGHT - 1) * VGA_WIDTH + x] = space;
 
   /* reset the cursor back 1 row to the first col */
-  cursorRow = VGA_HEIGHT - 1; 
-  cursorCol = 0; 
+  cursorRow = VGA_HEIGHT - 1;
+  cursorCol = 0;
 }
 
 
@@ -54,29 +52,29 @@ static void scrollConsole() {
 // void putChar(char c, VGAColor fg, VGAColor bg = BLACK_COLOR);
 void putChar(char c, VGAColor fg, VGAColor bg) {
   uint8_t color = vga_color_entry(fg, bg);
-  /* default color:= vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR) */  
-  if (c == '\n') { // new line
+  /* default color:= vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR) */
+  if (c == '\n') {  // new line
     cursorCol = 0;
     cursorRow++;
-  } 
+  }
 
-  else if (c == '\t') { // tab is 4 spaces
+  else if (c == '\t') {  // tab is 4 spaces
     cursorCol += 4;
   }
 
-  else if (c == '\b') { // backspace
+  else if (c == '\b') {  // backspace
     if (cursorCol > 0) {
       cursorCol--;
     }
 
     else if (cursorCol <= 0) {
       cursorCol = VGA_WIDTH - 1;
-      cursorRow--; 
+      cursorRow--;
     }
 
-      // overwrite the character with blank
-      size_t index = cursorRow * VGA_WIDTH + cursorCol;
-      VideoMemory[index] = vga_entry(' ', color);
+    // overwrite the character with blank
+    size_t index = cursorRow * VGA_WIDTH + cursorCol;
+    VideoMemory[index] = vga_entry(' ', color);
   }
 
   else {
@@ -84,7 +82,7 @@ void putChar(char c, VGAColor fg, VGAColor bg) {
     VideoMemory[index] = vga_entry(c, color);
     cursorCol++;
   }
-  
+
   /* line wrapping */
   if (cursorCol >= VGA_WIDTH) {
     cursorCol = 0;
@@ -109,7 +107,7 @@ void printNumber(int number, int base, VGAColor fg, VGAColor bg, int width, char
     return;
   }
 
-  if (number < 0 && base == 10) { // NOTE: negative numbers only for base10, base16 will only be positive
+  if (number < 0 && base == 10) {  // NOTE: negative numbers only for base10, base16 will only be positive
     putChar('-', fg, bg);
     number = -number;
   }
@@ -129,16 +127,15 @@ void printNumber(int number, int base, VGAColor fg, VGAColor bg, int width, char
     width--;
   }
 
-  
+
   // print the buffer in reverse
-  for (int i = pos-1; i >= 0; i--) {
+  for (int i = pos - 1; i >= 0; i--) {
     putChar(buffer[i], fg, bg);
   }
 }
 
 void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args) {
   for (size_t i = 0; fmt[i] != '\0'; i++) {
-    
     // if not % specifier, print the value
     if (fmt[i] != '%') {
       putChar(fmt[i], fg, bg);
@@ -147,7 +144,7 @@ void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args) {
 
     // if % has been found, look at the next character
     i++;
-    
+
     int width = 0;
     char paddingChar = ' ';
 
@@ -161,59 +158,56 @@ void printfInternal(VGAColor fg, VGAColor bg, const char* fmt, va_list args) {
       i++;
     }
 
-    switch (fmt[i]) 
-    {
-      case 'c':  // character
-        {
-          char c = (char) va_arg(args, int);
-          putChar(c, fg, bg);
-          break;
-        }
+    switch (fmt[i]) {
+      case 'c': {  // character
+        char c = (char)va_arg(args, int);
+        putChar(c, fg, bg);
+        break;
+      }
 
       case 's':  // string
-        {
-          const char* str = va_arg(args, const char*);
-          for (size_t j = 0; str[j] != '\0'; j++)
-            putChar(str[j], fg, bg);
+      {
+        const char* str = va_arg(args, const char*);
+        for (size_t j = 0; str[j] != '\0'; j++) putChar(str[j], fg, bg);
 
-          break;
-        }
+        break;
+      }
 
       case 'i':
-      case 'd': // decimal integer 
-        {
-          int x = va_arg(args, int);
-          printNumber(x, 10, fg, bg, width, paddingChar);
-          break;
-        }
+      case 'd':  // decimal integer
+      {
+        int x = va_arg(args, int);
+        printNumber(x, 10, fg, bg, width, paddingChar);
+        break;
+      }
 
       case 'X':
-      case 'x': // hexadecimal
-        {
-          int x = va_arg(args,int);
-          // putChar('0', fg, bg); putChar('x', fg, bg); // print "0x" prefix
-          // now, with the paddingChar, "%08x" will produce "00001234"
-          printNumber(x, 16, fg, bg, width, paddingChar);
-          break;
-        }
+      case 'x': {  // hexadecimal
 
-      case '%': // escaped sequence for %
-        {
-          putChar('%', fg, bg);
-          break;
-        }
+        int x = va_arg(args, int);
+        // putChar('0', fg, bg); putChar('x', fg, bg); // print "0x" prefix
+        // now, with the paddingChar, "%08x" will produce "00001234"
+        printNumber(x, 16, fg, bg, width, paddingChar);
+        break;
+      }
+
+      case '%':  // escaped sequence for %
+      {
+        putChar('%', fg, bg);
+        break;
+      }
 
       default:  // unknown, so just print specifier (e.g."... %q ...")
-        {
-          putChar('%', fg, bg);
-          putChar(fmt[i], fg, bg);
-          break;
-        }
+      {
+        putChar('%', fg, bg);
+        putChar(fmt[i], fg, bg);
+        break;
+      }
     }
   }
 }
 
-void printf(VGAColor fg , VGAColor bg, const char* fmt, ...){
+void printf(VGAColor fg, VGAColor bg, const char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
   printfInternal(fg, bg, fmt, args);
@@ -223,17 +217,17 @@ void printf(VGAColor fg , VGAColor bg, const char* fmt, ...){
 void printByte(uint8_t byte, VGAColor fg, VGAColor bg) {
   char* hexSet = "0123456789ABCDEF";
 
-  putChar(hexSet[(byte >> 4) & 0xF], fg, bg); // print high nibble
-  putChar(hexSet[byte & 0xF], fg, bg); // print low nibble
+  putChar(hexSet[(byte >> 4) & 0xF], fg, bg);  // print high nibble
+  putChar(hexSet[byte & 0xF], fg, bg);         // print low nibble
 }
 
 void print4Bytes(uint32_t byte, VGAColor fg, VGAColor bg) {
   // N = 4
   printf("0x");
-  printByte(((byte >> 3*8) & 0xFF), fg, bg); // print byte 3
-  printByte(((byte >> 2*8) & 0xFF), fg, bg); // print byte 2
-  printByte(((byte >> 1*8) & 0xFF), fg, bg); // print byte 1
-  printByte(((byte >> 0*8) & 0xFF), fg, bg); // print byte 0
+  printByte(((byte >> 3 * 8) & 0xFF), fg, bg);  // print byte 3
+  printByte(((byte >> 2 * 8) & 0xFF), fg, bg);  // print byte 2
+  printByte(((byte >> 1 * 8) & 0xFF), fg, bg);  // print byte 1
+  printByte(((byte >> 0 * 8) & 0xFF), fg, bg);  // print byte 0
 }
 
 // FIXME: fix this, was casuing infintie loop i think
@@ -248,10 +242,8 @@ void printNBytes(uint8_t byte, uint8_t N) {
 
 /* => default print functions, no color */
 
-// NOTE: the color in the these functions is the default color for the functions 
-void putChar(char c) {
-  putChar(c, LIGHT_GRAY_COLOR, BLACK_COLOR); 
-}
+// NOTE: the color in the these functions is the default color for the functions
+void putChar(char c) { putChar(c, LIGHT_GRAY_COLOR, BLACK_COLOR); }
 
 void printf(const char* fmt, ...) {
   va_list args;
@@ -260,23 +252,19 @@ void printf(const char* fmt, ...) {
   va_end(args);
 }
 
-void printByte(uint8_t byte) {
-  printByte(byte, LIGHT_GRAY_COLOR, BLACK_COLOR);
-}
+void printByte(uint8_t byte) { printByte(byte, LIGHT_GRAY_COLOR, BLACK_COLOR); }
 
-void print4Bytes(uint32_t byte) {
-  print4Bytes(byte, LIGHT_GRAY_COLOR, BLACK_COLOR);
-}
+void print4Bytes(uint32_t byte) { print4Bytes(byte, LIGHT_GRAY_COLOR, BLACK_COLOR); }
 
 
 /* => conversion functions */
- 
+
 int strToInt(char* str, common::uint16_t base) {
   int num = 0;
   char c = 0;
   uint8_t value = 0;
-  
-  for (uint32_t i = 0; str[i] != '\0'; i++) { // loop through string
+
+  for (uint32_t i = 0; str[i] != '\0'; i++) {  // loop through string
     c = str[i];
     // if (c == '-')
     //   value = -value;
@@ -287,18 +275,17 @@ int strToInt(char* str, common::uint16_t base) {
     else if (c >= 'a' && c <= 'f')
       value = c - 'a' + 10;
     else
-     continue; // skip non-numeric chars
+      continue;  // skip non-numeric chars
 
-    if (value >= base) continue; // digit cannot exceed the base
-    num = num * base + value; 
-    } 
+    if (value >= base) continue;  // digit cannot exceed the base
+    num = num * base + value;
+  }
 
-  if (str[0] == '-') 
-    num = -num;
+  if (str[0] == '-') num = -num;
   return num;
 
   /* ALGORITHM: Conversion of string to integer
-   * [1] convert the char to an int via offsetting the ascii value by 48 or '0', see ascii table 
+   * [1] convert the char to an int via offsetting the ascii value by 48 or '0', see ascii table
    * [2] mulitply current result by base (10) and add new int to the result (step 1)
    *
    * example: str = "123"
@@ -327,7 +314,7 @@ char* intToStr(int value, char* str, uint32_t base) {
     value /= base;
   } while (value);
 
-  *ptr-- = '\0'; // Null terminate
+  *ptr-- = '\0';  // Null terminate
 
   // Reverse the string
   low = rc;
@@ -340,24 +327,21 @@ char* intToStr(int value, char* str, uint32_t base) {
 }
 
 
-
-int strToInt(char* str) {
-  return strToInt(str, 10);
-}
+int strToInt(char* str) { return strToInt(str, 10); }
 
 
 /* => miscellaneous functions */
 
 void clearScreen() {
   uint8_t colorByte = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR);
-  uint16_t space = vga_entry(' ',colorByte);
-  
-  for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) 
-    VideoMemory[i] = space;
+  uint16_t space = vga_entry(' ', colorByte);
 
-  cursorCol = 0; cursorRow = 0;
+  for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) VideoMemory[i] = space;
 
-  enableCursor(1,15);
+  cursorCol = 0;
+  cursorRow = 0;
+
+  enableCursor(1, 15);
 
   updateCursor();
 }
@@ -365,11 +349,10 @@ void clearScreen() {
 
 void setCursorPos(uint8_t row, uint8_t col) {
   if ((row < VGA_HEIGHT) && (col < VGA_WIDTH)) {
-    cursorRow = row; 
-    cursorCol = col; 
+    cursorRow = row;
+    cursorCol = col;
     updateCursor();
-  }
-  else {
+  } else {
     printf("setCursorPos got invalid coordinates\n");
   }
 }
@@ -382,7 +365,6 @@ void moveCursor(int8_t dx, int8_t dy) {
 }
 
 void enableCursor(uint8_t cursorStart, uint8_t cursorEnd) {
-
   vgaIndexPort.Write(0x0A);
   uint8_t start_val = vgaDataPort.Read();
   vgaIndexPort.Write(0x0A);
@@ -394,5 +376,5 @@ void enableCursor(uint8_t cursorStart, uint8_t cursorEnd) {
   vgaDataPort.Write((end_val & 0xE0) | cursorEnd);
 }
 
-} // namespace utils
-} // namespace os
+}  // namespace utils
+}  // namespace os

@@ -9,112 +9,109 @@
 #include <utils/print.h>
 
 namespace os {
-  namespace drivers {
+namespace drivers {
 
-    class amd_am79c973;
+class amd_am79c973;
 
-    class RawDataHandler {
-      protected:
-        amd_am79c973* backend;
-      public:
-        RawDataHandler(amd_am79c973* backend);
-        ~RawDataHandler();
+class RawDataHandler {
+ protected:
+  amd_am79c973* backend;
 
-        bool virtual OnRawDataReceived(common::uint8_t* buffer, common::uint32_t size);
-        void virtual Send(common::uint8_t* buffer, common::uint32_t size);
+ public:
+  RawDataHandler(amd_am79c973* backend);
+  ~RawDataHandler();
 
-    };
+  bool virtual OnRawDataReceived(common::uint8_t* buffer, common::uint32_t size);
+  void virtual Send(common::uint8_t* buffer, common::uint32_t size);
+};
 
-    class amd_am79c973 : public Driver, public hardwarecommunication::InterruptHandler {
-
-      public:
-      struct InitializationBlock {
-
-        common::uint16_t mode;
-        unsigned reserved1:4;
-        unsigned numSendBuffers:4;
-        unsigned reserved2:4;
-        unsigned numRecvBuffers:4;
+class amd_am79c973 : public Driver, public hardwarecommunication::InterruptHandler {
+ public:
+  struct InitializationBlock {
+    common::uint16_t mode;
+    unsigned reserved1 : 4;
+    unsigned numSendBuffers : 4;
+    unsigned reserved2 : 4;
+    unsigned numRecvBuffers : 4;
 
 
-        common::uint64_t physicalAddress:48;
-        
-        /* TEST: split MAC (physicalAddress) into 3 16bit values, mayble compiler error/padding mistake in the :48 
+    common::uint64_t physicalAddress : 48;
 
-        common::uint16_t physicalAddressLow;
-        common::uint16_t physicalAddressMiddle;
-        common::uint16_t physicalAddressHigh;
+    /* TEST: split MAC (physicalAddress) into 3 16bit values, mayble compiler error/padding mistake in the :48
 
-        */
+    common::uint16_t physicalAddressLow;
+    common::uint16_t physicalAddressMiddle;
+    common::uint16_t physicalAddressHigh;
 
-
-        
-        common::uint16_t reserved3;
-        common::uint64_t logicalAddress;
-        common::uint32_t recvBufferDescrAddress;
-        common::uint32_t sendBufferDescrAddress;
-
-      } __attribute__((packed));
+    */
 
 
+    common::uint16_t reserved3;
+    common::uint64_t logicalAddress;
+    common::uint32_t recvBufferDescrAddress;
+    common::uint32_t sendBufferDescrAddress;
 
-      struct BufferDescriptor {
-
-        common::uint32_t address;
-        common::uint32_t flags;
-        common::uint32_t flags2;
-        common::uint32_t avail;
-
-      } __attribute__((packed));
+  } __attribute__((packed));
 
 
-      hardwarecommunication::Port16Bit MACAddress0Port;
-      hardwarecommunication::Port16Bit MACAddress2Port;
-      hardwarecommunication::Port16Bit MACAddress4Port;
-      hardwarecommunication::Port16Bit registerDataPort;
-      hardwarecommunication::Port16Bit registerAddressPort;
-      hardwarecommunication::Port16Bit resetPort;
-      hardwarecommunication::Port16Bit busControlRegisterDataPort;
+  struct BufferDescriptor {
+    common::uint32_t address;
+    common::uint32_t flags;
+    common::uint32_t flags2;
+    common::uint32_t avail;
 
-      InitializationBlock initBlock;
+  } __attribute__((packed));
 
 
-      BufferDescriptor* sendBufferDescr;
-      common::uint8_t sendBufferDescrMemory[2048+15];
-      common::uint8_t sendBuffers[2*1024+15][8];
-      // common::uint8_t sendBuffers[8][2*1024+15];
-      common::uint8_t currentSendBuffer;
+  hardwarecommunication::Port16Bit MACAddress0Port;
+  hardwarecommunication::Port16Bit MACAddress2Port;
+  hardwarecommunication::Port16Bit MACAddress4Port;
+  hardwarecommunication::Port16Bit registerDataPort;
+  hardwarecommunication::Port16Bit registerAddressPort;
+  hardwarecommunication::Port16Bit resetPort;
+  hardwarecommunication::Port16Bit busControlRegisterDataPort;
+
+  InitializationBlock initBlock;
 
 
-      BufferDescriptor* recvBufferDescr;
-      common::uint8_t recvBufferDescrMemory[2048+15];
-      common::uint8_t recvBuffers[2*1024+15][8];
-      // common::uint8_t recvBuffers[8][2*1024+15];
-      common::uint8_t currentRecvBuffer;
+  BufferDescriptor* sendBufferDescr;
+  common::uint8_t sendBufferDescrMemory[2048 + 15];
+  common::uint8_t sendBuffers[2 * 1024 + 15][8];
+  // common::uint8_t sendBuffers[8][2*1024+15];
+  common::uint8_t currentSendBuffer;
 
 
-      RawDataHandler* handler;
+  BufferDescriptor* recvBufferDescr;
+  common::uint8_t recvBufferDescrMemory[2048 + 15];
+  common::uint8_t recvBuffers[2 * 1024 + 15][8];
+  // common::uint8_t recvBuffers[8][2*1024+15];
+  common::uint8_t currentRecvBuffer;
 
 
-      public:
-      amd_am79c973(hardwarecommunication::PeripheralComponentInterconnectDeviceDescriptor 
-          *dev, hardwarecommunication::InterruptManager* interrupts);
+  RawDataHandler* handler;
 
-      ~amd_am79c973();
 
-      void Activate();
-      int Reset();
-      common::uint32_t HandleInterrupt(common::uint32_t esp);
+ public:
+  amd_am79c973(
+      hardwarecommunication::PeripheralComponentInterconnectDeviceDescriptor* dev,
+      hardwarecommunication::InterruptManager* interrupts
+  );
 
-      void Send(common::uint8_t* buffer, int size);
-      void Receive();
+  ~amd_am79c973();
 
-      void SetHandler(RawDataHandler* handler);
-      common::uint64_t GetMACAddress();
-      void SetIPAddress(common::uint32_t IP);
-      common::uint32_t GetIPAddress();
-    };
-  }
-}
+  void Activate();
+  int Reset();
+  common::uint32_t HandleInterrupt(common::uint32_t esp);
+
+  void Send(common::uint8_t* buffer, int size);
+  void Receive();
+
+  void SetHandler(RawDataHandler* handler);
+  common::uint64_t GetMACAddress();
+  void SetIPAddress(common::uint32_t IP);
+  common::uint32_t GetIPAddress();
+};
+}  // namespace drivers
+}  // namespace os
 
 #endif

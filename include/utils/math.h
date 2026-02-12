@@ -4,11 +4,11 @@
 #include <common/types.h>
 
 namespace os {
-  namespace utils {
+namespace utils {
 
-    common::uint32_t convertToBigEndian(common::uint32_t _4, common::uint32_t _3, common::uint32_t _2, common::uint32_t _1);
+common::uint32_t convertToBigEndian(common::uint32_t _4, common::uint32_t _3, common::uint32_t _2, common::uint32_t _1);
 
-  }
 }
+}  // namespace os
 
 #endif

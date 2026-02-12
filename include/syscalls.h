@@ -1,23 +1,22 @@
-#ifndef __OS__SYSCALLS_H 
+#ifndef __OS__SYSCALLS_H
 #define __OS__SYSCALLS_H
 
 #include <common/types.h>
-#include <utils/print.h>
 #include <hardwarecommunication/interrupts.h>
 #include <multitasking.h>
+#include <utils/print.h>
 
 namespace os {
-  class SyscallHandler : public hardwarecommunication::InterruptHandler {
+class SyscallHandler : public hardwarecommunication::InterruptHandler {
+ public:
+  SyscallHandler(hardwarecommunication::InterruptManager* interruptManager, os::common::uint8_t InterruptNumber);
+  ~SyscallHandler();
 
-    public:
-      SyscallHandler(hardwarecommunication::InterruptManager* interruptManager, os::common::uint8_t InterruptNumber);
-      ~SyscallHandler();
+  virtual os::common::uint32_t HandleInterrupt(os::common::uint32_t esp);
+};
 
-      virtual os::common::uint32_t HandleInterrupt(os::common::uint32_t esp);
-  };
-
-  /* DRACOS SYSTEM CALLS */
-  void sysprintf(const char* str);
-}
+/* DRACOS SYSTEM CALLS */
+void sysprintf(const char* str);
+}  // namespace os
 
 #endif

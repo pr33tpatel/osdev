@@ -6,29 +6,31 @@
 #include <utils/print.h>
 
 namespace os {
-  namespace net {
+namespace net {
 
-    struct InternetControlMessageProtocolMessage {
-      common::uint8_t type;
-      common::uint8_t code;
+struct InternetControlMessageProtocolMessage {
+  common::uint8_t type;
+  common::uint8_t code;
 
-      common::uint16_t checksum;
-      common::uint32_t data;
-    }__attribute__((packed));
+  common::uint16_t checksum;
+  common::uint32_t data;
+} __attribute__((packed));
 
-    class InternetControlMessageProtocol : public InternetProtocolHandler {
+class InternetControlMessageProtocol : public InternetProtocolHandler {
+ public:
+  InternetControlMessageProtocol(InternetProtocolProvider* backend);
+  ~InternetControlMessageProtocol();
 
-      public:
-        InternetControlMessageProtocol(InternetProtocolProvider* backend);
-        ~InternetControlMessageProtocol();
+  bool OnInternetProtocolReceived(
+      common::uint32_t srcIP_BE,
+      common::uint32_t dstIP_BE,
+      common::uint8_t* internetprotocolPayload,
+      common::uint32_t size
+  ) override;
+  void Ping(common::uint32_t ip_BE);
+};
 
-        bool OnInternetProtocolReceived(common::uint32_t srcIP_BE, common::uint32_t dstIP_BE, common::uint8_t* internetprotocolPayload, common::uint32_t size) override;
-        void Ping(common::uint32_t ip_BE); 
-
-
-    };
-
-  }
-}
+}  // namespace net
+}  // namespace os
 
 #endif

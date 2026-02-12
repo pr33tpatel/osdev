@@ -1,75 +1,84 @@
 #ifndef __OS__GUI__WIDGET_H
 #define __OS__GUI__WIDGET_H
 
+#include <common/graphicscontext.h>
 #include <common/types.h>
 #include <drivers/keyboard.h>
-#include <common/graphicscontext.h>
 
 namespace os {
-  namespace gui {
+namespace gui {
 
-    class Widget : public os::drivers::KeyboardEventHandler {
+class Widget : public os::drivers::KeyboardEventHandler {
+ protected:
+  Widget* parent;
+  common::int32_t x;
+  common::int32_t y;
+  common::int32_t w;
+  common::int32_t h;
 
-      protected:
-        Widget* parent;
-        common::int32_t x;
-        common::int32_t y;
-        common::int32_t w;
-        common::int32_t h;
+  common::uint8_t r;
+  common::uint8_t g;
+  common::uint8_t b;
 
-        common::uint8_t r;
-        common::uint8_t g;
-        common::uint8_t b;
-        
-        bool Foucssable;
+  bool Foucssable;
 
-      public:
+ public:
+  Widget(
+      Widget* parent,
+      common::int32_t x,
+      common::int32_t y,
+      common::int32_t w,
+      common::int32_t h,
+      common::uint8_t r,
+      common::uint8_t g,
+      common::uint8_t b
+  );
+  ~Widget();
 
-        Widget( Widget* parent,
-                common::int32_t x, common::int32_t y, common::int32_t w, common::int32_t h,
-                common::uint8_t r, common::uint8_t g, common::uint8_t b );
-        ~Widget();
+  virtual void GetFocus(Widget* widget);
+  virtual void ModelToScreen(common::uint32_t& x, common::uint32_t& y);
+  virtual bool ContainsCoordinate(common::int32_t x, common::int32_t y);
 
-        virtual void GetFocus(Widget* widget);
-        virtual void ModelToScreen(common::uint32_t &x, common::uint32_t &y);
-        virtual bool ContainsCoordinate(common::int32_t x, common::int32_t y);
-        
-        virtual void Draw(common::GraphicsContext* gc);
-        virtual void OnMouseDown(common::int32_t x, common::int32_t y, common::uint8_t button);
-        virtual void OnMouseMove(common::int32_t oldx, common::int32_t oldy,  common::int32_t newx, common::int32_t newy);
-        virtual void OnMouseUp(common::int32_t x, common::int32_t y, common::uint8_t button);
-    };
-
+  virtual void Draw(common::GraphicsContext* gc);
+  virtual void OnMouseDown(common::int32_t x, common::int32_t y, common::uint8_t button);
+  virtual void OnMouseMove(common::int32_t oldx, common::int32_t oldy, common::int32_t newx, common::int32_t newy);
+  virtual void OnMouseUp(common::int32_t x, common::int32_t y, common::uint8_t button);
+};
 
 
-    class CompositeWidget : public Widget {
-      private:
-        Widget* children[100]; // NOTE: array of pointers to the children
-        int numChildren;
-        Widget* focusedChild;
+class CompositeWidget : public Widget {
+ private:
+  Widget* children[100];  // NOTE: array of pointers to the children
+  int numChildren;
+  Widget* focusedChild;
 
-      public:
-        
-        CompositeWidget( Widget* parent,
-                common::int32_t x, common::int32_t y, common::int32_t w, common::int32_t h,
-                common::uint8_t r, common::uint8_t g, common::uint8_t b );
+ public:
+  CompositeWidget(
+      Widget* parent,
+      common::int32_t x,
+      common::int32_t y,
+      common::int32_t w,
+      common::int32_t h,
+      common::uint8_t r,
+      common::uint8_t g,
+      common::uint8_t b
+  );
 
-        ~CompositeWidget();
-      
-        virtual void GetFocus(Widget *widget);
-        // virtual void ModelToScreen(common::uint32_t &x, common::uint32_t &y);
-        virtual bool AddChild(Widget *child);
-        
-        virtual void Draw(common::GraphicsContext* gc);
-        virtual void OnMouseDown(common::int32_t x, common::int32_t y, common::uint8_t button);
-        virtual void OnMouseUp(common::int32_t x, common::int32_t y, common::uint8_t button);
-        virtual void OnMouseMove(common::int32_t oldx, common::int32_t oldy,  common::int32_t newx, common::int32_t newy);
+  ~CompositeWidget();
 
-        virtual void OnKeyDown(char str);
-        virtual void OnKeyUp(char str);
-        
-    };
-  }
-}
+  virtual void GetFocus(Widget* widget);
+  // virtual void ModelToScreen(common::uint32_t &x, common::uint32_t &y);
+  virtual bool AddChild(Widget* child);
+
+  virtual void Draw(common::GraphicsContext* gc);
+  virtual void OnMouseDown(common::int32_t x, common::int32_t y, common::uint8_t button);
+  virtual void OnMouseUp(common::int32_t x, common::int32_t y, common::uint8_t button);
+  virtual void OnMouseMove(common::int32_t oldx, common::int32_t oldy, common::int32_t newx, common::int32_t newy);
+
+  virtual void OnKeyDown(char str);
+  virtual void OnKeyUp(char str);
+};
+}  // namespace gui
+}  // namespace os
 
 #endif

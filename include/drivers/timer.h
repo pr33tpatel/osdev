@@ -7,25 +7,24 @@
 #include <utils/print.h>
 
 namespace os {
-  namespace drivers {
+namespace drivers {
 
-    class ProgrammableIntervalTimer : public hardwarecommunication::InterruptHandler {
-    private:
-      hardwarecommunication::Port8Bit dataPort;
-      hardwarecommunication::Port8Bit commandPort;
+class ProgrammableIntervalTimer : public hardwarecommunication::InterruptHandler {
+ private:
+  hardwarecommunication::Port8Bit dataPort;
+  hardwarecommunication::Port8Bit commandPort;
 
-    public:
+ public:
+  ProgrammableIntervalTimer(hardwarecommunication::InterruptManager* interrupts, common::uint32_t frequency);
+  ~ProgrammableIntervalTimer();
 
-      ProgrammableIntervalTimer(hardwarecommunication::InterruptManager* interrupts, common::uint32_t frequency);
-      ~ProgrammableIntervalTimer();
+  common::uint64_t ticks;  // [tracks how many "ticks" have passed since boot]
 
-      common::uint64_t ticks; // [tracks how many "ticks" have passed since boot]
+  common::uint32_t HandleInterrupt(common::uint32_t esp) override;
+  void Wait(common::uint32_t milliseconds);
+};
 
-      common::uint32_t HandleInterrupt(common::uint32_t esp) override;
-      void Wait(common::uint32_t milliseconds);
-    };
-
-  }
-}
+}  // namespace drivers
+}  // namespace os
 
 #endif

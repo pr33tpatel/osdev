@@ -6,50 +6,48 @@
 #include <utils/print.h>
 
 namespace os {
-  namespace net {
+namespace net {
 
-    struct AddressResolutionProtocolMessage {
-      common::uint16_t hardwareType;
-      common::uint16_t protocol;
-      common::uint8_t hardwareAddressSize; // NOTE: hardcoded 6, MAC address is 48 bits = 6 bytes
-      common::uint8_t protocolAddressSize; // NOTE: hardcoded 4, ipv4 address is 32 bits = 4 bytes
-      common::uint16_t command;
+struct AddressResolutionProtocolMessage {
+  common::uint16_t hardwareType;
+  common::uint16_t protocol;
+  common::uint8_t hardwareAddressSize;  // NOTE: hardcoded 6, MAC address is 48 bits = 6 bytes
+  common::uint8_t protocolAddressSize;  // NOTE: hardcoded 4, ipv4 address is 32 bits = 4 bytes
+  common::uint16_t command;
 
-      common::uint64_t srcMAC : 48;
-      common::uint32_t srcIP;
-      common::uint64_t dstMAC : 48;
-      common::uint32_t dstIP;
-    
-    } __attribute__((packed));
-    
-    class AddressResolutionProtocol : public EtherFrameHandler {
+  common::uint64_t srcMAC : 48;
+  common::uint32_t srcIP;
+  common::uint64_t dstMAC : 48;
+  common::uint32_t dstIP;
 
-      private:
-        // FIXME: implement persistent storage of cache in hard drive
-        common::uint32_t IPcache[128];
-        common::uint64_t MACcache[128];
-        int numCacheEntries;
+} __attribute__((packed));
 
-      public:
-        AddressResolutionProtocol(EtherFrameProvider* backend);
-        ~AddressResolutionProtocol();
+class AddressResolutionProtocol : public EtherFrameHandler {
+ private:
+  // FIXME: implement persistent storage of cache in hard drive
+  common::uint32_t IPcache[128];
+  common::uint64_t MACcache[128];
+  int numCacheEntries;
 
-        void printIPAddress(common::uint32_t IP);
-        void printMACAddress(common::uint64_t MAC);
-        void printSrcIPAddress();
-        void printSrcMACAddress();
-        void printARPmsg(AddressResolutionProtocolMessage* arp);
-        bool OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
+ public:
+  AddressResolutionProtocol(EtherFrameProvider* backend);
+  ~AddressResolutionProtocol();
 
-        void RequestMACAddress(common::uint32_t IP_BE);
-        common::uint64_t GetMACFromCache(common::uint32_t IP_BE);
-        common::uint64_t Resolve(common::uint32_t IP_BE);
-        void BroadcastMACAddress(common::uint32_t IP_BE);
+  void printIPAddress(common::uint32_t IP);
+  void printMACAddress(common::uint64_t MAC);
+  void printSrcIPAddress();
+  void printSrcMACAddress();
+  void printARPmsg(AddressResolutionProtocolMessage* arp);
+  bool OnEtherFrameReceived(common::uint8_t* etherframePayload, common::uint32_t size);
 
-    };
+  void RequestMACAddress(common::uint32_t IP_BE);
+  common::uint64_t GetMACFromCache(common::uint32_t IP_BE);
+  common::uint64_t Resolve(common::uint32_t IP_BE);
+  void BroadcastMACAddress(common::uint32_t IP_BE);
+};
 
-    
-  }
-}
+
+}  // namespace net
+}  // namespace os
 
 #endif

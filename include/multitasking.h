@@ -7,57 +7,56 @@
 
 namespace os {
 
-  struct CPUState {
-    common::uint32_t eax;
-    common::uint32_t ebx;
-    common::uint32_t ecx;
-    common::uint32_t edx;
+struct CPUState {
+  common::uint32_t eax;
+  common::uint32_t ebx;
+  common::uint32_t ecx;
+  common::uint32_t edx;
 
-    common::uint32_t esi;
-    common::uint32_t edi;
-    common::uint32_t ebp;
-    
-    /*
-    common::uint32_t gs;
-    common::uint32_t fs;
-    common::uint32_t es;
-    common::uint32_t ds;
-    */
+  common::uint32_t esi;
+  common::uint32_t edi;
+  common::uint32_t ebp;
 
-    common::uint32_t error;
+  /*
+  common::uint32_t gs;
+  common::uint32_t fs;
+  common::uint32_t es;
+  common::uint32_t ds;
+  */
 
-    common::uint32_t eip;
-    common::uint32_t cs;
-    common::uint32_t eflags;
-    common::uint32_t esp;
-    common::uint32_t ss;
-  } __attribute__((packed));
+  common::uint32_t error;
 
-  class Task {
+  common::uint32_t eip;
+  common::uint32_t cs;
+  common::uint32_t eflags;
+  common::uint32_t esp;
+  common::uint32_t ss;
+} __attribute__((packed));
 
-    friend class TaskManager; // allows access of member variables and functions
+class Task {
+  friend class TaskManager;  // allows access of member variables and functions
 
-    private:
-      common::uint8_t stack[4096]; // NOTE: 4 KiB stack
-      CPUState* cpustate; 
+ private:
+  common::uint8_t stack[4096];  // NOTE: 4 KiB stack
+  CPUState* cpustate;
 
-    public:
-      Task(GlobalDescriptorTable* gdt, void entrypoint());
-      ~Task();
-  };
+ public:
+  Task(GlobalDescriptorTable* gdt, void entrypoint());
+  ~Task();
+};
 
-  class TaskManager {
-    private:
-      Task* tasks[256]; 
-      int numTasks; // FIXME: change from int to uint8_t (maybe ?)
-      int currentTask;
-    public:
-      TaskManager();
-      ~TaskManager();
-      bool AddTask(Task* task);
-      CPUState* Schedule(CPUState* cpustate); // NOTE: round-robin scheduling
+class TaskManager {
+ private:
+  Task* tasks[256];
+  int numTasks;  // FIXME: change from int to uint8_t (maybe ?)
+  int currentTask;
 
-  };
-}
+ public:
+  TaskManager();
+  ~TaskManager();
+  bool AddTask(Task* task);
+  CPUState* Schedule(CPUState* cpustate);  // NOTE: round-robin scheduling
+};
+}  // namespace os
 
 #endif
