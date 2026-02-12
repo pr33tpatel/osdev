@@ -1,32 +1,29 @@
+#include <cli/shell.h>
 #include <common/types.h>
-#include <gdt.h>
-#include <memorymanagement.h>
-#include <hardwarecommunication/interrupts.h>
-#include <drivers/timer.h>
-#include <syscalls.h>
-#include <hardwarecommunication/pci.h>
+#include <drivers/amd_am79c973.h>
+#include <drivers/ata.h>
+#include <drivers/driver.h>
 #include <drivers/keyboard.h>
 #include <drivers/mouse.h>
-#include <drivers/driver.h>
+#include <drivers/timer.h>
 #include <drivers/vga.h>
-#include <drivers/ata.h>
+#include <gdt.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
+#include <hardwarecommunication/interrupts.h>
+#include <hardwarecommunication/pci.h>
+#include <memorymanagement.h>
 #include <multitasking.h>
-
-#include <cli/shell.h>
-
-#include <drivers/amd_am79c973.h>
-#include <net/etherframe.h>
 #include <net/arp.h>
-#include <net/ipv4.h>
+#include <net/etherframe.h>
 #include <net/icmp.h>
-
+#include <net/ipv4.h>
+#include <syscalls.h>
 #include <utils/print.h>
 #include <utils/string.h>
 
 // NOTE: this turns GRAPHICSMODE on/off
-// #define GRAPHICSMODE 
+// #define GRAPHICSMODE
 #define NETWORK
 
 using namespace os;
@@ -39,54 +36,48 @@ using namespace os::net;
 using namespace os::cli;
 
 
-
-
 // Console Event Handlers
 class PrintfKeyboardEventHandler : public KeyboardEventHandler {
-  public:
-    void OnKeyDown(char c) {
-      // char* foo = " ";
-      // foo[0] = c;
-      // printf(foo);
-      putChar(c);
-    }
+ public:
+  void OnKeyDown(char c) {
+    // char* foo = " ";
+    // foo[0] = c;
+    // printf(foo);
+    putChar(c);
+  }
 };
 
 class MouseToConsole : public MouseEventHandler {
   int8_t x, y;
 
-  public:
-
+ public:
   MouseToConsole() {
   }
 
-  virtual void OnActivate(){
+  virtual void OnActivate() {
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
     x = 40;
     y = 12;
-    VideoMemory[80*y+x] = ((VideoMemory[80*y+x] & 0xF000) >> 4)
-      | ((VideoMemory[80*y+x] & 0x0F00) << 4)
-      | ((VideoMemory[80*y+x] & 0x00FF));
+    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
+                              ((VideoMemory[80 * y + x] & 0x00FF));
   }
 
-  void OnMouseMove(int8_t x_offset, int8_t y_offset){
+  void OnMouseMove(int8_t x_offset, int8_t y_offset) {
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
 
-    VideoMemory[80*y+x] = ((VideoMemory[80*y+x] & 0xF000) >> 4)
-      | ((VideoMemory[80*y+x] & 0x0F00) << 4)
-      | ((VideoMemory[80*y+x] & 0x00FF));
+    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
+                              ((VideoMemory[80 * y + x] & 0x00FF));
 
-    x += (int8_t)x_offset; 
-    if(x<0) x = 0; //prevent mouse overflow
-    if(x>=80) x = 79;
+    x += (int8_t)x_offset;
+    if (x < 0) x = 0;  // prevent mouse overflow
+    if (x >= 80) x = 79;
 
     y += (int8_t)y_offset;
-    if(y<0) y = 0; //prevent mouse overflow
-    if(y>=25) y = 24;
+    if (y < 0) y = 0;  // prevent mouse overflow
+    if (y >= 25) y = 24;
 
-    VideoMemory[80*y+x] = ((VideoMemory[80*y+x] & 0xF000) >> 4)
-      | ((VideoMemory[80*y+x] & 0x0F00) << 4)
-      | ((VideoMemory[80*y+x] & 0x00FF));
+    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
+                              ((VideoMemory[80 * y + x] & 0x00FF));
   }
 };
 
@@ -94,7 +85,7 @@ class MouseToConsole : public MouseEventHandler {
 // void sysprintf(char* str) {
 //   asm("int $0x80" : : "a" (4), "b" (str));
 // }
-// multitasking test functions, 
+// multitasking test functions,
 // TODO: move to test/system/multitasking.cc
 void taskA() {
   /*
@@ -104,247 +95,234 @@ void taskA() {
     // asm("sti");
   }
   */
-  while(true){
+  while (true) {
     sysprintf("A");
   }
 }
 void taskB() {
   /*
   while(true) {
-    printf("B"); 
+    printf("B");
     for (int i =0; i < 100000000; i++);
     // asm("sti");
   }
   */
-  while(true) {
+  while (true) {
     sysprintf("B");
   }
 }
 
 
-
-
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
-extern "C" void callConstructors(){
-    for(constructor* i = &start_ctors; i != &end_ctors; i++)
-        (*i)();
+extern "C" void callConstructors() {
+  for (constructor* i = &start_ctors; i != &end_ctors; i++) (*i)();
 }
 
 
 extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/) {
-    clearScreen();
-    
-    printf("Hello World! :)\n");
+  clearScreen();
 
-    GlobalDescriptorTable gdt;
-    
-    uint32_t* memupper = (uint32_t*)(((size_t)multiboot_structure) + 8); // HACK: find the upper memory bound in kilobytes, based on multiboot_info struct from GNU
-    size_t heapStart = 10*1024*1024; // NOTE: start of heap is at 10 MiB, address: 0x00A00000
-    size_t padding = 10*1024; // NOTE: padding is 10 KiB
-    size_t heapSize = (*memupper)*1024 - heapStart - padding; // NOTE: (*memupper) returns the total RAM above 1 MB, multiplying by 1024 converts total available RAM above 1 MB to bytes
-    // NOTE: on a 512 MB RAM system, heapSize := 500 MB => (512 MB - ~1 MB) - 10 MiB - 10 KiB = 500 MB
-    /* DIAGRAM: MEMORYDIMENSION at boot
-     - MEMORYDIMENSION := { [ padding (10 KB)], [ ... ], [ heapStart    ...    heapSize ]} 
+  printf("Hello World! :)\n");
 
-    */
-    MemoryManager memoryManager(heapStart, heapSize); 
+  GlobalDescriptorTable gdt;
 
-    printf("Heap Start: 0x%08x = %d MiB\n", heapStart, (heapStart / (1024*1024)));
+  uint32_t* memupper = (uint32_t*)(((size_t)multiboot_structure) + 8
+  );  // HACK: find the upper memory bound in kilobytes, based on multiboot_info struct from GNU
+  size_t heapStart = 10 * 1024 * 1024;  // NOTE: start of heap is at 10 MiB, address: 0x00A00000
+  size_t padding = 10 * 1024;           // NOTE: padding is 10 KiB
+  size_t heapSize =
+      (*memupper) * 1024 - heapStart - padding;  // NOTE: (*memupper) returns the total RAM above 1 MB, multiplying by
+                                                 // 1024 converts total available RAM above 1 MB to bytes
+  // NOTE: on a 512 MB RAM system, heapSize := 500 MB => (512 MB - ~1 MB) - 10 MiB - 10 KiB = 500 MB
+  /* DIAGRAM: MEMORYDIMENSION at boot
+   - MEMORYDIMENSION := { [ padding (10 KB)], [ ... ], [ heapStart    ...    heapSize ]}
 
-    // printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
-    // printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
-    // printfHex((heapStart >> 2*8) & 0xFF); // byte 2       => 0xA0 & 0xFF = 0b(1010 0000) & 0b(1111 1111) = 0b(1010 0000) = 0xA0 
-    // printfHex((heapStart >> 1*8 ) & 0xFF); // byte 1      => 0x00 & 0xFF = 0x00
-    // printfHex((heapStart      ) & 0xFF); // byte 0 (LSB)  => 0x00 & 0xFF = 0x00
-    // void* allocated = memoryManager.malloc(1024); // allocated 
-    // printf("\nallocated: 0x");
-    // printfHex(((size_t)allocated >> 24) & 0xFF);
-    // printfHex(((size_t)allocated >> 16) & 0xFF);
-    // printfHex(((size_t)allocated >> 8 ) & 0xFF);
-    // printfHex(((size_t)allocated      ) & 0xFF);
-    // printf("\n");
+  */
+  MemoryManager memoryManager(heapStart, heapSize);
 
-   
-     // Multitasking/
-    TaskManager taskManager;
-    Task task1(&gdt, taskA);
-    Task task2(&gdt, taskB);
-    /*
-    taskManager.AddTask(&task1);
-    taskManager.AddTask(&task2);
-    */
+  printf("Heap Start: 0x%08x = %d MiB\n", heapStart, (heapStart / (1024 * 1024)));
 
-    InterruptManager interrupts(0x20, &gdt, &taskManager);
-    SyscallHandler syscalls(&interrupts, 0x80);
+  // printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
+  // printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
+  // printfHex((heapStart >> 2*8) & 0xFF); // byte 2       => 0xA0 & 0xFF = 0b(1010 0000) & 0b(1111 1111) = 0b(1010
+  // 0000) = 0xA0 printfHex((heapStart >> 1*8 ) & 0xFF); // byte 1      => 0x00 & 0xFF = 0x00 printfHex((heapStart ) &
+  // 0xFF); // byte 0 (LSB)  => 0x00 & 0xFF = 0x00 void* allocated = memoryManager.malloc(1024); // allocated
+  // printf("\nallocated: 0x");
+  // printfHex(((size_t)allocated >> 24) & 0xFF);
+  // printfHex(((size_t)allocated >> 16) & 0xFF);
+  // printfHex(((size_t)allocated >> 8 ) & 0xFF);
+  // printfHex(((size_t)allocated      ) & 0xFF);
+  // printf("\n");
 
-    // printf("Initializing Hardware, Stage 1\n");
-#ifdef GRAPHICSMODE 
-    /* NOTE: dont comment out, THIS IS THE DESKTOP */
-    Desktop desktop(320, 200, 0xA8, 0x00, 0x00);
+
+  // Multitasking/
+  TaskManager taskManager;
+  Task task1(&gdt, taskA);
+  Task task2(&gdt, taskB);
+  /*
+  taskManager.AddTask(&task1);
+  taskManager.AddTask(&task2);
+  */
+
+  InterruptManager interrupts(0x20, &gdt, &taskManager);
+  SyscallHandler syscalls(&interrupts, 0x80);
+
+  // printf("Initializing Hardware, Stage 1\n");
+#ifdef GRAPHICSMODE
+  /* NOTE: dont comment out, THIS IS THE DESKTOP */
+  Desktop desktop(320, 200, 0xA8, 0x00, 0x00);
 #endif
 
-    DriverManager drvManager;
+  DriverManager drvManager;
 
-    Shell shell;
+  Shell shell;
 
-    ProgrammableIntervalTimer timer(&interrupts, 100); // [PIT timer, frequency := 1000Hz => tick = 1ms]
-    uint64_t startTicks = timer.ticks; // [tracks ticks passed from boot]
+  ProgrammableIntervalTimer timer(&interrupts, 100);  // [PIT timer, frequency := 1000Hz => tick = 1ms]
+  uint64_t startTicks = timer.ticks;                  // [tracks ticks passed from boot]
 
 #ifdef GRAPHICSMODE
-    MouseDriver mouse(&interrupts, &desktop); // NOTE: handler: &desktop attaches the mouse to the desktop
+  MouseDriver mouse(&interrupts, &desktop);  // NOTE: handler: &desktop attaches the mouse to the desktop
 #else
-      MouseToConsole mousehandler;
-      MouseDriver mouse(&interrupts, &mousehandler);
+  MouseToConsole mousehandler;
+  MouseDriver mouse(&interrupts, &mousehandler);
 #endif
-      drvManager.AddDriver(&mouse);
+  drvManager.AddDriver(&mouse);
 
 
 #ifdef GRAPHICSMODE
-      KeyboardDriver keyboard(&interrupts, &desktop);
+  KeyboardDriver keyboard(&interrupts, &desktop);
 #else
-      // PrintfKeyboardEventHandler kbhandler;
-      // KeyboardDriver keyboard(&interrupts, &kbhandler);
-      KeyboardDriver keyboard(&interrupts, &shell);
+  // PrintfKeyboardEventHandler kbhandler;
+  // KeyboardDriver keyboard(&interrupts, &kbhandler);
+  KeyboardDriver keyboard(&interrupts, &shell);
 
 #endif
-      drvManager.AddDriver(&keyboard);
+  drvManager.AddDriver(&keyboard);
 
-      PeripheralComponentInterconnectController PCIController;
-      shell.SetPCI(&PCIController); 
-      PCIController.SelectDrivers(&drvManager, &interrupts);
-      // PCIController.PrintPCIDrivers();
+  PeripheralComponentInterconnectController PCIController;
+  shell.SetPCI(&PCIController);
+  PCIController.SelectDrivers(&drvManager, &interrupts);
+  // PCIController.PrintPCIDrivers();
 
-      VideoGraphicsArray vga;
-
-
-    // printf("Initializing Hardware, Stage 2\n");
-      drvManager.ActivateAll();
-
-    // printf("Initializing Hardware, Stage 3\n");
-
-    hardwarecommunication::Port8Bit pic2Mask(0xA1);
-    uint8_t mask = pic2Mask.Read();
-
-    mask |= 0xC0;
-    pic2Mask.Write(mask);
-   
-    // primary ATA, interrupt 14
-    // AdvancedTechnologyAttachment ata0m(0x1F0, true);
-    // if (ata0m.Identify())
-    //   printf("ATA PRIMARY MASTER FOUND\n");
+  VideoGraphicsArray vga;
 
 
+  // printf("Initializing Hardware, Stage 2\n");
+  drvManager.ActivateAll();
 
-    
+  // printf("Initializing Hardware, Stage 3\n");
+
+  hardwarecommunication::Port8Bit pic2Mask(0xA1);
+  uint8_t mask = pic2Mask.Read();
+
+  mask |= 0xC0;
+  pic2Mask.Write(mask);
+
+  // primary ATA, interrupt 14
+  // AdvancedTechnologyAttachment ata0m(0x1F0, true);
+  // if (ata0m.Identify())
+  //   printf("ATA PRIMARY MASTER FOUND\n");
+
+
 #ifdef NETWORK
-    
-    // identify eth0
-    amd_am79c973* eth0 = 0;
-    for (int i = 0; i < drvManager.numDrivers; i++) {
-      if (drvManager.drivers[i] != 0) {
-        // We assume the network card is the one that ISN'T the mouse or keyboard
-        // (You can also check by casting if you have RTTI, but this is standard for osdev)
-        if (drvManager.drivers[i] != &mouse && drvManager.drivers[i] != &keyboard) {
-          eth0 = (amd_am79c973*) drvManager.drivers[i];
-          printf("Network Driver Found at Index: %d\n", i); // Debug print
-          break;
-        }
+
+  // identify eth0
+  amd_am79c973* eth0 = 0;
+  for (int i = 0; i < drvManager.numDrivers; i++) {
+    if (drvManager.drivers[i] != 0) {
+      // We assume the network card is the one that ISN'T the mouse or keyboard
+      // (You can also check by casting if you have RTTI, but this is standard for osdev)
+      if (drvManager.drivers[i] != &mouse && drvManager.drivers[i] != &keyboard) {
+        eth0 = (amd_am79c973*)drvManager.drivers[i];
+        printf("Network Driver Found at Index: %d\n", i);  // Debug print
+        break;
       }
     }
+  }
 
-    // --- CRITICAL SAFETY CHECK ---
-    if (eth0 == 0) {
-      printf("ERROR: No Network Card found!\n");
-      printf("Possible causes:\n");
-      printf("1. PCI Driver did not detect device 0x1022:0x2000\n");
-      printf("2. MemoryManager::malloc failed (Heap full?)\n");
-      while(1); // Freeze kernel here so you can see the error
-    }
-    for (int i = 0; i < drvManager.numDrivers; i++) {
-      if (drvManager.drivers[i] != 0) {
-        if (i == 2) {
-          eth0 = (amd_am79c973*) drvManager.drivers[i];
-          printf("Found eth0 ");
-          break;
-        }
+  // --- CRITICAL SAFETY CHECK ---
+  if (eth0 == 0) {
+    printf("ERROR: No Network Card found!\n");
+    printf("Possible causes:\n");
+    printf("1. PCI Driver did not detect device 0x1022:0x2000\n");
+    printf("2. MemoryManager::malloc failed (Heap full?)\n");
+    while (1);  // Freeze kernel here so you can see the error
+  }
+  for (int i = 0; i < drvManager.numDrivers; i++) {
+    if (drvManager.drivers[i] != 0) {
+      if (i == 2) {
+        eth0 = (amd_am79c973*)drvManager.drivers[i];
+        printf("Found eth0 ");
+        break;
       }
     }
+  }
 
-    if (eth0 != 0) 
-      printf("Welcome to DracOS Network\n");
+  if (eth0 != 0) printf("Welcome to DracOS Network\n");
 
 
-    /* IP address */
-    uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
-    uint32_t ip_BE   = ((uint32_t)ip4   << 24)
-                      |((uint32_t)ip3   << 16)
-                      |((uint32_t)ip2   <<  8)
-                      |((uint32_t)ip1        );
+  /* IP address */
+  uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
+  uint32_t ip_BE = ((uint32_t)ip4 << 24) | ((uint32_t)ip3 << 16) | ((uint32_t)ip2 << 8) | ((uint32_t)ip1);
 
-    /* GatewayIP address  */
-    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
-    uint32_t gip_BE  = ((uint32_t)gip4  << 24)
-                      |((uint32_t)gip3  << 16)
-                      |((uint32_t)gip2  <<  8)
-                      |((uint32_t)gip1       );
+  /* GatewayIP address  */
+  uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
+  uint32_t gip_BE = ((uint32_t)gip4 << 24) | ((uint32_t)gip3 << 16) | ((uint32_t)gip2 << 8) | ((uint32_t)gip1);
 
-    /* Subnet Mask */
-    uint8_t subnet1 = 255, subnet2 = 255, subnet3 = 255, subnet4 = 0;
-    uint32_t subnet_BE  = ((uint32_t)subnet4  << 24)
-                         |((uint32_t)subnet3  << 16)
-                         |((uint32_t)subnet2  <<  8)
-                         |((uint32_t)subnet1       );
+  /* Subnet Mask */
+  uint8_t subnet1 = 255, subnet2 = 255, subnet3 = 255, subnet4 = 0;
+  uint32_t subnet_BE =
+      ((uint32_t)subnet4 << 24) | ((uint32_t)subnet3 << 16) | ((uint32_t)subnet2 << 8) | ((uint32_t)subnet1);
 
-    eth0->SetIPAddress(ip_BE); // tell network card that this is our IP
+  eth0->SetIPAddress(ip_BE);  // tell network card that this is our IP
 
-    EtherFrameProvider etherframe(eth0); // communicates with network card 
+  EtherFrameProvider etherframe(eth0);  // communicates with network card
 
-    AddressResolutionProtocol arp(&etherframe);  // communicates with etherframe provider middle-layer
+  AddressResolutionProtocol arp(&etherframe);  // communicates with etherframe provider middle-layer
 
-    InternetProtocolProvider ipv4(&etherframe, &arp, gip_BE, subnet_BE);
+  InternetProtocolProvider ipv4(&etherframe, &arp, gip_BE, subnet_BE);
 
-    InternetControlMessageProtocol icmp(&ipv4);
+  InternetControlMessageProtocol icmp(&ipv4);
 
-    shell.SetNetwork(&arp, &icmp);
+  shell.SetNetwork(&arp, &icmp);
 #endif
 
 
 #ifdef GRAPHICSMODE
-    vga.SetMode(320, 200, 8); // 320x200x256
-    Window win1(&desktop, 10, 10, 20, 20, 0x00, 0x00, 0xA8);
-    desktop.AddChild(&win1);
-    Window win2(&win1, 30, 40, 30, 30, 0x00, 0xA8, 0x00);
-    desktop.AddChild(&win2);
+  vga.SetMode(320, 200, 8);  // 320x200x256
+  Window win1(&desktop, 10, 10, 20, 20, 0x00, 0x00, 0xA8);
+  desktop.AddChild(&win1);
+  Window win2(&win1, 30, 40, 30, 30, 0x00, 0xA8, 0x00);
+  desktop.AddChild(&win2);
 #endif
 
-                                                    
-    // activate interupts last
-    interrupts.Activate();
+
+  // activate interupts last
+  interrupts.Activate();
 
 
-    char* send_data = "7777777";
-    // arp.Resolve(gip_BE);
-    // ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
-    // printf(YELLOW_COLOR, BLACK_COLOR,"Length of data sent: %d Chars\t\t", strlen(send_data));
-    // printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
-    // printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
-    //
-    // clearScreen();
-    arp.BroadcastMACAddress(gip_BE);
-    // icmp.Ping(gip_BE);
-
-    
+  char* send_data = "7777777";
+  // arp.Resolve(gip_BE);
+  // ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
+  // printf(YELLOW_COLOR, BLACK_COLOR,"Length of data sent: %d Chars\t\t", strlen(send_data));
+  // printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
+  // printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
+  //
+  // clearScreen();
+  arp.BroadcastMACAddress(gip_BE);
+  // icmp.Ping(gip_BE);
 
 
-    //printf("DracOS MWHAHAHHAH !!");
+  // printf("DracOS MWHAHAHHAH !!");
 
-    while (1){
-        asm volatile ("hlt"); // halt cpu until next interrupt, saving power and does not max out cpu usage
-        // using "hlt" is better than an while(1) infinite loop because it does not waste CPU cycles, generate heat, drain battery/power, etc.
-        #ifdef GRAPHICSMODE
-          desktop.Draw(&vga); 
-        #endif 
-    }   
+  while (1) {
+    asm volatile("hlt");  // halt cpu until next interrupt, saving power and does not max out cpu usage
+// using "hlt" is better than an while(1) infinite loop because it does not waste CPU cycles, generate heat, drain
+// battery/power, etc.
+#ifdef GRAPHICSMODE
+    desktop.Draw(&vga);
+#endif
+  }
 }

@@ -16,10 +16,12 @@ using namespace os::net;
 
 #define ifCmd(req_cmd) if (strcmp(cmd, req_cmd) == 0)
 
-Shell::Shell() {}
+Shell::Shell() {
+}
 
 
-Shell::~Shell() {}
+Shell::~Shell() {
+}
 
 
 // clang-format off
@@ -125,7 +127,9 @@ void Shell::PrintPreviousCmd() {
 }
 
 
-void Shell::ShellInit() { PrintPrompt(); }
+void Shell::ShellInit() {
+  PrintPrompt();
+}
 
 void Shell::PrintCmdFlags(char* cmd, char** flagsList) {
   int32_t num_flags = 0;
@@ -365,5 +369,7 @@ void Shell::ExecuteCommand() {
   }
 
 
-  ifCmd("lspci") { pci->PrintPCIDrivers(); }
+  ifCmd("lspci") {
+    pci->PrintPCIDrivers();
+  }
 }

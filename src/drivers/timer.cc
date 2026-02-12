@@ -7,15 +7,12 @@ using namespace os::hardwarecommunication;
 using namespace os::utils;
 
 ProgrammableIntervalTimer::ProgrammableIntervalTimer(InterruptManager* interrupts, uint32_t frequency)
-: InterruptHandler(interrupts, interrupts->HardwareInterruptOffset() + 0),
-  dataPort(0x40),
-  commandPort(0x43)
-{
-  ticks = 0; // initalize ticks to be 0 at boot
-  uint32_t internalOscillator = 1193182; 
+    : InterruptHandler(interrupts, interrupts->HardwareInterruptOffset() + 0), dataPort(0x40), commandPort(0x43) {
+  ticks = 0;  // initalize ticks to be 0 at boot
+  uint32_t internalOscillator = 1193182;
   uint32_t divisor = internalOscillator / frequency;
 
-  commandPort.Write(0x36); // send the command Byte
+  commandPort.Write(0x36);  // send the command Byte
 
   // send divisor, first the lowByte, then the highByte
   uint8_t divisor_lowByte = (uint8_t)(divisor & 0xFF);
@@ -33,13 +30,11 @@ uint32_t ProgrammableIntervalTimer::HandleInterrupt(uint32_t esp) {
 }
 
 void ProgrammableIntervalTimer::Wait(uint32_t milliseconds) {
-
-
   uint32_t ticksToWait = milliseconds;
   uint64_t endTicks = ticks + ticksToWait;
 
   // [busy wait]
   while (ticks < endTicks) {
-    asm volatile("nop"); 
+    asm volatile("nop");
   }
 }

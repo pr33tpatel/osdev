@@ -1,6 +1,7 @@
-#include <cwchar>
-#include <hardwarecommunication/pci.h>
 #include <drivers/amd_am79c973.h>
+#include <hardwarecommunication/pci.h>
+
+#include <cwchar>
 
 using namespace os::common;
 using namespace os::utils;
@@ -8,21 +9,15 @@ using namespace os::drivers;
 using namespace os::hardwarecommunication;
 
 
-
-PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor(){
-
+PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor() {
 }
-PeripheralComponentInterconnectDeviceDescriptor::~PeripheralComponentInterconnectDeviceDescriptor(){
-
+PeripheralComponentInterconnectDeviceDescriptor::~PeripheralComponentInterconnectDeviceDescriptor() {
 }
 
 
 // constructor
 PeripheralComponentInterconnectController::PeripheralComponentInterconnectController()
-  : dataPort(0xCFC),
-  commandPort(0xCF8)
-{
-
+    : dataPort(0xCFC), commandPort(0xCF8) {
 }
 
 
@@ -31,58 +26,56 @@ PeripheralComponentInterconnectController::~PeripheralComponentInterconnectContr
 }
 
 
-uint32_t PeripheralComponentInterconnectController::Read(uint16_t bus, uint16_t device, uint16_t function, uint32_t registeroffest) {
-  uint32_t id = 
-    0x1 << 31
-    | ((bus & 0xFF) << 16)
-    | ((device & 0x1F) << 11)
-    | ((function & 0x07) << 8)
-    | (registeroffest & 0xFC);
+uint32_t PeripheralComponentInterconnectController::Read(
+    uint16_t bus, uint16_t device, uint16_t function, uint32_t registeroffest
+) {
+  uint32_t id =
+      0x1 << 31 | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((function & 0x07) << 8) | (registeroffest & 0xFC);
 
   commandPort.Write(id);
   uint32_t result = dataPort.Read();
-  return result >> (8* (registeroffest % 4));
+  return result >> (8 * (registeroffest % 4));
 }
 
 
-void PeripheralComponentInterconnectController::Write(uint16_t bus, uint16_t device, uint16_t function, uint32_t registeroffest, uint32_t value) {
-  uint32_t id = 
-    0x1 << 31
-    | ((bus & 0xFF) << 16)
-    | ((device & 0x1F) << 11)
-    | ((function & 0x07) << 8)
-    | (registeroffest & 0xFC);
+void PeripheralComponentInterconnectController::Write(
+    uint16_t bus, uint16_t device, uint16_t function, uint32_t registeroffest, uint32_t value
+) {
+  uint32_t id =
+      0x1 << 31 | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((function & 0x07) << 8) | (registeroffest & 0xFC);
 
   commandPort.Write(id);
   dataPort.Write(value);
 }
 
 
-bool PeripheralComponentInterconnectController::DeviceHasFunctions(uint16_t bus, uint16_t device){
-  return Read(bus, device, 0, 0x0E) & (1<<7); // only need the 7th bit of this address
+bool PeripheralComponentInterconnectController::DeviceHasFunctions(uint16_t bus, uint16_t device) {
+  return Read(bus, device, 0, 0x0E) & (1 << 7);  // only need the 7th bit of this address
 }
 
 
-void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* driverManager, InterruptManager* interrupts) {
-  for(int bus = 0; bus < 8; bus++) {
+void PeripheralComponentInterconnectController::SelectDrivers(
+    DriverManager* driverManager, InterruptManager* interrupts
+) {
+  for (int bus = 0; bus < 8; bus++) {
     for (int device = 0; device < 32; device++) {
-      int numFunctions = DeviceHasFunctions(bus, device) ? 8 : 1; // if device has functions, then 8 functions, if "no" functions, then at least 1 function is exists
+      int numFunctions =
+          DeviceHasFunctions(bus, device)
+              ? 8
+              : 1;  // if device has functions, then 8 functions, if "no" functions, then at least 1 function is exists
       for (int function = 0; function < numFunctions; function++) {
         PeripheralComponentInterconnectDeviceDescriptor dev = GetDeviceDescriptor(bus, device, function);
 
-        if (dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF)
-          continue;
+        if (dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF) continue;
 
 
-        for (int barNum = 0; barNum < 6; barNum++){
+        for (int barNum = 0; barNum < 6; barNum++) {
           BaseAddressRegister bar = GetBaseAddressRegister(bus, device, function, barNum);
-          if(bar.address && (bar.type == InputOutput)) 
-            dev.portBase = (uint32_t)bar.address;
+          if (bar.address && (bar.type == InputOutput)) dev.portBase = (uint32_t)bar.address;
         }
 
         Driver* driver = GetDriver(dev, interrupts);
-        if(driver != 0) 
-          driverManager->AddDriver(driver);
+        if (driver != 0) driverManager->AddDriver(driver);
       }
     }
   }
@@ -90,18 +83,22 @@ void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* dri
 
 
 void PeripheralComponentInterconnectController::PrintPCIDrivers() {
-  for(int bus = 0; bus < 8; bus++) {
+  for (int bus = 0; bus < 8; bus++) {
     for (int device = 0; device < 32; device++) {
-      int numFunctions = DeviceHasFunctions(bus, device) ? 8 : 1; // if device has functions, then 8 functions, if "no" functions, then at least 1 function is exists
+      int numFunctions =
+          DeviceHasFunctions(bus, device)
+              ? 8
+              : 1;  // if device has functions, then 8 functions, if "no" functions, then at least 1 function is exists
 
       for (int function = 0; function < numFunctions; function++) {
         PeripheralComponentInterconnectDeviceDescriptor dev = GetDeviceDescriptor(bus, device, function);
 
-        if (dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF)
-          continue;
+        if (dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF) continue;
 
         // // NOTE: same output as linux command: "lspci" : list of PCI devcies
-        printf("PCI BUS %04x, DEVICE %04x, VENDOR %04x\n", (uint32_t)bus, (uint32_t)dev.device_id, (uint32_t)dev.vendor_id);
+        printf(
+            "PCI BUS %04x, DEVICE %04x, VENDOR %04x\n", (uint32_t)bus, (uint32_t)dev.device_id, (uint32_t)dev.vendor_id
+        );
         // printf("PCI BUS ");
         // printByte(bus & 0xFF);
         //
@@ -126,56 +123,58 @@ void PeripheralComponentInterconnectController::PrintPCIDrivers() {
 }
 
 
-BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressRegister(uint16_t bus, uint16_t device, uint16_t function, uint16_t bar) {
+BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressRegister(
+    uint16_t bus, uint16_t device, uint16_t function, uint16_t bar
+) {
   BaseAddressRegister result;
 
   uint32_t headertype = Read(bus, device, function, 0x0E) & 0x7F;
-  int maxBARs = 6 - (4*headertype);
-  if(bar >= maxBARs)
-    return result; // return is not set to anything so address is NULL at this point
+  int maxBARs = 6 - (4 * headertype);
+  if (bar >= maxBARs) return result;  // return is not set to anything so address is NULL at this point
 
 
-  uint32_t bar_value = Read(bus, device, function, 0x10 + 4*bar);
-  result.type = (bar_value & 0x1) ? InputOutput : MemoryMapping; // if 1 then I/O, else MemoryMapping
+  uint32_t bar_value = Read(bus, device, function, 0x10 + 4 * bar);
+  result.type = (bar_value & 0x1) ? InputOutput : MemoryMapping;  // if 1 then I/O, else MemoryMapping
   uint32_t temp;
 
   if (result.type == MemoryMapping) {
-    switch((bar_value >> 1) & 0x3) {
-      case 0: // 32 bit Mode
-      case 1: // 20 bit Mode
-      case 2: // 64 bit Mode
+    switch ((bar_value >> 1) & 0x3) {
+      case 0:  // 32 bit Mode
+      case 1:  // 20 bit Mode
+      case 2:  // 64 bit Mode
         break;
     }
-  }
-  else { // InputOutput case
-    result.address = (uint8_t*)(bar_value & ~0x3); // set to the bar value but cancel the last two bits
+  } else {                                          // InputOutput case
+    result.address = (uint8_t*)(bar_value & ~0x3);  // set to the bar value but cancel the last two bits
     result.prefetchable = false;
   }
 
   return result;
 }
 
-Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponentInterconnectDeviceDescriptor dev, InterruptManager* interrupts) {
-  Driver *driver = 0;
-  switch(dev.vendor_id) {
-    case 0x1022: // AMD
-      switch(dev.device_id) {
-        case 0x2000: // am79c973
+Driver* PeripheralComponentInterconnectController::GetDriver(
+    PeripheralComponentInterconnectDeviceDescriptor dev, InterruptManager* interrupts
+) {
+  Driver* driver = 0;
+  switch (dev.vendor_id) {
+    case 0x1022:  // AMD
+      switch (dev.device_id) {
+        case 0x2000:  // am79c973
           // printf("AMD am79c973: ");
-          EnableBusMastering(&dev); // enable bus mastering DMA so the PCI device can access RAM
+          EnableBusMastering(&dev);  // enable bus mastering DMA so the PCI device can access RAM
           driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
-          if(driver != 0) {
+          if (driver != 0) {
             new (driver) amd_am79c973(&dev, interrupts);
             // printf("amd_am79c973 driver address: %x\n", (uint32_t)driver);
             // printf("AMD am79c973 driver created");
           }
           return driver;
           break;
-      }    
+      }
       break;
 
-    case 0x8086: // Intel
-      switch(dev.device_id) {
+    case 0x8086:  // Intel
+      switch (dev.device_id) {
         case 0x7000:
           // driver = (intel_piix3*)MemoryManager::activeMemoryManager->malloc(sizeof(intel_piix3));
           // if(driver != 0)
@@ -184,18 +183,16 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
           break;
       }
       break;
-
   }
 
-  switch(dev.class_id) {
-    case 0x03: // graphics
-      switch(dev.subclass_id) {
-        case 0x00: // VGA graphics
-          // printf("VGA: "); 
+  switch (dev.class_id) {
+    case 0x03:  // graphics
+      switch (dev.subclass_id) {
+        case 0x00:  // VGA graphics
+          // printf("VGA: ");
           break;
       }
       break;
-
   }
 
 
@@ -204,21 +201,24 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
 
 void PeripheralComponentInterconnectController::EnableBusMastering(uint16_t bus, uint16_t device, uint16_t function) {
   uint32_t command = Read(bus, device, function, 0x04);
-  if (!(command & 0x4)) { // check if bit 2 is set already
-    Write(bus, device, function, 0x04, command | 0x4); // set bit 2
+  if (!(command & 0x4)) {                               // check if bit 2 is set already
+    Write(bus, device, function, 0x04, command | 0x4);  // set bit 2
   }
 }
 
-void PeripheralComponentInterconnectController::EnableBusMastering(PeripheralComponentInterconnectDeviceDescriptor *dev) {
+void PeripheralComponentInterconnectController::EnableBusMastering(PeripheralComponentInterconnectDeviceDescriptor* dev
+) {
   EnableBusMastering(dev->bus, dev->device, dev->function);
 }
 
-PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectController::GetDeviceDescriptor(uint16_t bus, uint16_t device, uint16_t function) {
+PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectController::GetDeviceDescriptor(
+    uint16_t bus, uint16_t device, uint16_t function
+) {
   PeripheralComponentInterconnectDeviceDescriptor result;
 
   result.bus = bus;
   result.device = device;
-  result.function =  function;
+  result.function = function;
 
   result.vendor_id = Read(bus, device, function, 0x00);
   result.device_id = Read(bus, device, function, 0x02);
@@ -228,10 +228,7 @@ PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectC
   result.subclass_id = Read(bus, device, function, 0x0a);
   result.interface_id = Read(bus, device, function, 0x09);
 
-  result.revision  = Read(bus, device, function, 0x08);
+  result.revision = Read(bus, device, function, 0x08);
   result.interrupt = Read(bus, device, function, 0x3c);
   return result;
-
 }
-
-

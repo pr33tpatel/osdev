@@ -243,7 +243,9 @@ void printNBytes(uint8_t byte, uint8_t N) {
 /* => default print functions, no color */
 
 // NOTE: the color in the these functions is the default color for the functions
-void putChar(char c) { putChar(c, LIGHT_GRAY_COLOR, BLACK_COLOR); }
+void putChar(char c) {
+  putChar(c, LIGHT_GRAY_COLOR, BLACK_COLOR);
+}
 
 void printf(const char* fmt, ...) {
   va_list args;
@@ -252,9 +254,13 @@ void printf(const char* fmt, ...) {
   va_end(args);
 }
 
-void printByte(uint8_t byte) { printByte(byte, LIGHT_GRAY_COLOR, BLACK_COLOR); }
+void printByte(uint8_t byte) {
+  printByte(byte, LIGHT_GRAY_COLOR, BLACK_COLOR);
+}
 
-void print4Bytes(uint32_t byte) { print4Bytes(byte, LIGHT_GRAY_COLOR, BLACK_COLOR); }
+void print4Bytes(uint32_t byte) {
+  print4Bytes(byte, LIGHT_GRAY_COLOR, BLACK_COLOR);
+}
 
 
 /* => conversion functions */
@@ -327,7 +333,9 @@ char* intToStr(int value, char* str, uint32_t base) {
 }
 
 
-int strToInt(char* str) { return strToInt(str, 10); }
+int strToInt(char* str) {
+  return strToInt(str, 10);
+}
 
 
 /* => miscellaneous functions */
