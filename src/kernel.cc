@@ -128,8 +128,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   GlobalDescriptorTable gdt;
 
-  uint32_t* memupper = (uint32_t*)(((size_t)multiboot_structure) + 8
-  );  // HACK: find the upper memory bound in kilobytes, based on multiboot_info struct from GNU
+  // clang-format off
+  uint32_t* memupper = (uint32_t*)(((size_t)multiboot_structure) + 8);  // HACK: find the upper memory bound in kilobytes, based on multiboot_info struct from GNU
+  // clang-format on
   size_t heapStart = 10 * 1024 * 1024;  // NOTE: start of heap is at 10 MiB, address: 0x00A00000
   size_t padding = 10 * 1024;           // NOTE: padding is 10 KiB
   size_t heapSize =
