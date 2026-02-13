@@ -30,6 +30,8 @@ BinPackArguments: false
 BinPackParameters: false
 AlignAfterOpenBracket: BlockIndent 
 PenaltyBreakBeforeFirstCallParameter: 70
+# Disables putting all args on one line, even if they fit on the next line.
+AllowAllParametersOfDeclarationOnNextLine: false
 
 # --- CLASS LAYOUT ---
 # Keeps "public:" and "private:" usage clean.
