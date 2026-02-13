@@ -97,7 +97,9 @@ bool InternetProtocolProvider::OnEtherFrameReceived(uint8_t* etherframePayload, 
 
 
 void InternetProtocolProvider::Send(uint32_t dstIP_BE, uint8_t protocol, uint8_t* data, uint32_t size) {
-  uint8_t* buffer = (uint8_t*)MemoryManager::activeMemoryManager->malloc(sizeof(InternetProtocolMessage) + size);
+  // uint8_t* buffer = (uint8_t*)MemoryManager::activeMemoryManager->malloc(sizeof(InternetProtocolMessage) + size);
+  // REFACTOR:
+  uint8_t* buffer = new uint8_t[sizeof(InternetProtocolMessage) + size];
   InternetProtocolMessage* message = (InternetProtocolMessage*)buffer;
 
   message->version = 4;
@@ -132,7 +134,9 @@ void InternetProtocolProvider::Send(uint32_t dstIP_BE, uint8_t protocol, uint8_t
 
   backend->Send(arp->Resolve(dstIP_BE), this->etherType_BE, buffer, sizeof(InternetProtocolMessage) + size);
 
-  MemoryManager::activeMemoryManager->free(buffer);
+  // MemoryManager::activeMemoryManager->free(buffer);
+  // REFACTOR:
+  delete[] buffer;
 }
 
 
