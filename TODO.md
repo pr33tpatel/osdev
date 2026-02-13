@@ -53,6 +53,9 @@ todo:
 - [ ] processes & threads:
     - [ ] assign userid and pid to each process created
 
+- [ ] memory allocation 
+    - [x] fix new and delete bug
+
 - [ ] create an include/utils/
     - [ ] utils.h (cumulative utilties file that contains all other utilties)
     - [x] print.h

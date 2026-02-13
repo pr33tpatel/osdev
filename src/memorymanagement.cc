@@ -49,8 +49,9 @@ void* MemoryManager::malloc(size_t size) {
   if (result->size >=
       size + sizeof(MemoryChunk) +
           1) {  // the result MemoryChunk size is more than the (metadata + requested size), so we can partition
-    MemoryChunk* remaining = (MemoryChunk*)((size_t)result + sizeof(MemoryChunk) + size
-    );  // turn the  remaining unallocated space into MemoryChunk (metadata + size)
+    MemoryChunk* remaining =
+        (MemoryChunk*)((size_t)result + sizeof(MemoryChunk) +
+                       size);  // turn the  remaining unallocated space into MemoryChunk (metadata + size)
     remaining->allocated = false;
     remaining->size = result->size -
                       (size + sizeof(MemoryChunk));  // remaining size = result_chunk size - (metadata + requested size)
@@ -89,8 +90,8 @@ void* MemoryManager::malloc(size_t size) {
   }
   result->allocated = true;
 
-  return (void*)(sizeof(MemoryChunk) + ((size_t)result)
-  );  // return a pointer to the chunk (MemoryChunk*) that is available to be allocated towards the requested size
+  return (void*)(sizeof(MemoryChunk) + ((size_t)result));  // return a pointer to the chunk (MemoryChunk*) that is
+                                                           // available to be allocated towards the requested size
 }
 
 
@@ -135,8 +136,12 @@ void* operator new[](unsigned size, void* ptr) {
 }
 
 void operator delete(void* ptr) {
-  if (os::MemoryManager::activeMemoryManager == 0) os::MemoryManager::activeMemoryManager->free(ptr);
+  if (os::MemoryManager::activeMemoryManager != 0) {
+    os::MemoryManager::activeMemoryManager->free(ptr);
+  }
 }
 void operator delete[](void* ptr) {
-  if (os::MemoryManager::activeMemoryManager == 0) os::MemoryManager::activeMemoryManager->free(ptr);
+  if (os::MemoryManager::activeMemoryManager != 0) {
+    os::MemoryManager::activeMemoryManager->free(ptr);
+  }
 }
