@@ -1,5 +1,7 @@
 #include <memorymanagement.h>
 
+#include <cwchar>
+
 using namespace os;
 using namespace os::common;
 
@@ -119,10 +121,24 @@ void MemoryManager::free(void* ptr) {
   }
 }
 
+
+/**
+ * [allocate memory to DracOS heap]
+ *
+ * e.g.:
+ * driver = new amd_am79c973(&dev, interrupts);
+ */
 void* operator new(unsigned size) {
   if (os::MemoryManager::activeMemoryManager == 0) return 0;
   return os::MemoryManager::activeMemoryManager->malloc(size);
 }
+/**
+ * [allocate memory for array of objects on DracOS heap]
+ *
+ * e.g.:
+ * int* arr = new int[[5] ];
+ * uint8_t* buffer = new uint8_t[[sizeof(InternetProtocolMessage) + size] ];
+ */
 void* operator new[](unsigned size) {
   if (os::MemoryManager::activeMemoryManager == 0) return 0;
   return os::MemoryManager::activeMemoryManager->malloc(size);
@@ -131,15 +147,22 @@ void* operator new[](unsigned size) {
 void* operator new(unsigned size, void* ptr) {
   return ptr;
 }
+
 void* operator new[](unsigned size, void* ptr) {
   return ptr;
 }
 
+/**
+ * [deallocate an object's memory from DracOS heap]
+ */
 void operator delete(void* ptr) {
   if (os::MemoryManager::activeMemoryManager != 0) {
     os::MemoryManager::activeMemoryManager->free(ptr);
   }
 }
+/**
+ * [deallocate memory from array of objects]
+ */
 void operator delete[](void* ptr) {
   if (os::MemoryManager::activeMemoryManager != 0) {
     os::MemoryManager::activeMemoryManager->free(ptr);
