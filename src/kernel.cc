@@ -1,3 +1,4 @@
+#include <cli/commandregistry.h>
 #include <cli/shell.h>
 #include <common/types.h>
 #include <drivers/amd_am79c973.h>
@@ -51,8 +52,7 @@ class MouseToConsole : public MouseEventHandler {
   int8_t x, y;
 
  public:
-  MouseToConsole() {
-  }
+  MouseToConsole() {}
 
   virtual void OnActivate() {
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
@@ -141,7 +141,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
    - MEMORYDIMENSION := { [ padding (10 KB)], [ ... ], [ heapStart    ...    heapSize ]}
 
   */
-  MemoryManager memoryManager(heapStart, heapSize);
+  MemoryManager heap(heapStart, heapSize);
 
   printf("Heap Start: 0x%08x = %d MiB\n", heapStart, (heapStart / (1024 * 1024)));
 
@@ -180,6 +180,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   Shell shell;
 
+  CommandRegistry commandRegistry;
+
   ProgrammableIntervalTimer timer(&interrupts, 100);  // [PIT timer, frequency := 1000Hz => tick = 1ms]
   uint64_t startTicks = timer.ticks;                  // [tracks ticks passed from boot]
 
@@ -203,7 +205,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   drvManager.AddDriver(&keyboard);
 
   PeripheralComponentInterconnectController PCIController;
-  shell.SetPCI(&PCIController);
+  // shell.SetPCI(&PCIController);
   PCIController.SelectDrivers(&drvManager, &interrupts);
   // PCIController.PrintPCIDrivers();
 
@@ -287,7 +289,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   InternetControlMessageProtocol icmp(&ipv4);
 
-  shell.SetNetwork(&arp, &icmp);
+  // shell.SetNetwork(&arp, &icmp);
 #endif
 
 
@@ -300,6 +302,13 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 #endif
 
 
+  bool systemDepsOK = commandRegistry.setSystemCmdDependencies(&shell, &PCIController, &heap);
+  bool networkDepsOK = commandRegistry.setNetworkCmdDependencies(&arp, &ipv4, &icmp);
+  // commandRegistry.setProcessCmdDependencies(&taskManager);
+
+  if (systemDepsOK) {
+    commandRegistry.RegisterAllCommands();
+  }
   // activate interupts last
   interrupts.Activate();
 
@@ -315,6 +324,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   arp.BroadcastMACAddress(gip_BE);
   // icmp.Ping(gip_BE);
 
+  // shell.ExecuteCommand();
 
   // printf("DracOS MWHAHAHHAH !!");
 

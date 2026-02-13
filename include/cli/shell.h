@@ -1,6 +1,7 @@
 #ifndef __OS__CLI__SHELL_H
 #define __OS__CLI__SHELL_H
 
+#include <cli/command.h>
 #include <common/types.h>
 #include <drivers/keyboard.h>
 #include <hardwarecommunication/pci.h>
@@ -13,6 +14,8 @@
 namespace os {
 namespace cli {
 
+#define ifCmd(req_cmd) if (strcmp(cmd, req_cmd) == 0)
+
 struct Cmd {
   char* name;
   char** flagsList;
@@ -21,19 +24,16 @@ struct Cmd {
 
 class Shell : public os::drivers::KeyboardEventHandler {
  private:
+  // CLI buffer variables
   char commandbuffer[256];  // [stores characters in command buffer]
-
   char commandHistory[10][256];
   common::uint16_t bufferIndex;  // [indexer for the command buffer]
   common::uint16_t cursorIndex;  // [indexer for the cursor position]
 
-  // reference to PCI to run 'lspci'
-  os::hardwarecommunication::PeripheralComponentInterconnectController* pci;
-  os::net::AddressResolutionProtocol* arp;
-  os::net::InternetControlMessageProtocol* icmp;
+  // Command Registry
+  Command* commandRegistry[65535];
+  uint16_t numCommands;
 
-
-  void virtual ExecuteCommand();
 
  public:
   Shell();
@@ -42,18 +42,16 @@ class Shell : public os::drivers::KeyboardEventHandler {
   // event handler override
   void OnKeyDown(char c) override;
 
+  void RegisterCommand(Command* cmd);
+
+  void virtual ExecuteCommand();
+
   /**
    * @brief [fills command buffer with specifed char to specifed length ]
    * @param char [specifed char to fill with, default is ' ']
    * @param length [specified length to clear, default is entire buffer]
    */
   void fillCommandBuffer(char fill_char = ' ', uint16_t length = sizeof(commandbuffer) / sizeof(commandbuffer[0]));
-
-  // [link the pci driver to the shell]
-  void SetPCI(os::hardwarecommunication::PeripheralComponentInterconnectController* pciController);
-  void SetNetwork(
-      os::net::AddressResolutionProtocol* arpController, os::net::InternetControlMessageProtocol* icmpController
-  );
 
   void PrintPrompt();
   void PrintPreviousCmd();
