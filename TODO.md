@@ -10,33 +10,35 @@ todo:
 
 - [ ] cli:
     - [x] cursor navigation
+    - [x] Command Struct
+    - [x] Command Registry
     - [ ] edit command buffer and shift data
     - [ ] command history
     - [ ] highlighting
     - [ ] copy and paste
-    - [ ] Cmd struct
          
     - [ ] Optional:
         - [ ] VIM keybinds?
 
 - [ ] CommandList: 
-    - [ ] general:
+    - [ ] System:
         - [x] echo
-        - [ ] clear
-        - [ ] stats (display system information and metrics)
-        - [ ]  heap (display heap stats)
-        - [ ] stats (display system information and metrics)
+        - [x] clear
+        - [ ] stats: display system information and metrics
+        - [ ] heap:  display heap stats
+        - [ ] stats: display system information and metrics
+        - [ ] lspci: display pci info
 
-    - [ ] filesystem:
+    - [ ] Network:
+        - [x] ping
+        - [ ] curl
+
+    - [ ] Filesystem:
         - [ ] ls
         - [ ] cat
         - [ ] type
 
-    - [ ] network:
-        - [ ] ping
-        - [ ] curl
-
-    - [ ] processes:
+    - [ ] Process:
         - [ ] ps
         - [ ] top
 
@@ -57,7 +59,7 @@ todo:
     - [x] fix new and delete bug
 
 - [ ] create an include/utils/
-    - [ ] utils.h (cumulative utilties file that contains all other utilties)
+    - [ ] utils.h: cumulative utilties file that contains all other utilties
     - [x] print.h
     - [ ] math.h
     - [x] string.h
