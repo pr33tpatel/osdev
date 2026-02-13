@@ -1,7 +1,6 @@
 #include <drivers/amd_am79c973.h>
 #include <hardwarecommunication/pci.h>
 
-#include <cwchar>
 
 using namespace os::common;
 using namespace os::utils;
@@ -162,7 +161,8 @@ Driver* PeripheralComponentInterconnectController::GetDriver(
         case 0x2000:  // am79c973
           // printf("AMD am79c973: ");
           EnableBusMastering(&dev);  // enable bus mastering DMA so the PCI device can access RAM
-          driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
+          // driver = (Driver*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
+          driver = new amd_am79c973(&dev, interrupts);
           if (driver != 0) {
             new (driver) amd_am79c973(&dev, interrupts);
             // printf("amd_am79c973 driver address: %x\n", (uint32_t)driver);
@@ -206,7 +206,8 @@ void PeripheralComponentInterconnectController::EnableBusMastering(uint16_t bus,
   }
 }
 
-void PeripheralComponentInterconnectController::EnableBusMastering(PeripheralComponentInterconnectDeviceDescriptor* dev
+void PeripheralComponentInterconnectController::EnableBusMastering(
+    PeripheralComponentInterconnectDeviceDescriptor* dev
 ) {
   EnableBusMastering(dev->bus, dev->device, dev->function);
 }
