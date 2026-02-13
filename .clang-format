@@ -23,7 +23,7 @@ ColumnLimit: 120
 # SortIncludes: true
 # IncludeBlocks: Preserve
 
-# --- ARGUMENTS (From your previous request) ---
+# --- ARGUMENTS ---
 # Even though header has one-line args, this ensures that if they
 # get too long (like fillCommandBuffer), they split vertically.
 BinPackArguments: false
@@ -43,6 +43,6 @@ BreakBeforeBraces: Attach
 # We allow up to 2 to preserve your visual spacing.
 MaxEmptyLinesToKeep: 2
 
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: Empty
 
 ...
