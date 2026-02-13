@@ -35,6 +35,8 @@ OBJECTS = obj/loader.o \
 					obj/utils/string.o \
 					obj/utils/math.o \
 					obj/cli/shell.o \
+					obj/cli/commandregistry.o \
+					obj/cli/commands/networkCmds.o \
 					obj/kernel.o \
 
 
