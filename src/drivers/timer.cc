@@ -21,7 +21,7 @@ ProgrammableIntervalTimer::ProgrammableIntervalTimer(InterruptManager* interrupt
   dataPort.Write(divisor_lowByte);
   dataPort.Write(divisor_highByte);
 
-  printf(RED_COLOR, BLACK_COLOR, "PIT initalized at %dHz", frequency);
+  printf(GREEN_COLOR, BLACK_COLOR, "[PIT] PIT initalized at %dHz\n", frequency);
 }
 
 uint32_t ProgrammableIntervalTimer::HandleInterrupt(uint32_t esp) {
