@@ -20,6 +20,7 @@ class Ping : public Command {
   Ping(os::net::InternetControlMessageProtocol* icmp);
   void execute(char* args) override;
 };
+
 class TracerRoute {
   // ... TracerRoute declaration here
 };
