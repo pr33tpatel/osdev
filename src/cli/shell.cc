@@ -30,7 +30,10 @@ void Shell::ExecuteCommand() {
 
   char* cmdName = strtok(commandbuffer, " ");
   if (cmdName == 0) return;  // user inputted only spaces
-  char* args = strtok(0, " ");
+  // char* args = strtok(0, " ");
+
+  char* args = commandbuffer + strlen(cmdName) + 1;
+  while (args[0] == ' ') args++;  // skip over spaces
 
   bool found = false;
   for (int i = 0; i < numCommands; i++) {
@@ -126,7 +129,7 @@ void Shell::OnKeyDown(char c) {
   if (c == '\n') {  // 'Enter' is pressed
     putChar('\n');  // print new line if 'Enter'
 
-    if (bufferIndex > 0) {                // if there is data in the buffer, echo out the command received
+    if (bufferIndex > 0) {  // if there is data in the buffer, echo out the command received
       commandbuffer[bufferIndex] = '\0';  // signal end of command
       ExecuteCommand();
       bufferIndex = 0;  // reset buffer index
