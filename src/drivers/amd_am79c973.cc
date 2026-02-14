@@ -26,7 +26,9 @@ void RawDataHandler::Send(uint8_t* buffer, uint32_t size) {
 }
 
 
-amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor* dev, InterruptManager* interrupts)
+amd_am79c973::amd_am79c973(
+    PeripheralComponentInterconnectDeviceDescriptor* dev, InterruptManager* interrupts
+)
     : Driver(),
       InterruptHandler(interrupts, dev->interrupt + interrupts->HardwareInterruptOffset()),
       MACAddress0Port(dev->portBase),
@@ -68,8 +70,8 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor* dev,
   initBlock.numRecvBuffers = 3;
   initBlock.physicalAddress = MAC;
 
-  /* TEST: split MAC address into multiple segments to fix compiler error, STATUS: not needed, compiler can handle
-  uint64_t MAC:48
+  /* TEST: split MAC address into multiple segments to fix compiler error, STATUS: not needed, compiler
+  can handle uint64_t MAC:48
   // initBlock.physicalAddressLow      = MAC0 | (MAC1 << 8);
   // initBlock.physicalAddressMiddle   = MAC2 | (MAC3 << 8);
   // initBlock.physicalAddressHigh     = MAC4 | (MAC5 << 8);
@@ -102,8 +104,7 @@ amd_am79c973::amd_am79c973(PeripheralComponentInterconnectDeviceDescriptor* dev,
 }
 
 
-amd_am79c973::~amd_am79c973() {
-}
+amd_am79c973::~amd_am79c973() {}
 
 
 void amd_am79c973::Activate() {
@@ -146,10 +147,14 @@ uint32_t amd_am79c973::HandleInterrupt(common::uint32_t esp) {
   uint32_t temp = registerDataPort.Read();
 
   if ((temp & 0x8000) == 0x8000) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 ERROR\n");
-  if ((temp & 0x2000) == 0x2000) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 COLLISION ERROR\n");
-  if ((temp & 0x1000) == 0x1000) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 MISSED FRAME\n");
-  if ((temp & 0x0800) == 0x0800) printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 MEMORY ERROR\n");
-  if ((temp & 0x0400) == 0x0400) printf(LIGHT_BLUE_COLOR, BLACK_COLOR, "NETWORK INTERRUPT: DATA RECEIVED\n");
+  if ((temp & 0x2000) == 0x2000)
+    printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 COLLISION ERROR\n");
+  if ((temp & 0x1000) == 0x1000)
+    printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 MISSED FRAME\n");
+  if ((temp & 0x0800) == 0x0800)
+    printf(RED_COLOR, BLACK_COLOR, "NETWORK ERROR: AMD am79c973 MEMORY ERROR\n");
+  if ((temp & 0x0400) == 0x0400)
+    printf(LIGHT_BLUE_COLOR, BLACK_COLOR, "NETWORK INTERRUPT: DATA RECEIVED\n");
   Receive();
   if ((temp & 0x0200) == 0x0200) printf(LIGHT_BLUE_COLOR, BLACK_COLOR, "NETWORK INTERRUPT: DATA SENT\n");
   // acknowledge
@@ -169,17 +174,18 @@ void amd_am79c973::Send(uint8_t* buffer, int size) {
 
   if (size > 1518) size = 1518;
 
-  for (uint8_t *src = buffer + size - 1, *dst = (uint8_t*)(sendBufferDescr[sendDescriptor].address + size - 1);
+  for (uint8_t *src = buffer + size - 1,
+               *dst = (uint8_t*)(sendBufferDescr[sendDescriptor].address + size - 1);
        src >= buffer;
        src--, dst--)
     *dst = *src;
 
-  printf("\nSending Packet: ");
-  for (int i = 0; i < size; i++) {
-    printByte(buffer[i]);
-    printf(" ");
-  }
-  printf("| Packet END.\n");
+  // printf("\nSending Packet: ");
+  // for (int i = 0; i < size; i++) {
+  //   printByte(buffer[i]);
+  //   printf(" ");
+  // }
+  // printf("| Packet END.\n");
 
   sendBufferDescr[sendDescriptor].avail = 0;
   sendBufferDescr[sendDescriptor].flags2 = 0;
@@ -210,13 +216,13 @@ void amd_am79c973::Receive() {
 
 
       // print data
-      printf("\nReceving Packet: ");
-      for (int i = 0; i < 64; i++) {
-        printByte(buffer[i]);
-        printf(" ");
-      }
-
-      printf("| Packet END.\n");
+      // printf("\nReceving Packet: ");
+      // for (int i = 0; i < 64; i++) {
+      //   printByte(buffer[i]);
+      //   printf(" ");
+      // }
+      //
+      // printf("| Packet END.\n");
     }
 
 
