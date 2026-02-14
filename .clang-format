@@ -15,7 +15,7 @@ DerivePointerAlignment: false
 # --- LINE LENGTH ---
 # namespaces (e.g. os::hardwarecommunication) are very long.
 # Standard 80 is too short. I bumped it to 120 to prevent ugly wrapping.
-ColumnLimit: 120 
+ColumnLimit: 105 
 
 # --- INCLUDES ---
 # include blocks grouped "drivers" separate from "utils" with a blank line.
