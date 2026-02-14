@@ -58,14 +58,16 @@ class MouseToConsole : public MouseEventHandler {
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
     x = 40;
     y = 12;
-    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
+    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) |
+                              ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
                               ((VideoMemory[80 * y + x] & 0x00FF));
   }
 
   void OnMouseMove(int8_t x_offset, int8_t y_offset) {
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
 
-    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
+    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) |
+                              ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
                               ((VideoMemory[80 * y + x] & 0x00FF));
 
     x += (int8_t)x_offset;
@@ -76,7 +78,8 @@ class MouseToConsole : public MouseEventHandler {
     if (y < 0) y = 0;  // prevent mouse overflow
     if (y >= 25) y = 24;
 
-    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
+    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) |
+                              ((VideoMemory[80 * y + x] & 0x0F00) << 4) |
                               ((VideoMemory[80 * y + x] & 0x00FF));
   }
 };
@@ -133,9 +136,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   // clang-format on
   size_t heapStart = 10 * 1024 * 1024;  // NOTE: start of heap is at 10 MiB, address: 0x00A00000
   size_t padding = 10 * 1024;           // NOTE: padding is 10 KiB
-  size_t heapSize =
-      (*memupper) * 1024 - heapStart - padding;  // NOTE: (*memupper) returns the total RAM above 1 MB, multiplying by
-                                                 // 1024 converts total available RAM above 1 MB to bytes
+  size_t heapSize = (*memupper) * 1024 - heapStart -
+                    padding;  // NOTE: (*memupper) returns the total RAM above 1 MB, multiplying by
+                              // 1024 converts total available RAM above 1 MB to bytes
   // NOTE: on a 512 MB RAM system, heapSize := 500 MB => (512 MB - ~1 MB) - 10 MiB - 10 KiB = 500 MB
   /* DIAGRAM: MEMORYDIMENSION at boot
    - MEMORYDIMENSION := { [ padding (10 KB)], [ ... ], [ heapStart    ...    heapSize ]}
@@ -147,15 +150,12 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   // printf("\nheap start: 0x"); // 10 MiB heap start should be: 0x00A0000
   // printfHex((heapStart >> 3*8) & 0xFF); // byte 3 (MSB) => 0x00 & 0xFF = 0x00
-  // printfHex((heapStart >> 2*8) & 0xFF); // byte 2       => 0xA0 & 0xFF = 0b(1010 0000) & 0b(1111 1111) = 0b(1010
-  // 0000) = 0xA0 printfHex((heapStart >> 1*8 ) & 0xFF); // byte 1      => 0x00 & 0xFF = 0x00 printfHex((heapStart ) &
-  // 0xFF); // byte 0 (LSB)  => 0x00 & 0xFF = 0x00 void* allocated = memoryManager.malloc(1024); // allocated
-  // printf("\nallocated: 0x");
-  // printfHex(((size_t)allocated >> 24) & 0xFF);
-  // printfHex(((size_t)allocated >> 16) & 0xFF);
-  // printfHex(((size_t)allocated >> 8 ) & 0xFF);
-  // printfHex(((size_t)allocated      ) & 0xFF);
-  // printf("\n");
+  // printfHex((heapStart >> 2*8) & 0xFF); // byte 2       => 0xA0 & 0xFF = 0b(1010 0000) & 0b(1111 1111)
+  // = 0b(1010 0000) = 0xA0 printfHex((heapStart >> 1*8 ) & 0xFF); // byte 1      => 0x00 & 0xFF = 0x00
+  // printfHex((heapStart ) & 0xFF); // byte 0 (LSB)  => 0x00 & 0xFF = 0x00 void* allocated =
+  // memoryManager.malloc(1024); // allocated printf("\nallocated: 0x"); printfHex(((size_t)allocated >>
+  // 24) & 0xFF); printfHex(((size_t)allocated >> 16) & 0xFF); printfHex(((size_t)allocated >> 8 ) &
+  // 0xFF); printfHex(((size_t)allocated      ) & 0xFF); printf("\n");
 
 
   // Multitasking/
@@ -268,16 +268,18 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   /* IP address */
   uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
-  uint32_t ip_BE = ((uint32_t)ip4 << 24) | ((uint32_t)ip3 << 16) | ((uint32_t)ip2 << 8) | ((uint32_t)ip1);
+  uint32_t ip_BE =
+      ((uint32_t)ip4 << 24) | ((uint32_t)ip3 << 16) | ((uint32_t)ip2 << 8) | ((uint32_t)ip1);
 
   /* GatewayIP address  */
   uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
-  uint32_t gip_BE = ((uint32_t)gip4 << 24) | ((uint32_t)gip3 << 16) | ((uint32_t)gip2 << 8) | ((uint32_t)gip1);
+  uint32_t gip_BE =
+      ((uint32_t)gip4 << 24) | ((uint32_t)gip3 << 16) | ((uint32_t)gip2 << 8) | ((uint32_t)gip1);
 
   /* Subnet Mask */
   uint8_t subnet1 = 255, subnet2 = 255, subnet3 = 255, subnet4 = 0;
-  uint32_t subnet_BE =
-      ((uint32_t)subnet4 << 24) | ((uint32_t)subnet3 << 16) | ((uint32_t)subnet2 << 8) | ((uint32_t)subnet1);
+  uint32_t subnet_BE = ((uint32_t)subnet4 << 24) | ((uint32_t)subnet3 << 16) | ((uint32_t)subnet2 << 8) |
+                       ((uint32_t)subnet1);
 
   eth0->SetIPAddress(ip_BE);  // tell network card that this is our IP
 
@@ -317,8 +319,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   // arp.Resolve(gip_BE);
   // ipv4.Send(gip_BE, 0x01, (uint8_t*) send_data, strlen(send_data));
   // printf(YELLOW_COLOR, BLACK_COLOR,"Length of data sent: %d Chars\t\t", strlen(send_data));
-  // printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) * strlen(send_data));
-  // printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
+  // printf(YELLOW_COLOR, BLACK_COLOR,"Size of data sent: %d Bytes\n", sizeof(send_data[0]) *
+  // strlen(send_data)); printf(YELLOW_COLOR, BLACK_COLOR,"Data sent: %s\n", send_data);
   //
   // clearScreen();
   arp.BroadcastMACAddress(gip_BE);
@@ -330,8 +332,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   while (1) {
     asm volatile("hlt");  // halt cpu until next interrupt, saving power and does not max out cpu usage
-// using "hlt" is better than an while(1) infinite loop because it does not waste CPU cycles, generate heat, drain
-// battery/power, etc.
+// using "hlt" is better than an while(1) infinite loop because it does not waste CPU cycles, generate
+// heat, drain battery/power, etc.
 #ifdef GRAPHICSMODE
     desktop.Draw(&vga);
 #endif
