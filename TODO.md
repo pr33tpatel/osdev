@@ -31,6 +31,7 @@ todo:
 
     - [ ] Network:
         - [x] ping
+        - [ ] packetShark: trace packets and analyze by printing packet metadata and contents
         - [ ] curl
 
     - [ ] Filesystem:
