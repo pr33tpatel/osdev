@@ -2,6 +2,7 @@
 #define __OS__DRIVERS__TERMINAL_H
 
 #include <common/types.h>
+#include <hardwarecommunication/port.h>
 #include <utils/print.h>
 
 namespace os {
@@ -24,7 +25,6 @@ class Terminal {
   common::uint16_t viewOffset;  // offset for ring buffer, determines which line is at the top of screen
 
   void Render();
-  common::uint16_t vga_entry(char c, common::uint8_t color);
 
  public:
   Terminal();
@@ -38,6 +38,10 @@ class Terminal {
   void ScrollToBottom();
   void Clear();
   void Backspace();
+
+  void setCursorPos(common::uint8_t destX, common::uint8_t destY);
+  void moveCursor(common::int8_t dx, common::int8_t dy);
+  void setHardwareCursor(common::uint16_t x, common::uint16_t y);
 };
 
 }  // namespace drivers

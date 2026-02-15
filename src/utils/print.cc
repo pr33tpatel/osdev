@@ -1,4 +1,5 @@
 #include <common/types.h>
+#include <drivers/terminal.h>
 #include <utils/print.h>
 
 
@@ -35,7 +36,8 @@ static void updateCursor() {
 static void scrollConsole() {
   /* move all data up by 1 row*/
   for (int y = 0; y < VGA_HEIGHT - 1; y++)
-    for (int x = 0; x < VGA_WIDTH; x++) VideoMemory[y * VGA_WIDTH + x] = VideoMemory[(y + 1) * VGA_WIDTH + x];
+    for (int x = 0; x < VGA_WIDTH; x++)
+      VideoMemory[y * VGA_WIDTH + x] = VideoMemory[(y + 1) * VGA_WIDTH + x];
 
   /* clear row 24 (the last line) */
   uint16_t space = vga_entry(' ');
@@ -51,8 +53,9 @@ static void scrollConsole() {
 
 // void putChar(char c, VGAColor fg, VGAColor bg = BLACK_COLOR);
 void putChar(char c, VGAColor fg, VGAColor bg) {
+  /*
   uint8_t color = vga_color_entry(fg, bg);
-  /* default color:= vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR) */
+  // default color:= vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR)
   if (c == '\n') {  // new line
     cursorCol = 0;
     cursorRow++;
@@ -83,15 +86,20 @@ void putChar(char c, VGAColor fg, VGAColor bg) {
     cursorCol++;
   }
 
-  /* line wrapping */
+  // line wrapping
   if (cursorCol >= VGA_WIDTH) {
     cursorCol = 0;
     cursorRow++;
   }
 
-  /* scrolling */
+  // scrolling
   if (cursorRow >= VGA_HEIGHT) {
     scrollConsole();
+  }
+  */
+
+  if (drivers::Terminal::activeTerminal != 0) {
+    drivers::Terminal::activeTerminal->PutChar(c, fg, bg);
   }
 
   updateCursor();
@@ -107,7 +115,8 @@ void printNumber(int number, int base, VGAColor fg, VGAColor bg, int width, char
     return;
   }
 
-  if (number < 0 && base == 10) {  // NOTE: negative numbers only for base10, base16 will only be positive
+  if (number < 0 &&
+      base == 10) {  // NOTE: negative numbers only for base10, base16 will only be positive
     putChar('-', fg, bg);
     number = -number;
   }

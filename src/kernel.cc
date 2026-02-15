@@ -6,6 +6,7 @@
 #include <drivers/driver.h>
 #include <drivers/keyboard.h>
 #include <drivers/mouse.h>
+#include <drivers/terminal.h>
 #include <drivers/timer.h>
 #include <drivers/vga.h>
 #include <gdt.h>
@@ -125,6 +126,7 @@ extern "C" void callConstructors() {
 
 
 extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/) {
+  Terminal terminal;
   clearScreen();
 
   printf("Hello World! :)\n");

@@ -22,6 +22,7 @@ OBJECTS = obj/loader.o \
 					obj/hardwarecommunication/pci.o \
 					obj/drivers/keyboard.o \
 					obj/drivers/mouse.o \
+					obj/drivers/terminal.o \
 					obj/drivers/vga.o \
 					obj/drivers/ata.o \
 					obj/gui/widget.o \
