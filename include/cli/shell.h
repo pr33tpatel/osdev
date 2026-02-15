@@ -32,7 +32,7 @@ class Shell : public os::drivers::KeyboardEventHandler {
 
   // Command Registry
   Command* commandRegistry[65535];
-  uint16_t numCommands;
+  common::uint16_t numCommands;
 
 
  public:
@@ -51,7 +51,9 @@ class Shell : public os::drivers::KeyboardEventHandler {
    * @param char [specifed char to fill with, default is ' ']
    * @param length [specified length to clear, default is entire buffer]
    */
-  void fillCommandBuffer(char fill_char = ' ', uint16_t length = sizeof(commandbuffer) / sizeof(commandbuffer[0]));
+  void fillCommandBuffer(
+      char fill_char = ' ', common::uint16_t length = sizeof(commandbuffer) / sizeof(commandbuffer[0])
+  );
 
   void PrintPrompt();
   void PrintPreviousCmd();

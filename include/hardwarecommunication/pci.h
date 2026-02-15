@@ -74,16 +74,20 @@ class PeripheralComponentInterconnectController {
   );
   void PrintPCIDrivers();
   os::drivers::Driver* GetDriver(
-      PeripheralComponentInterconnectDeviceDescriptor dev, os::hardwarecommunication::InterruptManager* interrupts
+      PeripheralComponentInterconnectDeviceDescriptor dev,
+      os::hardwarecommunication::InterruptManager* interrupts
   );
   PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(
       os::common::uint16_t bus, os::common::uint16_t device, os::common::uint16_t function
   );
   BaseAddressRegister GetBaseAddressRegister(
-      os::common::uint16_t bus, os::common::uint16_t device, os::common::uint16_t function, os::common::uint16_t bar
+      os::common::uint16_t bus,
+      os::common::uint16_t device,
+      os::common::uint16_t function,
+      os::common::uint16_t bar
   );  // bar stands for Base Address Register
 
-  void EnableBusMastering(uint16_t bus, uint16_t device, uint16_t function);
+  void EnableBusMastering(common::uint16_t bus, common::uint16_t device, common::uint16_t function);
   void EnableBusMastering(PeripheralComponentInterconnectDeviceDescriptor* dev);
 };
 }  // namespace hardwarecommunication
