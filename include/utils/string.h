@@ -15,6 +15,7 @@ char* strcpy(char* dest, const char* src);
 char* strncpy(char* dest, const char* src, common::uint32_t n);
 
 char* strcat(char* dest, const char* src);
+char* strncat(char* dest, const char* src, common::uint32_t n);
 
 char* strchr(const char* str, int character);
 

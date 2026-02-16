@@ -66,13 +66,22 @@ char* strcat(char* dest, const char* src) {
   return dest;
 }
 
+char* strncat(char* dest, const char* src, uint32_t n) {
+  char* ptr = dest + strlen(dest);
+  while (n > 0 && *src != '\0') {
+    *ptr++ = *src++;
+    n--;
+  }
+  *ptr = '\0';
+  return dest;
+}
 
 // find and return first occurence specific character in string
 char* strchr(const char* str, int character) {
   while (*str != (char)character) {
     if (!*str++)
-      return 0;  // (character not found) => if you parse the entire str and request character does not appear, return
-                 // 0,
+      return 0;  // (character not found) => if you parse the entire str and request character does not
+                 // appear, return 0,
   }
   return (char*)str;
 }
