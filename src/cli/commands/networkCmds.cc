@@ -111,7 +111,7 @@ void Ping::execute(char* args) {
     this->icmp->Ping(targetIP_BE);
     return;
   } else {
-    printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "%s\n", helpStr);
+    printf(LIGHT_CYAN_COLOR, BLACK_COLOR, "%s", helpStr);
     return;
   }
 };
