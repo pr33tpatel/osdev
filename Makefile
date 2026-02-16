@@ -82,7 +82,8 @@ run: mykernel.iso Image.img
 		-m 512 \
 		-smp 1 \
 		-net nic,model=pcnet -net user \
-		-drive id=disk,file=Image.img,format=raw,if=ide,index=0
+		-drive id=disk,file=Image.img,format=raw,if=ide,index=0 \
+		-vga qxl 
 		# -device piix4-ide,id=piix4 -device ide-hd,drive=disk,bus=piix4.0
 
 
