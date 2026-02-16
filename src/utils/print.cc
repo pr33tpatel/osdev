@@ -12,97 +12,13 @@ using namespace os::hardwarecommunication;
 namespace os {
 namespace utils {
 
-/* static variable to track cursor position */
-static uint8_t cursorCol = 0;
-static uint8_t cursorRow = 0;
-static uint16_t* VideoMemory = (uint16_t*)0xB8000;
-
-static Port8Bit vgaIndexPort(0x3D4);
-static Port8Bit vgaDataPort(0x3D5);
-
-static void updateCursor() {
-  uint16_t position = cursorRow * VGA_WIDTH + cursorCol;
-
-  // set high byte for cursor position
-  vgaIndexPort.Write(0x0E);
-  vgaDataPort.Write((uint8_t)(position >> 8) & 0xFF);
-
-  // set low byte
-  vgaIndexPort.Write(0x0F);
-  vgaDataPort.Write((uint8_t)(position & 0xFF));
-}
-
-/* scrolling function */
-static void scrollConsole() {
-  /* move all data up by 1 row*/
-  for (int y = 0; y < VGA_HEIGHT - 1; y++)
-    for (int x = 0; x < VGA_WIDTH; x++)
-      VideoMemory[y * VGA_WIDTH + x] = VideoMemory[(y + 1) * VGA_WIDTH + x];
-
-  /* clear row 24 (the last line) */
-  uint16_t space = vga_entry(' ');
-  for (int x = 0; x < VGA_WIDTH; x++) VideoMemory[(VGA_HEIGHT - 1) * VGA_WIDTH + x] = space;
-
-  /* reset the cursor back 1 row to the first col */
-  cursorRow = VGA_HEIGHT - 1;
-  cursorCol = 0;
-}
-
-
 /* => print functions, color variable */
 
 // void putChar(char c, VGAColor fg, VGAColor bg = BLACK_COLOR);
 void putChar(char c, VGAColor fg, VGAColor bg) {
-  /*
-  uint8_t color = vga_color_entry(fg, bg);
-  // default color:= vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR)
-  if (c == '\n') {  // new line
-    cursorCol = 0;
-    cursorRow++;
-  }
-
-  else if (c == '\t') {  // tab is 4 spaces
-    cursorCol += 4;
-  }
-
-  else if (c == '\b') {  // backspace
-    if (cursorCol > 0) {
-      cursorCol--;
-    }
-
-    else if (cursorCol <= 0) {
-      cursorCol = VGA_WIDTH - 1;
-      cursorRow--;
-    }
-
-    // overwrite the character with blank
-    size_t index = cursorRow * VGA_WIDTH + cursorCol;
-    VideoMemory[index] = vga_entry(' ', color);
-  }
-
-  else {
-    size_t index = cursorRow * VGA_WIDTH + cursorCol;
-    VideoMemory[index] = vga_entry(c, color);
-    cursorCol++;
-  }
-
-  // line wrapping
-  if (cursorCol >= VGA_WIDTH) {
-    cursorCol = 0;
-    cursorRow++;
-  }
-
-  // scrolling
-  if (cursorRow >= VGA_HEIGHT) {
-    scrollConsole();
-  }
-  */
-
   if (drivers::Terminal::activeTerminal != 0) {
     drivers::Terminal::activeTerminal->PutChar(c, fg, bg);
   }
-
-  updateCursor();
 }
 
 
@@ -350,47 +266,9 @@ int strToInt(char* str) {
 /* => miscellaneous functions */
 
 void clearScreen() {
-  uint8_t colorByte = vga_color_entry(LIGHT_GRAY_COLOR, BLACK_COLOR);
-  uint16_t space = vga_entry(' ', colorByte);
-
-  for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) VideoMemory[i] = space;
-
-  cursorCol = 0;
-  cursorRow = 0;
-
-  enableCursor(1, 15);
-
-  updateCursor();
-}
-
-
-void setCursorPos(uint8_t row, uint8_t col) {
-  if ((row < VGA_HEIGHT) && (col < VGA_WIDTH)) {
-    cursorRow = row;
-    cursorCol = col;
-    updateCursor();
-  } else {
-    printf("setCursorPos got invalid coordinates\n");
+  if (drivers::Terminal::activeTerminal != 0) {
+    drivers::Terminal::activeTerminal->Clear();
   }
-}
-
-
-void moveCursor(int8_t dx, int8_t dy) {
-  cursorCol += dx;
-  cursorRow += dy;
-  updateCursor();
-}
-
-void enableCursor(uint8_t cursorStart, uint8_t cursorEnd) {
-  vgaIndexPort.Write(0x0A);
-  uint8_t start_val = vgaDataPort.Read();
-  vgaIndexPort.Write(0x0A);
-  vgaDataPort.Write((start_val & 0xC0) | cursorStart);
-
-  vgaIndexPort.Write(0x0B);
-  uint8_t end_val = vgaDataPort.Read();
-  vgaIndexPort.Write(0x0B);
-  vgaDataPort.Write((end_val & 0xE0) | cursorEnd);
 }
 
 }  // namespace utils

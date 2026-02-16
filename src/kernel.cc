@@ -127,7 +127,7 @@ extern "C" void callConstructors() {
 
 extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot_magic*/) {
   Terminal terminal;
-  clearScreen();
+  // terminal->Clear();
 
   printf("Hello World! :)\n");
 

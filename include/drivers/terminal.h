@@ -31,10 +31,10 @@ class Terminal {
   ~Terminal();
 
   void PutChar(char c, os::utils::VGAColor fg, os::utils::VGAColor bg);
-  void PutString(const char* str);
 
   void ScrollUp();
   void ScrollDown();
+  void showScrollingStatus(common::uint16_t* vgaMemory);
   void ScrollToBottom();
   void Clear();
   void Backspace();

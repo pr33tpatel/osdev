@@ -1,6 +1,8 @@
 #include <drivers/terminal.h>
 #include <utils/print.h>
 
+#include "utils/string.h"
+
 using namespace os;
 using namespace os::common;
 using namespace os::utils;
@@ -64,6 +66,8 @@ void Terminal::Render() {
   } else {
     setHardwareCursor(0, VGA_HEIGHT + 1);
   }
+
+  showScrollingStatus(vgaMemory);
 }
 
 
@@ -149,7 +153,43 @@ void Terminal::ScrollToBottom() {
 }
 
 
-void Terminal::PutString(const char* str) {}
+void Terminal::showScrollingStatus(uint16_t* vgaMemory) {
+  if (cursorY >= viewOffset + VGA_HEIGHT) {
+    char* msg = "[ SCROLLING HISTORY ]";
+    int msgLen = strlen(msg);
+
+    uint8_t textcolor = vga_color_entry(utils::BLACK_COLOR, utils::LIGHT_MAGENTA_COLOR);
+    // bottom left aligned
+    int startX = 0;
+    int startY = VGA_HEIGHT - 1;
+
+    int currentX = startY * VGA_WIDTH;  // used in loop
+    for (int i = 0; i < VGA_WIDTH; i++) {
+      char c;
+      if (i < msgLen)  // print the message contents
+        c = msg[i];
+      else  // print spaces to fill the status line
+        c = ' ';
+
+      vgaMemory[currentX + i] = utils::vga_entry(c, textcolor);
+    }
+  }
+}
+
+
+void Terminal::moveCursor(int8_t dx, int8_t dy) {
+  int newX = cursorX + dx;
+  int newY = cursorY + dy;
+  if (newX < 0) newX = 0;
+  if (newX >= VGA_WIDTH) newX = VGA_WIDTH - 1;
+  if (newY < 0) newY = 0;
+  if (newY >= HISTORY_SIZE) newY = HISTORY_SIZE - 1;
+
+  cursorX = newX;
+  cursorY = newY;
+
+  Render();
+}
 
 
 void Terminal::Clear() {

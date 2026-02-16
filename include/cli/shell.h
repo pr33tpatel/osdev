@@ -4,6 +4,7 @@
 #include <cli/command.h>
 #include <common/types.h>
 #include <drivers/keyboard.h>
+#include <drivers/terminal.h>
 #include <hardwarecommunication/pci.h>
 #include <net/arp.h>
 #include <net/icmp.h>

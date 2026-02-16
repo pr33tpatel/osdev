@@ -84,23 +84,32 @@ void Shell::PrintCmdFlags(char* cmd, char** flagsList) {
 }
 
 void Shell::OnKeyDown(char c) {
+  if (Terminal::activeTerminal == 0) return;
   // cursor navigation
   if ((uint8_t)c == ARROW_UP) {
-    moveCursor(0, -1);
+    Terminal::activeTerminal->moveCursor(0, -1);
     return;
   }
   if ((uint8_t)c == ARROW_RIGHT) {
-    moveCursor(1, 0);
+    Terminal::activeTerminal->moveCursor(1, 0);
     cursorIndex++;
     return;
   }
   if ((uint8_t)c == ARROW_DOWN) {
-    moveCursor(0, 1);
+    Terminal::activeTerminal->moveCursor(0, 1);
     return;
   }
   if ((uint8_t)c == ARROW_LEFT) {
-    moveCursor(-1, 0);
+    Terminal::activeTerminal->moveCursor(-1, 0);
     cursorIndex--;
+    return;
+  }
+  if ((uint8_t)c == SHIFT_ARROW_DOWN) {
+    Terminal::activeTerminal->ScrollDown();
+    return;
+  }
+  if ((uint8_t)c == SHIFT_ARROW_UP) {
+    Terminal::activeTerminal->ScrollUp();
     return;
   }
 
@@ -121,7 +130,7 @@ void Shell::OnKeyDown(char c) {
 
 
   // history
-  if ((uint8_t)c == SHIFT_ARROW_UP) {
+  if ((uint8_t)c == SHIFT_ARROW_LEFT) {
     printf("history");
     return;
   }
