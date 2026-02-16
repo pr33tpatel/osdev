@@ -6,12 +6,12 @@ using namespace os::utils;
 using namespace os::net;
 
 
-AddressResolutionProtocol::AddressResolutionProtocol(EtherFrameProvider* backend) : EtherFrameHandler(backend, 0x806) {
+AddressResolutionProtocol::AddressResolutionProtocol(EtherFrameProvider* backend)
+    : EtherFrameHandler(backend, 0x806) {
   numCacheEntries = 0;
 }
 
-AddressResolutionProtocol::~AddressResolutionProtocol() {
-}
+AddressResolutionProtocol::~AddressResolutionProtocol() {}
 
 void AddressResolutionProtocol::printIPAddress(common::uint32_t IP) {
   /* little endian x86 machine reading big endian packet */
@@ -54,7 +54,7 @@ void AddressResolutionProtocol::printSrcMACAddress() {
 
 
 void AddressResolutionProtocol::printARPmsg(AddressResolutionProtocolMessage* arp) {
-  printf("\nARP PACKET:\n");
+  printf("ARP PACKET:\n");
 
   // opcode
   printf("Opcode: ");
