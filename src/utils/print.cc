@@ -1,6 +1,7 @@
 #include <common/types.h>
 #include <drivers/terminal.h>
 #include <utils/print.h>
+#include <utils/string.h>
 
 
 using namespace os;
@@ -227,6 +228,30 @@ int strToInt(char* str, common::uint16_t base) {
    *
    */
 }
+
+
+void printArt(char* rawTextAscii) {
+  uint8_t fgValue = os::utils::LIGHT_GRAY_COLOR;  // enum 7
+  uint8_t bgValue = os::utils::BLACK_COLOR;       // enum 0
+  for (int i = 0; rawTextAscii[i] != '\0'; i++) {
+    // color trigger is ^, switch the color
+    if (rawTextAscii[i] == '^' && rawTextAscii[i + 1] == '_') {
+      // get colorCode value (e.g.: ^12 => LIGHT_RED_COLOR)
+      char* colorCode = strtok(rawTextAscii + i + 1, " ");
+      uint8_t colorCodeLen = strlen(colorCode);
+      // convert colorCode value to int for VGAColor enum
+      uint8_t colorValue = (uint8_t)strToInt(colorCode, 16);
+      fgValue = (colorValue >> 4) & 0xF;
+      bgValue = (colorValue << 4) & 0xF;
+      i += colorCodeLen + 1;  // skip past the colorCode specifer to the
+    } else {
+      VGAColor fgColor = (VGAColor)fgValue;
+      VGAColor bgColor = (VGAColor)bgValue;
+      putChar(rawTextAscii[i], fgColor, bgColor);
+    }
+  }
+}
+
 
 char* intToStr(int value, char* str, uint32_t base) {
   char* rc = str;

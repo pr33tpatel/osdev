@@ -5,6 +5,8 @@
 #include <hardwarecommunication/port.h>
 #include <stdarg.h>
 
+#include <cwchar>
+
 namespace os {
 namespace utils {
 
@@ -64,6 +66,8 @@ void print4Bytes(common::uint32_t byte, VGAColor fg, VGAColor bg = BLACK_COLOR);
 
 void printNBytes(common::uint8_t byte, common::uint8_t N);
 void printNBytes(common::uint8_t byte, common::uint8_t N, VGAColor fg, VGAColor bg = BLACK_COLOR);
+
+void printArt(char* rawTextAscii);
 
 int strToInt(char* str);
 int strToInt(char* str, common::uint16_t base);

@@ -1,3 +1,4 @@
+#include <asciiart.h>
 #include <cli/commandregistry.h>
 #include <cli/shell.h>
 #include <common/types.h>
@@ -333,6 +334,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   // printf("DracOS MWHAHAHHAH !!");
 
   shell.PrintPrompt();
+  // printf(BLACK_COLOR, os::utils::RED_COLOR, os::hastsuneMikuGun);
+  printArt("hi there ^_A0 now light green\n");
+  printArt("hi there ^ now different\n");
   while (1) {
     asm volatile("hlt");  // halt cpu until next interrupt, saving power and does not max out cpu usage
 // using "hlt" is better than an while(1) infinite loop because it does not waste CPU cycles, generate
