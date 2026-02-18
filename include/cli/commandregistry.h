@@ -5,6 +5,7 @@
 #include <cli/commands/networkCmds.h>
 #include <cli/shell.h>
 #include <common/types.h>
+#include <drivers/terminal.h>
 #include <hardwarecommunication/pci.h>
 #include <hardwarecommunication/port.h>
 #include <memorymanagement.h>
@@ -12,13 +13,43 @@
 #include <net/arp.h>
 #include <net/icmp.h>
 #include <net/ipv4.h>
+#include <utils/ds/map.h>
 #include <utils/print.h>
 
 
 namespace os {
 namespace cli {
+
+struct DependencyEntry {
+  void* ptr;
+  char* depName;
+};
+
+enum DependencyID {
+  // SYSTEM
+  DEP_SHELL,
+  DEP_PCI,
+  DEP_HEAP,
+  DEP_TERMINAL,
+
+  // NETWORK
+  DEP_ARP,
+  DEP_IPV4,
+  DEP_ICMP,
+
+  // PROCESS
+  DEP_TASKMANAGER,
+
+  // FILESYSTEM
+  DEP_FILESYSTEM,
+
+  DEP_COUNT  // [number of dependencies, sentinel value used to bounds and looping]
+};
+
+
 class CommandRegistry {
  private:
+  os::utils::ds::Map<int, DependencyEntry, 32> dependencyMap;
   // system command dependencies
   os::cli::Shell* shell;
   os::hardwarecommunication::PeripheralComponentInterconnectController* pci;
@@ -35,28 +66,28 @@ class CommandRegistry {
   // filesystem command dependencies
 
  public:
+  void* dependencies[DEP_COUNT];
   CommandRegistry();
   ~CommandRegistry();
 
-  bool setSystemCmdDependencies(
-      os::cli::Shell* shell,
-      os::hardwarecommunication::PeripheralComponentInterconnectController* pci,
-      os::MemoryManager* heap
-  );
-  bool setNetworkCmdDependencies(
-      os::net::AddressResolutionProtocol* arp,
-      os::net::InternetProtocolProvider* ipv4,
-      os::net::InternetControlMessageProtocol* icmp
-  );
-  bool setProcessCmdDependencies(os::TaskManager* taskManager);
-  bool setFileSystemCmdDependencies();
+  void injectDependency(DependencyID id, void* dep);
 
-  bool ValidateCoreDependencies();
+  template <typename T>
+  T* getDependency(DependencyID id) {
+    return (T*)dependencies[id];
+  }
 
-  void RegisterSystemCommands();
-  void RegisterNetworkCommands();
-  void RegisterProcessCommands();
-  void RegisterFileSystemCommands();
+  bool ValidateSystemDependencies();
+  bool ValidateNetworkDependencies();
+  bool ValidateProcessDependencies();
+  bool ValidateFileSystemDependencies();
+
+  bool ValidateAllDependencies();
+
+  bool RegisterSystemCommands();
+  bool RegisterNetworkCommands();
+  bool RegisterProcessCommands();
+  bool RegisterFileSystemCommands();
 
   void RegisterAllCommands();
 };

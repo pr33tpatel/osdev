@@ -11,7 +11,9 @@ todo:
 - [ ] cli:
     - [x] cursor navigation
     - [x] Command Struct
+        - [ ] update Command Struct to use Map for mapping name to Command* objects
     - [x] Command Registry
+        - [ ] update Command Registry to use Map for mapping name to dependency objects 
     - [ ] edit command buffer and shift data
     - [ ] command history
     - [ ] highlighting

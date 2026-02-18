@@ -11,119 +11,40 @@ using namespace os::hardwarecommunication;
 namespace os {
 namespace cli {
 CommandRegistry::CommandRegistry() {
-  // set all dependency pointers to null at init
-
-  this->shell = 0;
-  this->pci = 0;
-  this->heap = 0;
-
-  this->arp = 0;
-  this->ipv4 = 0;
-  this->icmp = 0;
-
-  this->taskManager = 0;
+  for (int i = 0; i < DEP_COUNT; i++) {
+    this->dependencies[i] = 0;
+  }
 }
 
 
-void CommandRegistry::RegisterSystemCommands() {
-  if (!setSystemCmdDependencies(this->shell, this->pci, this->heap)) return;
-  if (!ValidateCoreDependencies()) return;
-  printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[SHELL] Registering System Commands...\n");
-
-  // shell->RegisterCommand(new Echo());
+void CommandRegistry::injectDependency(DependencyID id, void* dep) {
+  if (id >= 0 && id < DEP_COUNT) {
+    this->dependencies[id] = dep;
+  }
 }
 
 
-void CommandRegistry::RegisterNetworkCommands() {
-  if (!setNetworkCmdDependencies(this->arp, this->ipv4, this->icmp)) return;
-  printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[SHELL] Registering Network Commands...\n");
+// SYSTEM COMMANDS
+bool CommandRegistry::ValidateSystemDependencies() {
+  if (dependencies[DEP_SHELL] == 0) {
+    printf(RED_COLOR, BLACK_COLOR, "[SHELL] Error: Missing Shell Dependency\n");
+    return false;
+  }
+  if (dependencies[DEP_HEAP] == 0) {
+    printf(RED_COLOR, BLACK_COLOR, "[SHELL] Error: Missing Heap Dependency\n");
+    return false;
+  }
 
-  shell->RegisterCommand(new Ping(icmp));
+  return true;
 }
 
 
-void CommandRegistry::RegisterProcessCommands() {
-  if (!setProcessCmdDependencies(this->taskManager)) return;
-  printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[SHELL] Registering Process Commands...\n");
-}
-
-
-void CommandRegistry::RegisterFileSystemCommands() {}
-
-
-void CommandRegistry::RegisterAllCommands() {
-  printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[SHELL] Register All Commands...\n");
-  RegisterSystemCommands();
-  RegisterNetworkCommands();
-  RegisterProcessCommands();
-  RegisterFileSystemCommands();
-}
-
-
-bool CommandRegistry::ValidateCoreDependencies() {
-  // only fail if the core deps are missing
-  // core deps: shell, heap, ...
-  if (!setSystemCmdDependencies(this->shell, this->pci, this->heap)) {
-    if (this->shell == 0) {
-      printf(RED_COLOR, BLACK_COLOR, "KERNEL PANIC: SHELL IS NULL. CANNOT REGISTER COMAMNDS\n");
+bool CommandRegistry::ValidateAllDependencies() {
+  for (int i = 0; i < DEP_COUNT - 1; i++) {
+    if (dependencies[i] == 0) {
+      printf(RED_COLOR, BLACK_COLOR, "[SHELL] Missing Dependency: %d\n", );
     }
-    if (this->pci == 0) {
-      printf(RED_COLOR, BLACK_COLOR, "KERNEL PANIC: PCI IS NULL. CANNOT REGISTER COMMANDS\n");
-    }
-    if (this->heap == 0) {
-      printf(RED_COLOR, BLACK_COLOR, "KERNEL PANIC: HEAP IS NULL. CANNOT REGISTER COMMANDS\n");
-    }
-    return false;
   }
-
-  // if (!setFileSystemCmdDependencies()) {
-  //   return false;
-  // }
-
-  return true;
-}
-
-
-bool CommandRegistry::setSystemCmdDependencies(
-    Shell* shell, PeripheralComponentInterconnectController* pci, MemoryManager* heap
-) {
-  this->shell = shell;
-  this->pci = pci;
-  this->heap = heap;
-  if (this->shell == 0 || this->heap == 0) {
-    printf(RED_COLOR, BLACK_COLOR, "[SHELL] FAILED TO SET: SystemCmdDependencies\n");
-    return false;
-  }
-  return true;
-}
-
-
-bool CommandRegistry::setNetworkCmdDependencies(
-    AddressResolutionProtocol* arp, InternetProtocolProvider* ipv4, InternetControlMessageProtocol* icmp
-) {
-  this->arp = arp;
-  this->ipv4 = ipv4;
-  this->icmp = icmp;
-  if (this->arp == 0 || this->ipv4 == 0 || this->icmp == 0) {
-    printf(RED_COLOR, BLACK_COLOR, "[SHELL] FAILED TO SET: NetworkCmdDependencies\n");
-    return false;
-  }
-  return true;
-}
-
-
-bool CommandRegistry::setProcessCmdDependencies(TaskManager* taskManager) {
-  this->taskManager = taskManager;
-  if (this->taskManager == 0) {
-    printf(RED_COLOR, BLACK_COLOR, "[SHELL] FAILED TO SET: ProcessCmdDependencies\n");
-    return false;
-  }
-  return true;
-}
-
-
-bool CommandRegistry::setFileSystemCmdDependencies() {
-  return true;
 }
 
 
