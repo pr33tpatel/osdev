@@ -12,13 +12,14 @@ template <typename T>
 struct Hasher {
   // ALGORITHM: Thomas Wang's 32-bit mix hashing algorithm
   static common::uint32_t Hash(const T& key) {
-    key = ~key + (key << 15);
-    key = key ^ (key >> 12);
-    key = key + (key << 2);
-    key = key ^ (key >> 4);
-    key = key * 2057;
-    key = key ^ (key >> 16);
-    return key;
+    T k = key;  // create a copy for modification
+    k = ~k + (k << 15);
+    k = k ^ (k >> 12);
+    k = k + (k << 2);
+    k = k ^ (k >> 4);
+    k = k * 2057;
+    k = k ^ (k >> 16);
+    return k;
   }
 
   static bool isEqual(const T& a, const T& b) {
