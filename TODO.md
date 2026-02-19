@@ -11,9 +11,9 @@ todo:
 - [ ] cli:
     - [x] cursor navigation
     - [x] Command Struct
-        - [ ] update Command Struct to use Map for mapping name to Command* objects
+        - [ ] update Command Struct to use hashmap for mapping name to Command* objects
     - [x] Command Registry
-        - [ ] update Command Registry to use Map for mapping name to dependency objects 
+        - [ ] update Command Registry to use hashmap for mapping name to dependency objects 
     - [ ] edit command buffer and shift data
     - [ ] command history
     - [ ] highlighting
@@ -58,6 +58,7 @@ todo:
     - [ ] map (rewrite to balanced binary tree (red-black) for asc. order, O(log n) access)
     - [ ] hashmap (unordered, uses hash table, ammoritized O(1))
     - [ ] hash table
+        - [ ] use template specialization to allow different hashing for different types
     - [ ] dynamic array (pls dont call it "vector"), (accessible by index)
     - [ ] list (not accessible by index)
     - [ ] stack
@@ -74,6 +75,7 @@ todo:
     - [ ] utils.h: cumulative utilties file that contains all other utilties
     - [x] print.h
     - [ ] math.h
+    - [x] hash.h
     - [x] string.h
     - [x] memory.h
     - [ ] random.h

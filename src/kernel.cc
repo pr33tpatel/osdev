@@ -22,6 +22,7 @@
 #include <net/icmp.h>
 #include <net/ipv4.h>
 #include <syscalls.h>
+#include <utils/ds/hashtable.h>
 #include <utils/print.h>
 #include <utils/string.h>
 
@@ -32,6 +33,7 @@
 using namespace os;
 using namespace os::common;
 using namespace os::utils;
+using namespace os::utils::ds;
 using namespace os::drivers;
 using namespace os::hardwarecommunication;
 using namespace os::gui;
@@ -117,6 +119,75 @@ void taskB() {
   }
 }
 
+void TestHashTable() {
+  printf(YELLOW_COLOR, BLACK_COLOR, "INITIALIZING HASH TABLE TEST...\n");
+
+  // 1. Create the Table
+  // Key: const char* (String), Value: int
+  os::utils::ds::HashTable<const char*, int> table;
+
+  // ---------------------------------------------------------
+  // TEST 1: Basic Insertion & Lookup
+  // ---------------------------------------------------------
+  const char* key1 = "cpu_count";
+  int val1 = 4;
+  table.Insert(&key1, &val1);
+
+  const char* key2 = "total_memory";
+  int val2 = 1024;
+  table.Insert(&key2, &val2);
+
+  int result = 0;
+  if (table.Get(&key1, &result) && result == 4) {
+    printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Key 'cpu_count' found with value: %d\n", result);
+  } else {
+    printf(RED_COLOR, BLACK_COLOR, "[FAIL] Key 'cpu_count' not found or wrong value.\n");
+  }
+
+  // ---------------------------------------------------------
+  // TEST 2: Updating an Existing Key
+  // ---------------------------------------------------------
+  int newVal = 8;
+  table.Insert(&key1, &newVal);  // Update "cpu_count" to 8
+
+  if (table.Get(&key1, &result) && result == 8) {
+    printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Key 'cpu_count' updated correctly to: %d\n", result);
+  } else {
+    printf(RED_COLOR, BLACK_COLOR, "[FAIL] Key 'cpu_count' failed to update. Got: %d\n", result);
+  }
+
+  // ---------------------------------------------------------
+  // TEST 3: Collision Handling (Harder Test)
+  // ---------------------------------------------------------
+  // We deliberately pick strings that might collide or just rely on the table logic
+  const char* key3 = "collision_A";
+  const char* key4 = "collision_B";
+  int val3 = 100;
+  int val4 = 200;
+
+  table.Insert(&key3, &val3);
+  table.Insert(&key4, &val4);
+
+  int res3 = 0, res4 = 0;
+  bool found3 = table.Get(&key3, &res3);
+  bool found4 = table.Get(&key4, &res4);
+
+  if (found3 && found4 && res3 == 100 && res4 == 200) {
+    printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Collision/Multiple keys retrieved successfully.\n");
+  } else {
+    printf(RED_COLOR, BLACK_COLOR, "[FAIL] Collision test failed. A: %d, B: %d\n", res3, res4);
+  }
+
+  // ---------------------------------------------------------
+  // TEST 4: Missing Key
+  // ---------------------------------------------------------
+  const char* missing = "non_existent";
+  if (!table.Get(&missing, &result)) {
+    printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Missing key correctly returned false.\n");
+  } else {
+    printf(RED_COLOR, BLACK_COLOR, "[FAIL] Missing key was found? Value: %d\n", result);
+  }
+}
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -307,6 +378,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 #endif
 
 
+  /* TEST: uncomment this to use the shell
   bool systemDepsOK = commandRegistry.setSystemCmdDependencies(&shell, &PCIController, &heap);
   bool networkDepsOK = commandRegistry.setNetworkCmdDependencies(&arp, &ipv4, &icmp);
   // commandRegistry.setProcessCmdDependencies(&taskManager);
@@ -314,6 +386,10 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   if (systemDepsOK) {
     commandRegistry.RegisterAllCommands();
   }
+  */
+
+  TestHashTable();
+
   // activate interupts last
   interrupts.Activate();
 
@@ -334,9 +410,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   // printf("DracOS MWHAHAHHAH !!");
 
   shell.PrintPrompt();
-  // printf(BLACK_COLOR, os::utils::RED_COLOR, os::hastsuneMikuGun);
-  printArt("hi there ^_A0 now light green\n");
-  printArt("hi there ^ now different\n");
   while (1) {
     asm volatile("hlt");  // halt cpu until next interrupt, saving power and does not max out cpu usage
 // using "hlt" is better than an while(1) infinite loop because it does not waste CPU cycles, generate
