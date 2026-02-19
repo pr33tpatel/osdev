@@ -117,7 +117,7 @@ class LinkedList {
   Node* Find(T val) {
     Node* temp = head;
     while (temp != nullptr) {
-      if (temp->val == val) {
+      if (temp->data == val) {
         return temp;
       }
       temp = temp->next;
@@ -131,7 +131,7 @@ class LinkedList {
   Node* FindOneBefore(T val) {
     Node* temp = head;
     while (temp != nullptr) {
-      if (temp->next->val == val && temp->next != nullptr) {
+      if (temp->next->data == val && temp->next != nullptr) {
         return temp;
       }
       temp = temp->next;
