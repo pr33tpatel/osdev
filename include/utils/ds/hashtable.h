@@ -18,8 +18,8 @@ class HashTable {
   struct HashNode {
     K key;
     V value;
-    static bool isEqual(const HashNode& a, const HashNode& b) {
-      return Hasher<K>::isEqual(a.key, b.key);
+    bool operator==(const HashNode& other) const {
+      return Hasher<K>::isEqual(this->key, other.key);
     }
   };
   /** [array of pointers to heads of LinkedList objects,
@@ -36,6 +36,7 @@ class HashTable {
     for (int i = 0; i < capacity; i++) {
       buckets[i] = 0;
     }
+    count = 0;
   }
   ~HashTable() {
     for (int i = 0; i < capacity; i++) {
@@ -82,15 +83,23 @@ class HashTable {
     if (buckets[index] == 0) {
       buckets[index] = (LinkedList<HashNode>*)new LinkedList<HashNode>;
     }
-    // check for collision
-    bool collisionFound = DetectAndUpdateCollision(buckets[index], key, value);
-    if (collisionFound) return;
+    // // check for collision
+    // bool collisionFound = DetectAndUpdateCollision(buckets[index], key, value);
+    // if (collisionFound) return;
+
+    HashNode searchNode;
+    searchNode.key = *key;
+    typename LinkedList<HashNode>::Node* existingNode = buckets[index]->Find(searchNode);
+    if (existingNode != 0) {
+      // collisionFound
+      existingNode->data.value = *value;
+      return;
+    }
+
     // at this point, collision is not found,
     // so, append a new node with K and V
-    HashNode newNode;
-    newNode.key = *key;
-    newNode.value = *value;
-    buckets[index]->Append(newNode);
+    searchNode.value = *value;
+    buckets[index]->Append(searchNode);
     count++;
   }
 
@@ -98,13 +107,14 @@ class HashTable {
     common::uint32_t index = Hasher<K>::Hash(*key) % MaxSize;
     if (buckets[index] == 0) return false;
 
-    typename LinkedList<HashNode>::Node* temp = buckets[index]->head;
-    while (temp != 0) {
-      if (Hasher<K>::isEqual(temp->data.key, *key)) {
-        *outValue = temp->data.value;
-        return true;
-      }
-      temp = temp->next;
+    HashNode searchNode;
+    searchNode.key = *key;
+
+    typename LinkedList<HashNode>::Node* existingNode = buckets[index]->Find(searchNode);
+
+    if (existingNode != 0) {
+      *outValue = existingNode->data.value;
+      return true;
     }
     return false;
   }
