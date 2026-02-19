@@ -45,7 +45,6 @@ todo:
         - [ ] ps
         - [ ] top
 
-
 - [ ] dracos network:
     - [x] arp
     - [x] ip
@@ -54,6 +53,16 @@ todo:
     - [ ] tcp
     - [ ] basic html
     - [ ] better display and parsing for packets
+
+- [ ] data structures:
+    - [ ] map (rewrite to balanced binary tree (red-black) for asc. order, O(log n) access)
+    - [ ] hashmap (unordered, uses hash table, ammoritized O(1))
+    - [ ] hash table
+    - [ ] dynamic array (pls dont call it "vector"), (accessible by index)
+    - [ ] list (not accessible by index)
+    - [ ] stack
+    - [ ] queue
+    - [ ] set
 
 - [ ] processes & threads:
     - [ ] assign userid and pid to each process created
