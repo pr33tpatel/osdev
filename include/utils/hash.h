@@ -22,7 +22,7 @@ struct Hasher {
     return k;
   }
 
-  static bool isEqual(const T& a, const T& b) {
+  static inline bool isEqual(const T& a, const T& b) {
     return a == b;
   };
 };
@@ -40,7 +40,7 @@ struct Hasher<const char*> {
     return hash;
   }
 
-  static bool isEqual(const char* a, const char* b) {
+  static inline bool isEqual(const char* a, const char* b) {
     return strcmp(a, b) == 0;
   }
 };
