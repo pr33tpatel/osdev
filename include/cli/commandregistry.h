@@ -13,6 +13,7 @@
 #include <net/arp.h>
 #include <net/icmp.h>
 #include <net/ipv4.h>
+#include <utils/ds/hashmap.h>
 #include <utils/ds/map.h>
 #include <utils/print.h>
 
@@ -20,62 +21,24 @@
 namespace os {
 namespace cli {
 
+
 struct DependencyEntry {
   void* ptr;
-  char* depName;
+  bool isValid;
 };
-
-enum DependencyID {
-  // SYSTEM
-  DEP_SHELL,
-  DEP_PCI,
-  DEP_HEAP,
-  DEP_TERMINAL,
-
-  // NETWORK
-  DEP_ARP,
-  DEP_IPV4,
-  DEP_ICMP,
-
-  // PROCESS
-  DEP_TASKMANAGER,
-
-  // FILESYSTEM
-  DEP_FILESYSTEM,
-
-  DEP_COUNT  // [number of dependencies, sentinel value used to bounds and looping]
-};
-
 
 class CommandRegistry {
  private:
-  os::utils::ds::Map<int, DependencyEntry, 32> dependencyMap;
-  // system command dependencies
-  os::cli::Shell* shell;
-  os::hardwarecommunication::PeripheralComponentInterconnectController* pci;
-  os::MemoryManager* heap;
-
-  // network command dependencies
-  os::net::AddressResolutionProtocol* arp;
-  os::net::InternetProtocolProvider* ipv4;
-  os::net::InternetControlMessageProtocol* icmp;
-
-  // process command dependencies
-  os::TaskManager* taskManager;
-
-  // filesystem command dependencies
+  bool ValidateGroup(const char** requiredDeps, common::uint32_t count);
 
  public:
-  void* dependencies[DEP_COUNT];
+  utils::ds::HashMap<const char*, DependencyEntry> dependencyMap;
   CommandRegistry();
   ~CommandRegistry();
 
-  void injectDependency(DependencyID id, void* dep);
+  void InjectDependency(const char* depName, void* depPtr);
+  void* GetDependency(const char* depName);
 
-  template <typename T>
-  T* getDependency(DependencyID id) {
-    return (T*)dependencies[id];
-  }
 
   bool ValidateSystemDependencies();
   bool ValidateNetworkDependencies();

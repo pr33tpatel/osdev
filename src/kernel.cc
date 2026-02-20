@@ -403,7 +403,26 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   }
   */
 
-  TestHashTable();
+  // system dependencies
+  commandRegistry.InjectDependency("SYS.SHELL", &shell);
+  commandRegistry.InjectDependency("SYS.PCI", &PCIController);
+  commandRegistry.InjectDependency("SYS.HEAP", &heap);
+  commandRegistry.InjectDependency("SYS.TERMINAL", &terminal);
+
+  // network dependencies
+  commandRegistry.InjectDependency("NET.ARP", &arp);
+  commandRegistry.InjectDependency("NET.IPV4", &ipv4);
+  commandRegistry.InjectDependency("NET.ICMP", &icmp);
+
+  // process dependencies
+  commandRegistry.InjectDependency("PROC.TASKMANAGER", &taskManager);
+
+  // filesystem dependencies
+
+  commandRegistry.ValidateAllDependencies();
+
+
+  // TestHashTable();
 
   // activate interupts last
   interrupts.Activate();
