@@ -3,6 +3,7 @@
 
 #include <common/types.h>
 #include <memorymanagement.h>
+#include <utils/ds/keyvaluepair.h>
 #include <utils/ds/linkedlist.h>
 #include <utils/hash.h>
 
@@ -52,24 +53,6 @@ class HashTable {
     return Hasher<K>::Hash(*key) % capacity;
   }
 
-  bool DetectAndUpdateCollision(LinkedList<HashNode>* bucket, const K* key, const V* value) {
-    /* logic:
-     * detect a collision at specified bucket by:
-     * - traversing the bucket (LinkedList)
-     * - comparing the data of the temp node to the current node
-     * - if collision is found, update the existing value
-     */
-    typename LinkedList<HashNode>::Node* temp = bucket->head;
-    while (temp != 0) {
-      if (Hasher<K>::isEqual(temp->data.key, *key)) {
-        // collision detected
-        temp->data.value = *value;
-        return true;
-      }
-      temp = temp->next;
-    }
-    return false;
-  }
 
   void Insert(const K* key, const V* value) {
     /* logic:
@@ -78,18 +61,17 @@ class HashTable {
      * if so, update the value of the key in that bucket
      * if not, create a new Node and append it to the end of the bucket and increment count
      */
-    common::uint32_t index = Hasher<K>::Hash(*key) % MaxSize;
+    common::uint32_t index = GetBucketIndex(key);
     // create a LinkedList if it doesnt exist
     if (buckets[index] == 0) {
       buckets[index] = (LinkedList<HashNode>*)new LinkedList<HashNode>;
     }
-    // // check for collision
-    // bool collisionFound = DetectAndUpdateCollision(buckets[index], key, value);
-    // if (collisionFound) return;
 
+    // check for collision
     HashNode searchNode;
     searchNode.key = *key;
     typename LinkedList<HashNode>::Node* existingNode = buckets[index]->Find(searchNode);
+
     if (existingNode != 0) {
       // collisionFound
       existingNode->data.value = *value;
@@ -104,7 +86,7 @@ class HashTable {
   }
 
   bool Get(const K* key, V* outValue) {
-    common::uint32_t index = Hasher<K>::Hash(*key) % MaxSize;
+    common::uint32_t index = GetBucketIndex(key);
     if (buckets[index] == 0) return false;
 
     HashNode searchNode;
@@ -117,6 +99,109 @@ class HashTable {
       return true;
     }
     return false;
+  }
+
+  void Remove(const K* key) {
+    common::uint32_t index = GetBucketIndex(key);
+    if (buckets[index] == 0) return;
+    HashNode dummy;
+    dummy.key = *key;
+    buckets[index]->Remove(dummy);
+  }
+
+  /**
+   * [returns true if the key exists within the HashTable]
+   */
+  bool Contains(const K* key) {
+    common::uint32_t index = GetBucketIndex(key);
+    if (buckets[index] == 0) return false;
+
+    HashNode searchNode;
+    searchNode.key = *key;
+    // if Find returns a non-nullptr, then the key exists within the hashtable
+    return buckets[index]->Find(searchNode) != 0;
+  }
+
+  /**
+   * [returns the total number of key-value pairs in HashTable]
+   */
+  common::uint32_t GetSize() {
+    return count;
+  }
+
+  /**
+   * [returns true if there are 0 key-value pairs in the HashTable]
+   */
+  bool isEmpty() {
+    return count == 0;
+  }
+
+  /**
+   * [deletes all buckets and resets HashTable to empty state]
+   */
+  void Clear() {
+    for (common::uint32_t i = 0; i < capacity; i++) {
+      if (buckets[i] != 0) {
+        delete buckets[i];  // calls LinkedList destructor, freeing all Nodes
+        buckets[i] = 0;     // reset bucket head pointer to null
+      }
+    }
+    count = 0;  // reset count
+  }
+
+  /**
+   * [populates provided LinkedList (dest) with all keys in HashTable],
+   * Usage:
+   * LinkedList<const char*> myKeys;
+   * myTable.GetKeys(&myKeys);
+   */
+  void GetKeys(LinkedList<K>* dest) {
+    if (dest == 0) return;
+
+    for (common::uint32_t i = 0; i < capacity; i++)
+      if (buckets[i] != 0) {
+        typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
+        while (temp != 0) {
+          dest->Append(temp->data.key);
+          temp = temp->next;
+        }
+      }
+  }
+
+  /**
+   * [populates provided LinkedList (dest) with all values in HashTable],
+   * Usage:
+   * LinkedList<const char*> myValues;
+   * myTable.GetValues(&myValues);
+   */
+  void GetValues(LinkedList<V>* dest) {
+    if (dest == 0) return;
+
+    for (common::uint32_t i = 0; i < capacity; i++)
+      if (buckets[i] != 0) {
+        typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
+        while (temp != 0) {
+          dest->Append(temp->data.value);
+          temp = temp->next;
+        }
+      }
+  }
+
+  void GetPairs(LinkedList<KeyValuePair<K, V>>* dest) {
+    if (dest == 0) return;
+    for (common::uint32_t i = 0; i < capacity; i++) {
+      if (buckets[i] != 0) {
+        typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
+        while (temp != 0) {
+          KeyValuePair<K, V> pair;  // struture data from Node* temp into a KeyValuePair
+          pair.key = temp->data.key;
+          pair.value = temp->data.value;
+          dest->Append(pair);  // append the KeyValuePair containing structured data
+
+          temp = temp->next;
+        }
+      }
+    }
   }
 };
 }  // namespace ds
