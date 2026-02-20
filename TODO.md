@@ -56,11 +56,11 @@ todo:
 
 - [ ] data structures:
     - [ ] map (rewrite to balanced binary tree (red-black) for asc. order, O(log n) access)
-    - [ ] hashmap (unordered, uses hash table, ammoritized O(1))
-    - [ ] hash table
-        - [ ] use template specialization to allow different hashing for different types
+    - [x] hashmap (unordered, uses hash table, ammoritized O(1))
+        - [x] use template specialization to allow different hashing for different types
     - [ ] dynamic array (pls dont call it "vector"), (accessible by index)
-    - [ ] list (not accessible by index)
+    - [x] list (not accessible by index)
+    - [x] pair
     - [ ] stack
     - [ ] queue
     - [ ] set

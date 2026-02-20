@@ -3,8 +3,8 @@
 
 #include <common/types.h>
 #include <memorymanagement.h>
-#include <utils/ds/keyvaluepair.h>
 #include <utils/ds/linkedlist.h>
+#include <utils/ds/pair.h>
 #include <utils/hash.h>
 
 
@@ -187,13 +187,13 @@ class HashTable {
       }
   }
 
-  void GetPairs(LinkedList<KeyValuePair<K, V>>* dest) {
+  void GetPairs(LinkedList<Pair<K, V>>* dest) {
     if (dest == 0) return;
     for (common::uint32_t i = 0; i < capacity; i++) {
       if (buckets[i] != 0) {
         typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
         while (temp != 0) {
-          KeyValuePair<K, V> pair;  // struture data from Node* temp into a KeyValuePair
+          Pair<K, V> pair;  // struture data from Node* temp into a KeyValuePair
           pair.key = temp->data.key;
           pair.value = temp->data.value;
           dest->Append(pair);  // append the KeyValuePair containing structured data
