@@ -167,13 +167,28 @@ void TestHashTable() {
 
   table.Insert(&key3, &val3);
   table.Insert(&key4, &val4);
-
   int res3 = 0, res4 = 0;
   bool found3 = table.Get(&key3, &res3);
   bool found4 = table.Get(&key4, &res4);
 
   if (found3 && found4 && res3 == 100 && res4 == 200) {
     printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Collision/Multiple keys retrieved successfully.\n");
+    LinkedList<const char*> keyList;
+    table.GetKeys(&keyList);
+    printf(BROWN_COLOR, BLACK_COLOR, "Keys in HashTable: ");
+    keyList.printList();
+
+    LinkedList<int> valueList;
+    table.GetValues(&valueList);
+    printf(BROWN_COLOR, BLACK_COLOR, "values in HashTable: ");
+    valueList.printList();
+
+    LinkedList<KeyValuePair<const char*, int>> kvPairList;
+    table.GetPairs(&kvPairList);
+    printf(BROWN_COLOR, BLACK_COLOR, "pairs in HashTable: ");
+    kvPairList.printPairList();
+
+
   } else {
     printf(RED_COLOR, BLACK_COLOR, "[FAIL] Collision test failed. A: %d, B: %d\n", res3, res4);
   }

@@ -3,6 +3,7 @@
 
 #include <common/types.h>
 #include <memorymanagement.h>
+#include <utils/ds/keyvaluepair.h>
 #include <utils/print.h>
 
 
@@ -166,30 +167,37 @@ class LinkedList {
   };
 
   /**
-   * [prints contents of scalar (int, long, void*) linked list]
+   * [prints contents linked list]
    */
-  void printScalarList() {
+  void printList() {
     Node* temp = head;
     while (temp != nullptr) {
-      printf("%d", temp->val);
+      printType(temp->data);
       if (temp->next != nullptr) printf(" -> ");
       temp = temp->next;
     }
     printf("\n");
   };
 
-  /**
-   * [prints contents of string linked list]
-   */
-  void printStringList() {
+  void printPairList() {
     Node* temp = head;
-    while (temp != nullptr) {
-      printf("%s", temp->val);
-      if (temp->next != nullptr) printf(" -> ");
+    if (temp == 0) {
+      printf(RED_COLOR, BLACK_COLOR, "[ERROR]: CANNOT PRINT EMPTY LIST\n");
+    }
+
+    while (temp != 0) {
+      printf("{");
+      printType(temp->data.key);
+      printf(", ");
+      printType(temp->data.value);
+      printf("}");
+      if (temp->next != 0) {
+        printf(" -> ");
+      }
       temp = temp->next;
     }
     printf("\n");
-  };
+  }
 
   // END
 };

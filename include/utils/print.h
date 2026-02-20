@@ -69,10 +69,31 @@ void printNBytes(common::uint8_t byte, common::uint8_t N, VGAColor fg, VGAColor 
 
 void printArt(char* rawTextAscii);
 
+
 int strToInt(char* str);
 int strToInt(char* str, common::uint16_t base);
 
 char* intToStr(int value, char* str, common::uint32_t base);
+
+template <typename T>
+void printType(T val) {
+  printf("?unkowntype");  // default case
+}
+
+template <>
+inline void printType<int>(int val) {
+  printf("%d", val);
+}
+
+template <>
+inline void printType<const char*>(const char* val) {
+  printf("%s", val);
+}
+
+template <>
+inline void printType<char*>(char* val) {
+  printf("%s", val);
+}
 
 /* miscellaneous functions */
 // static void scrollConsole();
