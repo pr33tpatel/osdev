@@ -22,7 +22,7 @@
 #include <net/icmp.h>
 #include <net/ipv4.h>
 #include <syscalls.h>
-#include <utils/ds/hashtable.h>
+#include <utils/ds/hashmap.h>
 #include <utils/print.h>
 #include <utils/string.h>
 
@@ -124,21 +124,21 @@ void TestHashTable() {
 
   // 1. Create the Table
   // Key: const char* (String), Value: int
-  os::utils::ds::HashTable<const char*, int> table;
+  os::utils::ds::HashMap<const char*, int> map;
 
   // ---------------------------------------------------------
   // TEST 1: Basic Insertion & Lookup
   // ---------------------------------------------------------
   const char* key1 = "cpu_count";
   int val1 = 4;
-  table.Insert(&key1, &val1);
+  map.Insert(&key1, &val1);
 
   const char* key2 = "total_memory";
   int val2 = 1024;
-  table.Insert(&key2, &val2);
+  map.Insert(&key2, &val2);
 
   int result = 0;
-  if (table.Get(&key1, &result) && result == 4) {
+  if (map.Get(&key1, &result) && result == 4) {
     printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Key 'cpu_count' found with value: %d\n", result);
   } else {
     printf(RED_COLOR, BLACK_COLOR, "[FAIL] Key 'cpu_count' not found or wrong value.\n");
@@ -148,9 +148,9 @@ void TestHashTable() {
   // TEST 2: Updating an Existing Key
   // ---------------------------------------------------------
   int newVal = 8;
-  table.Insert(&key1, &newVal);  // Update "cpu_count" to 8
+  map.Insert(&key1, &newVal);  // Update "cpu_count" to 8
 
-  if (table.Get(&key1, &result) && result == 8) {
+  if (map.Get(&key1, &result) && result == 8) {
     printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Key 'cpu_count' updated correctly to: %d\n", result);
   } else {
     printf(RED_COLOR, BLACK_COLOR, "[FAIL] Key 'cpu_count' failed to update. Got: %d\n", result);
@@ -159,33 +159,33 @@ void TestHashTable() {
   // ---------------------------------------------------------
   // TEST 3: Collision Handling (Harder Test)
   // ---------------------------------------------------------
-  // We deliberately pick strings that might collide or just rely on the table logic
+  // We deliberately pick strings that might collide or just rely on the map logic
   const char* key3 = "collision_A";
   const char* key4 = "collision_B";
   int val3 = 100;
   int val4 = 200;
 
-  table.Insert(&key3, &val3);
-  table.Insert(&key4, &val4);
+  map.Insert(&key3, &val3);
+  map.Insert(&key4, &val4);
   int res3 = 0, res4 = 0;
-  bool found3 = table.Get(&key3, &res3);
-  bool found4 = table.Get(&key4, &res4);
+  bool found3 = map.Get(&key3, &res3);
+  bool found4 = map.Get(&key4, &res4);
 
   if (found3 && found4 && res3 == 100 && res4 == 200) {
     printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Collision/Multiple keys retrieved successfully.\n");
     LinkedList<const char*> keyList;
-    table.GetKeys(&keyList);
-    printf(BROWN_COLOR, BLACK_COLOR, "Keys in HashTable: ");
+    map.GetKeys(&keyList);
+    printf(BROWN_COLOR, BLACK_COLOR, "Keys in Hashmap: ");
     keyList.printList();
 
     LinkedList<int> valueList;
-    table.GetValues(&valueList);
-    printf(BROWN_COLOR, BLACK_COLOR, "values in HashTable: ");
+    map.GetValues(&valueList);
+    printf(BROWN_COLOR, BLACK_COLOR, "values in Hashmap: ");
     valueList.printList();
 
-    LinkedList<KeyValuePair<const char*, int>> kvPairList;
-    table.GetPairs(&kvPairList);
-    printf(BROWN_COLOR, BLACK_COLOR, "pairs in HashTable: ");
+    LinkedList<Pair<const char*, int>> kvPairList;
+    map.GetPairs(&kvPairList);
+    printf(BROWN_COLOR, BLACK_COLOR, "pairs in Hashmap: ");
     kvPairList.printPairList();
 
 
@@ -197,7 +197,7 @@ void TestHashTable() {
   // TEST 4: Missing Key
   // ---------------------------------------------------------
   const char* missing = "non_existent";
-  if (!table.Get(&missing, &result)) {
+  if (!map.Get(&missing, &result)) {
     printf(LIGHT_GREEN_COLOR, BLACK_COLOR, "[PASS] Missing key correctly returned false.\n");
   } else {
     printf(RED_COLOR, BLACK_COLOR, "[FAIL] Missing key was found? Value: %d\n", result);

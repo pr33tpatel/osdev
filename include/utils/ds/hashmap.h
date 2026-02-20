@@ -1,5 +1,5 @@
-#ifndef __OS__UTILS__DS__HASHTABLE_H
-#define __OS__UTILS__DS__HASHTABLE_H
+#ifndef __OS__UTILS__DS__HASHMAP_H
+#define __OS__UTILS__DS__HASHMAP_H
 
 #include <common/types.h>
 #include <memorymanagement.h>
@@ -14,7 +14,7 @@ namespace ds {
 
 
 template <typename K, typename V, common::uint32_t MaxSize = 1024>
-class HashTable {
+class HashMap {
  private:
   struct HashNode {
     K key;
@@ -33,13 +33,13 @@ class HashTable {
   common::uint32_t count;               // current count of elements stored
 
  public:
-  HashTable() {
+  HashMap() {
     for (int i = 0; i < capacity; i++) {
       buckets[i] = 0;
     }
     count = 0;
   }
-  ~HashTable() {
+  ~HashMap() {
     for (int i = 0; i < capacity; i++) {
       if (buckets[i] != 0) {
         delete buckets[i];
@@ -110,7 +110,7 @@ class HashTable {
   }
 
   /**
-   * [returns true if the key exists within the HashTable]
+   * [returns true if the key exists within the HashMap]
    */
   bool Contains(const K* key) {
     common::uint32_t index = GetBucketIndex(key);
@@ -118,26 +118,26 @@ class HashTable {
 
     HashNode searchNode;
     searchNode.key = *key;
-    // if Find returns a non-nullptr, then the key exists within the hashtable
+    // if Find returns a non-nullptr, then the key exists within the HashMap
     return buckets[index]->Find(searchNode) != 0;
   }
 
   /**
-   * [returns the total number of key-value pairs in HashTable]
+   * [returns the total number of key-value pairs in HashMap]
    */
   common::uint32_t GetSize() {
     return count;
   }
 
   /**
-   * [returns true if there are 0 key-value pairs in the HashTable]
+   * [returns true if there are 0 key-value pairs in the HashMap]
    */
   bool isEmpty() {
     return count == 0;
   }
 
   /**
-   * [deletes all buckets and resets HashTable to empty state]
+   * [deletes all buckets and resets HashMap to empty state]
    */
   void Clear() {
     for (common::uint32_t i = 0; i < capacity; i++) {
@@ -150,10 +150,10 @@ class HashTable {
   }
 
   /**
-   * [populates provided LinkedList (dest) with all keys in HashTable],
+   * [populates provided LinkedList (dest) with all keys in HashMap],
    * Usage:
    * LinkedList<const char*> myKeys;
-   * myTable.GetKeys(&myKeys);
+   * myMap.GetKeys(&myKeys);
    */
   void GetKeys(LinkedList<K>* dest) {
     if (dest == 0) return;
@@ -169,10 +169,10 @@ class HashTable {
   }
 
   /**
-   * [populates provided LinkedList (dest) with all values in HashTable],
+   * [populates provided LinkedList (dest) with all values in HashMap],
    * Usage:
    * LinkedList<const char*> myValues;
-   * myTable.GetValues(&myValues);
+   * myMap.GetValues(&myValues);
    */
   void GetValues(LinkedList<V>* dest) {
     if (dest == 0) return;
