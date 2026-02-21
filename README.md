@@ -1,0 +1,154 @@
+```text
+  ▄▄▄▄▄▄                      ▄▄▄▄      ▄▄▄▄▄   
+ █▀██▀▀██                   ▄█▀▀████▄  ██▀▀▀▀█▄ 
+   ██   ██ ▄                ██    ██   ▀██▄  ▄▀ 
+   ██   ██ ████▄▄▀▀█▄ ▄███▀ ██    ██     ▀██▄▄  
+ ▄ ██   ██ ██   ▄█▀██ ██    ██    ██   ▄   ▀██▄ 
+ ▀██▀███▀ ▄█▀  ▄▀█▄██▄▀███▄  ▀████▀    ▀██████▀ 
+                                                
+```
+
+> hand-built, x86, ring 0, bare-metal machine
+
+DracOS is a 32-bit operating system written from scratch in C++ and a small amount of assembly.  
+It boots on bare metal, brings up its own drivers, and speaks directly to the hardware it runs on.
+
+The focus is on understanding the machine end to end: from the first instruction after the bootloader to the shell prompt, with no opaque layers in between.
+
+---
+
+## What’s wired up
+
+- **Kernel core**
+  - Multiboot-compatible entry via GRUB
+  - 32-bit protected mode
+  - GDT, IDT, PIC setup and hardware interrupt handling
+  - Basic syscall and multitasking scaffolding
+
+- **Memory**
+  - Custom heap allocator (`MemoryManager`) with chunk splitting and coalescing
+  - Global `new` / `delete` backed by the kernel heap
+  - Low-level `memcpy` / `memmove` / `memset` / `memcmp` implementations
+
+- **Wire and disk**
+  - AMD PCnet (am79c973) network driver
+  - ATA (IDE) driver with 28-bit LBA read/write and flush
+  - Raw disk image attached as an IDE drive under QEMU
+
+- **Console and input**
+  - Text-mode VGA terminal with colored output
+  - Keyboard and mouse drivers
+  - Simple shell on top of the terminal
+
+- **Network stack**
+  - Ethernet frame layer
+  - ARP
+  - IPv4
+  - ICMP with a `ping` command exposed through the shell
+
+- **Utilities and data structures**
+  - Custom string and memory helpers (no host libc)
+  - `printf`-style formatting and small conversion helpers
+  - `LinkedList`, `HashMap`, fixed-size `Map`, and `Pair` in `os::utils::ds`
+
+---
+
+## Layout on disk
+
+- `src/` – Kernel, drivers, shell, networking, GUI stubs, and support code
+- `include/` – Public headers (`kernel`, `drivers`, `utils`, `cli`, `net`, etc.)
+- `docs/` – Design and implementation notes for subsystems
+- `obj/` – Object files (created by the build)
+- `mykernel.bin` – Linked kernel image
+- `mykernel.iso` / `myos.iso` – Bootable ISO images
+- `Image.img` – Raw disk image used by QEMU
+- `.clang-format` – C++ formatting rules
+
+For subsystem internals, see:
+
+- [`docs/kernel.md`](docs/kernel.md) – Kernel and boot path
+- [`docs/memorymanagement.md`](docs/memorymanagement.md) – Heap and memory manager
+- [`docs/storage.md`](docs/storage.md) – ATA / storage layer
+- [`docs/cli.md`](docs/cli.md) – Shell and command system
+- [`docs/utils.md`](docs/utils.md) – Utils library
+- [`docs/ds.md`](docs/ds.md) – Data structures
+- [`docs/development.md`](docs/development.md) – Build, run, QEMU, and tooling
+
+---
+
+## Bringing it to life
+
+A simple Makefile drives the build; no external build system is required.
+
+### Prerequisites
+
+You’ll need:
+
+- 32-bit capable `g++`, `as`, `ld`
+- `qemu-system-i386` and `qemu-img`
+- `grub-mkrescue` and its dependencies
+
+On a typical Debian/Ubuntu system, that means installing:
+
+- `g++`, `binutils`, `qemu-system-x86`, `qemu-utils`, `grub-pc-bin`, `xorriso`, and 32-bit dev libs.
+
+### Build the kernel
+
+```bash
+make
+```
+
+This produces `mykernel.bin`.
+
+### Create ISO and disk image
+
+```bash
+make mykernel.iso    # bootable ISO with GRUB
+make Image.img       # 128 MiB raw disk image
+```
+
+### Run under QEMU
+
+```bash
+make run
+```
+
+This boots DracOS under `qemu-system-i386` with:
+
+- 512 MiB RAM, 1 vCPU
+- PCnet NIC and user-mode networking
+- `Image.img` attached as an IDE disk
+- Text-mode VGA terminal
+
+For a faster loop during debugging:
+
+```bash
+make kernel-debug
+```
+
+This boots `mykernel.bin` directly as a kernel image and enables QEMU’s CPU/interrupt logging.
+
+More details live in [`docs/development.md`](docs/development.md).
+
+---
+
+## Code style
+
+The codebase uses `.clang-format` with a C++ style derived from Google’s guidelines:
+
+- 2-space indentation, no tabs
+- Left-aligned pointers (`char* ptr`)
+- 105-character column limit (to fit long namespaces and paths)
+- Arguments and parameters split vertically instead of being crammed into one line
+
+Run `clang-format` on changed files before committing to keep the tree consistent.
+
+---
+
+## What this is (and isn’t)
+
+DracOS is not chasing feature parity with general-purpose operating systems.
+Each component is built to expose how the machine actually behaves, not to hide it behind layers of abstraction.
+
+If you care about system architecuture, interrupts, framebuffers, packets on the wire, and heap internals, there is something here for you to read or modify.
+```
