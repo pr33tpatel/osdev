@@ -1,4 +1,3 @@
-```markdown
 # Boot and Link
 
 ## Responsibility

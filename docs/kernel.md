@@ -1,4 +1,3 @@
-
 # Kernel
 
 ## Responsibility

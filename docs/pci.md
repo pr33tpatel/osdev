@@ -1,4 +1,3 @@
-```markdown
 # PCI Subsystem
 
 ## Responsibility
