@@ -5,14 +5,7 @@
 #include <cli/commands/networkCmds.h>
 #include <cli/shell.h>
 #include <common/types.h>
-#include <drivers/terminal.h>
-#include <hardwarecommunication/pci.h>
-#include <hardwarecommunication/port.h>
 #include <memorymanagement.h>
-#include <multitasking.h>
-#include <net/arp.h>
-#include <net/icmp.h>
-#include <net/ipv4.h>
 #include <utils/ds/hashmap.h>
 #include <utils/ds/map.h>
 #include <utils/print.h>
@@ -52,7 +45,7 @@ class CommandRegistry {
   bool RegisterProcessCommands();
   bool RegisterFileSystemCommands();
 
-  void RegisterAllCommands();
+  bool RegisterAllCommands();
 };
 }  // namespace cli
 }  // namespace os

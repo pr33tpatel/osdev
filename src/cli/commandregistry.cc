@@ -7,6 +7,7 @@ using namespace os::cli;
 using namespace os::utils;
 using namespace os::net;
 using namespace os::hardwarecommunication;
+using namespace os::drivers;
 
 namespace os {
 namespace cli {
@@ -17,7 +18,7 @@ bool CommandRegistry::ValidateGroup(const char** requiredDeps, uint32_t count) {
   DependencyEntry entry;
   for (common::uint32_t i = 0; i < count; i++) {
     const char* depName = requiredDeps[i];
-    if (!dependencyMap.Get(&depName, &entry) || !entry.isValid) {
+    if (!dependencyMap.Get(depName, entry) || !entry.isValid) {
       printf(RED_COLOR, BLACK_COLOR, "[ERROR] MISSING DEPENDENCY: %s\n", depName);
       allValid = false;
     } else {
@@ -35,14 +36,14 @@ void CommandRegistry::InjectDependency(const char* depName, void* depPtr) {
   depEntry.ptr = depPtr;
   depEntry.isValid = (depPtr != 0);  // if the depPtr is null, the entry is invalid
 
-  dependencyMap.Insert(&depName, &depEntry);
+  dependencyMap.Insert(depName, depEntry);
 }
 
 
 void* CommandRegistry::GetDependency(const char* depName) {
   DependencyEntry depEntry;
   // query the hashmap based on the depName (key) to see if it returns an depEntry (value);
-  if (dependencyMap.Get(&depName, &depEntry)) {
+  if (dependencyMap.Get(depName, depEntry)) {
     if (depEntry.isValid) {
       return depEntry.ptr;  // dependency is found, return the pointer of the dependency
     }
@@ -103,6 +104,65 @@ bool CommandRegistry::ValidateAllDependencies() {
    */
 
   return sys & net & proc & fs;
+}
+
+
+bool CommandRegistry::RegisterSystemCommands() {
+  if (!ValidateSystemDependencies()) return false;
+  Shell* shell = (Shell*)GetDependency("SYS.SHELL");
+  Terminal* terminal = (Terminal*)GetDependency("SYS.TERMINAL");
+
+  if (!shell || !terminal) return false;
+
+  return true;
+}
+
+
+bool CommandRegistry::RegisterNetworkCommands() {
+  if (!ValidateNetworkDependencies()) return false;
+
+  auto* shell = (Shell*)GetDependency("SYS.SHELL");
+  auto* arp = (AddressResolutionProtocol*)GetDependency("NET.ARP");
+  auto* ipv4 = (InternetProtocolProvider*)GetDependency("NET.IPV4");
+  auto* icmp = (InternetControlMessageProtocol*)GetDependency("NET.ICMP");
+
+  // at this point, GetDependency fails, then return false and print error message
+  if (!shell || !arp || !ipv4 || !icmp) {
+    printf(RED_COLOR, BLACK_COLOR, "[ERROR] UNABLE TO FETCH ALL NETWORK DEPENDENCIES\n");
+    return false;
+  }
+
+  shell->RegisterCommand(new Ping(icmp));
+
+
+  // printf(BLACK_COLOR, LIGHT_CYAN_COLOR, "[SHELL] NETWORK COMMANDS REGISTERED\n");
+  return false;
+}
+
+bool CommandRegistry::RegisterProcessCommands() {
+  return true;
+}
+
+
+bool CommandRegistry::RegisterFileSystemCommands() {
+  return true;
+}
+
+
+bool CommandRegistry::RegisterAllCommands() {
+  printf("Registering Commands...\n");
+  bool sysCmds = RegisterSystemCommands();
+  bool netCmds = RegisterNetworkCommands();
+  bool procCmds = RegisterProcessCommands();
+  bool fsCmds = RegisterFileSystemCommands();
+
+  /* NOTE: use bitwise '&' instead of logical '&&'
+   * with '&&', if one of the earlier variables fails, the entire thing short-circuits,
+   * with '&, all functions will run and check every dependency
+   */
+
+  return sysCmds & netCmds & procCmds & fsCmds;
+  return true;
 }
 
 

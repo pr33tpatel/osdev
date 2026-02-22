@@ -419,10 +419,20 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   // filesystem dependencies
 
-  commandRegistry.ValidateAllDependencies();
+  // commandRegistry.ValidateAllDependencies();
+  // bool sysDeps = commandRegistry.ValidateSystemDependencies();
+  // bool netDeps = commandRegistry.ValidateNetworkDependencies();
+  // bool procDeps = commandRegistry.ValidateProcessDependencies();
+  // bool fsDeps = commandRegistry.ValidateFileSystemDependencies();
 
+  // bool sysCmds = commandRegistry.RegisterSystemCommands();
+  // bool netCmds = commandRegistry.RegisterNetworkCommands();
+  // bool procCmds = commandRegistry.RegisterProcessCommands();
+  // bool fsCmds = commandRegistry.RegisterFileSystemCommands();
 
-  TestHashTable();
+  bool allCmds = commandRegistry.RegisterAllCommands();
+
+  // TestHashTable();
 
   // activate interupts last
   interrupts.Activate();
@@ -443,6 +453,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
 
   // printf("DracOS MWHAHAHHAH !!");
 
+  printf(WHITE_COLOR, BLACK_COLOR, "ALL SYSTEMS GO\n");
   shell.PrintPrompt();
   while (1) {
     asm volatile("hlt");  // halt cpu until next interrupt, saving power and does not max out cpu usage
