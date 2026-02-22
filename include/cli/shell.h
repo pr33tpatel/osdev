@@ -8,6 +8,7 @@
 #include <hardwarecommunication/pci.h>
 #include <net/arp.h>
 #include <net/icmp.h>
+#include <utils/ds/hashmap.h>
 #include <utils/math.h>
 #include <utils/print.h>
 #include <utils/string.h>
@@ -32,9 +33,7 @@ class Shell : public os::drivers::KeyboardEventHandler {
   common::uint16_t cursorIndex;  // [indexer for the cursor position]
 
   // Command Registry
-  Command* commandRegistry[65535];
-  common::uint16_t numCommands;
-
+  os::utils::ds::HashMap<const char*, Command*> commandMap;
 
  public:
   Shell();

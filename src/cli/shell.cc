@@ -17,13 +17,13 @@ Shell::~Shell() {}
 
 
 void Shell::RegisterCommand(Command* cmd) {
-  if (numCommands < 65535) {
-    commandRegistry[numCommands] = cmd;
-    numCommands++;
-  } else {
-    printf(RED_COLOR, BLACK_COLOR, "Command Registry Full. Max Commands Allowed: %d\n", numCommands);
+  Command* existingCmd = 0;
+  if (commandMap.Get(cmd->name, existingCmd)) {
+    printf(YELLOW_COLOR, BLACK_COLOR, "[SHELL] Warning: overwriting command \"%s\"\n", cmd->name);
   }
+  commandMap.Insert(cmd->name, cmd);
 }
+
 
 void Shell::ExecuteCommand() {
   if (commandbuffer[0] == '\0') return;
@@ -35,19 +35,14 @@ void Shell::ExecuteCommand() {
   char* args = commandbuffer + strlen(cmdName) + 1;
   while (args[0] == ' ') args++;  // skip over spaces
 
-  bool found = false;
-  for (int i = 0; i < numCommands; i++) {
-    if (strcmp(cmdName, commandRegistry[i]->name) == 0) {
-      commandRegistry[i]->execute(args);
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
+  Command* cmdPtr = 0;
+  if (commandMap.Get(cmdName, cmdPtr) && cmdPtr != 0) {
+    cmdPtr->execute(args);
+  } else {
     printf(YELLOW_COLOR, BLACK_COLOR, "\"%s\" not in Command Registry\n", cmdName);
   }
 }
+
 
 void Shell::fillCommandBuffer(char fill_char, uint16_t length) {
   for (uint16_t i = 0; i < length; i++) {
