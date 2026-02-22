@@ -48,13 +48,13 @@ class HashMap {
   }
 
 
-  common::uint32_t GetBucketIndex(const K* key) {
+  common::uint32_t GetBucketIndex(const K& key) {
     // logic: Hash(key) % capacity;
-    return Hasher<K>::Hash(*key) % capacity;
+    return Hasher<K>::Hash(key) % capacity;
   }
 
 
-  void Insert(const K* key, const V* value) {
+  void Insert(const K& key, const V& value) {
     /* logic:
      * get bucket index
      * check to see if the key already exists in the bucket
@@ -69,55 +69,55 @@ class HashMap {
 
     // check for collision
     HashNode searchNode;
-    searchNode.key = *key;
+    searchNode.key = key;
     typename LinkedList<HashNode>::Node* existingNode = buckets[index]->Find(searchNode);
 
     if (existingNode != 0) {
       // collisionFound
-      existingNode->data.value = *value;
+      existingNode->data.value = value;
       return;
     }
 
     // at this point, collision is not found,
     // so, append a new node with K and V
-    searchNode.value = *value;
+    searchNode.value = value;
     buckets[index]->Append(searchNode);
     count++;
   }
 
-  bool Get(const K* key, V* outValue) {
+  bool Get(const K& key, V& outValue) {
     common::uint32_t index = GetBucketIndex(key);
     if (buckets[index] == 0) return false;
 
     HashNode searchNode;
-    searchNode.key = *key;
+    searchNode.key = key;
 
     typename LinkedList<HashNode>::Node* existingNode = buckets[index]->Find(searchNode);
 
     if (existingNode != 0) {
-      *outValue = existingNode->data.value;
+      outValue = existingNode->data.value;
       return true;
     }
     return false;
   }
 
-  void Remove(const K* key) {
+  void Remove(const K& key) {
     common::uint32_t index = GetBucketIndex(key);
     if (buckets[index] == 0) return;
     HashNode dummy;
-    dummy.key = *key;
+    dummy.key = key;
     buckets[index]->Remove(dummy);
   }
 
   /**
    * [returns true if the key exists within the HashMap]
    */
-  bool Contains(const K* key) {
+  bool Contains(const K& key) {
     common::uint32_t index = GetBucketIndex(key);
     if (buckets[index] == 0) return false;
 
     HashNode searchNode;
-    searchNode.key = *key;
+    searchNode.key = key;
     // if Find returns a non-nullptr, then the key exists within the HashMap
     return buckets[index]->Find(searchNode) != 0;
   }
@@ -153,16 +153,14 @@ class HashMap {
    * [populates provided LinkedList (dest) with all keys in HashMap],
    * Usage:
    * LinkedList<const char*> myKeys;
-   * myMap.GetKeys(&myKeys);
+   * myMap.GetKeys(myKeys);
    */
-  void GetKeys(LinkedList<K>* dest) {
-    if (dest == 0) return;
-
+  void GetKeys(LinkedList<K>& dest) {
     for (common::uint32_t i = 0; i < capacity; i++)
       if (buckets[i] != 0) {
         typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
         while (temp != 0) {
-          dest->Append(temp->data.key);
+          dest.Append(temp->data.key);
           temp = temp->next;
         }
       }
@@ -172,23 +170,20 @@ class HashMap {
    * [populates provided LinkedList (dest) with all values in HashMap],
    * Usage:
    * LinkedList<const char*> myValues;
-   * myMap.GetValues(&myValues);
+   * myMap.GetValues(myValues);
    */
-  void GetValues(LinkedList<V>* dest) {
-    if (dest == 0) return;
-
+  void GetValues(LinkedList<V>& dest) {
     for (common::uint32_t i = 0; i < capacity; i++)
       if (buckets[i] != 0) {
         typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
         while (temp != 0) {
-          dest->Append(temp->data.value);
+          dest.Append(temp->data.value);
           temp = temp->next;
         }
       }
   }
 
-  void GetPairs(LinkedList<Pair<K, V>>* dest) {
-    if (dest == 0) return;
+  void GetPairs(LinkedList<Pair<K, V>>& dest) {
     for (common::uint32_t i = 0; i < capacity; i++) {
       if (buckets[i] != 0) {
         typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
@@ -196,7 +191,7 @@ class HashMap {
           Pair<K, V> pair;  // struture data from Node* temp into a KeyValuePair
           pair.key = temp->data.key;
           pair.value = temp->data.value;
-          dest->Append(pair);  // append the KeyValuePair containing structured data
+          dest.Append(pair);  // append the KeyValuePair containing structured data
 
           temp = temp->next;
         }

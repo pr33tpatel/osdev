@@ -236,6 +236,17 @@ Header: `utils/ds/hashmap.h`
 
 ### Structure
 
+- HashMap()
+- ~HashMap()
+- uint32_t GetBucketIndex(const K& key);
+- void Insert(const K& key, const V& value);
+- bool Get(const K& key, V& outValue);
+- void Remove(const K& key);
+- bool Contains(const K& key);
+- void GetKeys(LinkedList<K>& dest);
+- void GetValues(LinkedList<V>& dest);
+- void GetPairs(LinkedList<Pair<K, V>>& dest);
+
 ```cpp
 template <typename K, typename V, uint32_t MaxSize = 1024>
 class HashMap {
@@ -279,8 +290,8 @@ HashMap() {
 ### Bucket index
 
 ```cpp
-uint32_t GetBucketIndex(const K* key) {
-  return Hasher<K>::Hash(*key) % capacity;
+uint32_t GetBucketIndex(const K& key) {
+  return Hasher<K>::Hash(key) % capacity;
 }
 ```
 
@@ -289,7 +300,7 @@ uint32_t GetBucketIndex(const K* key) {
 ### Insert
 
 ```cpp
-void Insert(const K* key, const V* value) {
+void Insert(const K& key, const V& value) {
   uint32_t index = GetBucketIndex(key);
   if (buckets[index] == 0)
     buckets[index] = (LinkedList<HashNode>*)new LinkedList<HashNode>;
@@ -303,7 +314,7 @@ void Insert(const K* key, const V* value) {
     return;
   }
 
-  searchNode.value = *value;
+  searchNode.value = value;
   buckets[index]->Append(searchNode);
   count++;
 }
@@ -317,16 +328,16 @@ void Insert(const K* key, const V* value) {
 ### Lookup
 
 ```cpp
-bool Get(const K* key, V* outValue) {
+bool Get(const K& key, V& outValue) {
   uint32_t index = GetBucketIndex(key);
   if (buckets[index] == 0) return false;
 
   HashNode searchNode;
-  searchNode.key = *key;
+  searchNode.key = key;
   auto* existingNode = buckets[index]->Find(searchNode);
 
   if (existingNode != 0) {
-    *outValue = existingNode->data.value;
+    outValue = existingNode->data.value;
     return true;
   }
   return false;
@@ -338,11 +349,11 @@ bool Get(const K* key, V* outValue) {
 ### Remove
 
 ```cpp
-void Remove(const K* key) {
+void Remove(const K& key) {
   uint32_t index = GetBucketIndex(key);
   if (buckets[index] == 0) return;
   HashNode dummy;
-  dummy.key = *key;
+  dummy.key = key;
   buckets[index]->Remove(dummy);
 }
 ```
@@ -354,12 +365,12 @@ void Remove(const K* key) {
 - **Contains**:
 
   ```cpp
-  bool Contains(const K* key) {
+  bool Contains(const K& key) {
     uint32_t index = GetBucketIndex(key);
     if (buckets[index] == 0) return false;
 
     HashNode searchNode;
-    searchNode.key = *key;
+    searchNode.key = key;
     return buckets[index]->Find(searchNode) != 0;
   }
   ```
@@ -388,13 +399,12 @@ void Remove(const K* key) {
 - **GetKeys**:
 
   ```cpp
-  void GetKeys(LinkedList<K>* dest) {
-    if (dest == 0) return;
+  void GetKeys(LinkedList<K>& dest) {
     for (uint32_t i = 0; i < capacity; i++)
       if (buckets[i] != 0) {
         auto* temp = buckets[i]->head;
         while (temp != 0) {
-          dest->Append(temp->data.key);
+          dest.Append(temp->data.key);
           temp = temp->next;
         }
       }
@@ -404,13 +414,12 @@ void Remove(const K* key) {
 - **GetValues**:
 
   ```cpp
-  void GetValues(LinkedList<V>* dest) {
-    if (dest == 0) return;
+  void GetValues(LinkedList<V>& dest) {
     for (uint32_t i = 0; i < capacity; i++)
       if (buckets[i] != 0) {
         auto* temp = buckets[i]->head;
         while (temp != 0) {
-          dest->Append(temp->data.value);
+          dest.Append(temp->data.value);
           temp = temp->next;
         }
       }
@@ -420,8 +429,7 @@ void Remove(const K* key) {
 - **GetPairs**:
 
   ```cpp
-  void GetPairs(LinkedList<Pair<K, V>>* dest) {
-    if (dest == 0) return;
+  void GetPairs(LinkedList<Pair<K, V>>& dest) {
     for (uint32_t i = 0; i < capacity; i++) {
       if (buckets[i] != 0) {
         auto* temp = buckets[i]->head;
@@ -429,7 +437,7 @@ void Remove(const K* key) {
           Pair<K, V> pair;
           pair.key   = temp->data.key;
           pair.value = temp->data.value;
-          dest->Append(pair);
+          dest.Append(pair);
           temp = temp->next;
         }
       }
@@ -443,6 +451,7 @@ void Remove(const K* key) {
 - Complexity:
   - Average operations are O(1) with good hashing and low load factor.
   - Worst case (all keys in one bucket) degrades to O(n) due to list traversal.
+- NOTE: (2/21/2026) changed to value/reference based (K&/V&) instead of pointers (K*/V*)
 
 ---
 
