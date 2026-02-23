@@ -17,6 +17,17 @@ The focus is on understanding the machine end to end: from the first instruction
 
 ---
 
+## Purpose and Motivation:
+
+DracOS started because I wanted to learn how operating systems work and I thought the best way to learn was by building my own.
+So, I started researching how x86 machines actually work, how they behave at boot, what's in the kernel, drivers and subsystems, etc. rather than treating the OS as a black box.
+
+This project is a record of my experimentation, exploration, and implementations compiled in one place so they can read, dissected, built upon, and surpassed.
+
+\- Preet
+
+---
+
 ## What’s wired up
 
 - **Kernel core**
