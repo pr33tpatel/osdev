@@ -91,7 +91,7 @@ bool AddressResolutionProtocol::OnEtherFrameReceived(uint8_t* etherframePayload,
   if (arp->hardwareType == 0x0100) {
     if (arp->protocol == 0x0008 && arp->hardwareAddressSize == 6 && arp->protocolAddressSize == 4 &&
         arp->dstIP == backend->GetIPAddress()) {
-      printARPmsg(arp);
+      // printARPmsg(arp);
       switch (arp->command) {
         case 0x0100:  // request
           arp->command = 0x0200;
@@ -158,6 +158,7 @@ uint64_t AddressResolutionProtocol::Resolve(uint32_t IP_BE) {
 }
 
 void AddressResolutionProtocol::BroadcastMACAddress(uint32_t IP_BE) {
+  printf(LIGHT_BLUE_COLOR, BLACK_COLOR, "Broadcasting MAC address...\n");
   AddressResolutionProtocolMessage arp;
   arp.hardwareType = 0x0100;    // ethernet
   arp.protocol = 0x0008;        // ipv4
