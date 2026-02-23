@@ -2,6 +2,10 @@
 
 This document explains how to build, run, and work on DracOS: directory layout, toolchain, Makefile targets, QEMU configuration, and code style.
 
+> **Safety:** DracOS (this software) is intended to be run under emulation (e.g., `qmeu-system-i386`) only.
+> Booting this kernel on real hardware is not supported or tested and may corrupt data or leave your machine in an undefined state.
+> Use this software at your own risk. See [License, Disclaimer, Safety](license,-disclaimer,-safety) for more information.
+
 ## Project layout
 
 See the other docs for detailed subsystem design:
@@ -29,6 +33,7 @@ The high-level tree (simplified):
 ## Toolchain and dependencies
 
 You need a 32‑bit capable C++ toolchain and QEMU.
+Note: All development and testing is done on Linux (Debian/Ubuntu). Other UNIX-like systems may work but are not officially supported or documented.
 
 ### Required tools
 
@@ -40,7 +45,7 @@ On a typical Linux system:
 - `qemu-system-i386` – emulator for running the OS.
 - `qemu-img` – to create the raw disk image.
 - `grub-mkrescue` – to create bootable ISO images.
-- A 32‑bit libc/dev package so `g++ -m32` works (e.g. `libc6-dev-i386` on Debian/Ubuntu).[web:1]
+- A 32‑bit libc/dev package so `g++ -m32` works (e.g. `libc6-dev-i386` on Debian/Ubuntu).
 
 Example (Debian/Ubuntu):
 
@@ -367,7 +372,7 @@ clang-format -i src/kernel.cc
 find src include -name '*.[ch]pp' -o -name '*.cc' -o -name '*.h' | xargs clang-format -i
 ```
 
-Or set up your editor (VS Code, CLion, etc.) to run `clang-format` on save, using the project’s `.clang-format` file.[web:127][web:125]
+Or set up your editor (VS Code, CLion, etc.) to run `clang-format` on save, using the project’s `.clang-format` file.
 
 ---
 
@@ -381,4 +386,23 @@ Or set up your editor (VS Code, CLion, etc.) to run `clang-format` on save, usin
 - For quick iteration, use `make kernel-debug`.
 - Keep code formatted using `.clang-format`.
 - See the other `docs/*.md` for subsystem-specific internals.
-```
+
+---
+
+## License, Disclaimer, Safety
+
+DracOS (this software) is provided for educational and research purposes only, without warranty of any kind.  
+Running custom kernels, bootloaders, or disk images always carries risk; you are responsible for how you build, run, and distribute this code on your own machines and hardware.
+
+IT IS STRONGLY ADVISED TO RUN THIS OPERATING SYSTEM ONLY UNDER EMULATION (E.G., QEMU).  
+Booting this software on real hardware is not supported and has not been tested. Doing so may corrupt data or leave your machine in an undefined state, and you are solely responsible for any damage or loss resulting from any interaction with this software.
+
+---
+
+## Credits
+
+Parts of the project are inspired by and derived from
+ ["Write Your Own Operating System" (WYOOS)](https://wyoos.org/) guide and its accompanying source code.  
+That source code remains under its original license; this repository does not claim ownership of it. Where code has been copied or closely adapted, it is kept under the original license terms.
+
+This project also references [wiki.osdev.org](https://wiki.osdev.org/) for certain implementations and code examples.

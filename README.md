@@ -76,10 +76,13 @@ For subsystem internals, see:
 
 ---
 
-## Bringing it to life
+## Building
 
 A simple Makefile drives the build; no external build system is required.
 
+> **Safety:** DracOS (this software) is intended to be run under emulation (e.g., `qmeu-system-i386`) only.
+> Booting this kernel on real hardware is not supported or tested and may corrupt data or leave your machine in an undefined state.
+> Use this software at your own risk. See [License, Disclaimer, Safety](license,-disclaimer,-safety) for more information.
 ### Prerequisites
 
 You’ll need:
@@ -132,6 +135,15 @@ More details live in [`docs/development.md`](docs/development.md).
 
 ---
 
+## What this is (and isn’t)
+
+DracOS is not chasing feature parity with general-purpose operating systems.
+Each component is built to expose how the machine actually behaves, not to hide it behind layers of abstraction.
+
+If you care about system architecuture, interrupts, framebuffers, packets on the wire, and heap internals, there is something here for you to read or modify.
+
+---
+
 ## Code style
 
 The codebase uses `.clang-format` with a C++ style derived from Google’s guidelines:
@@ -145,10 +157,25 @@ Run `clang-format` on changed files before committing to keep the tree consisten
 
 ---
 
-## What this is (and isn’t)
+## License, Disclaimer, Safety
 
-DracOS is not chasing feature parity with general-purpose operating systems.
-Each component is built to expose how the machine actually behaves, not to hide it behind layers of abstraction.
+DracOS (this software) is provided for educational and research purposes only, without warranty of any kind.  
+Running custom kernels, bootloaders, or disk images always carries risk; you are responsible for how you build, run, and distribute this code on your own machines and hardware.
 
-If you care about system architecuture, interrupts, framebuffers, packets on the wire, and heap internals, there is something here for you to read or modify.
-```
+IT IS STRONGLY ADVISED TO RUN THIS OPERATING SYSTEM ONLY UNDER EMULATION (E.G., QEMU).  
+Booting this software on real hardware is not supported and has not been tested. Doing so may corrupt data or leave your machine in an undefined state, and you are solely responsible for any damage or loss resulting from any interaction with this software.
+
+---
+
+## Credits
+
+Parts of the project are inspired by and derived from
+ ["Write Your Own Operating System" (WYOOS)](https://wyoos.org/) guide and its accompanying source code.  
+That source code remains under its original license; this repository does not claim ownership of it. Where code has been copied or closely adapted, it is kept under the original license terms.
+
+This project also references [wiki.osdev.org](https://wiki.osdev.org/) for certain implementations and code examples.
+
+
+
+
+
