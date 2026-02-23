@@ -4,7 +4,7 @@ This document explains how to build, run, and work on DracOS: directory layout, 
 
 > **Safety:** DracOS (this software) is intended to be run under emulation (e.g., `qmeu-system-i386`) only.
 > Booting this kernel on real hardware is not supported or tested and may corrupt data or leave your machine in an undefined state.
-> Use this software at your own risk. See [License, Disclaimer, Safety](license-disclaimer-safety) for more information.
+> Use this software at your own risk. See [License, Disclaimer, Safety](#license-disclaimer-safety) for more information.
 
 ## Project layout
 
