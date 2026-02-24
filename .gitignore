@@ -9,6 +9,7 @@
 obj/
 
 dev_scripts/
+dracos_versions/
 .idea/
 wyoos/
 Image.img
