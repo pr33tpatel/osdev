@@ -1,6 +1,7 @@
 #ifndef __OS__CLI__COMMANDREGISTRY_H
 #define __OS__CLI__COMMANDREGISTRY_H
 
+#include <ciu/officer.h>
 #include <cli/command.h>
 #include <cli/commands/networkCmds.h>
 #include <cli/shell.h>

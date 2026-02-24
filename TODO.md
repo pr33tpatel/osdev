@@ -11,9 +11,9 @@ todo:
 - [ ] cli:
     - [x] cursor navigation
     - [x] Command Struct
-        - [ ] update Command Struct to use hashmap for mapping name to Command* objects
+        - [x] update Command Struct to use hashmap for mapping name to Command* objects
     - [x] Command Registry
-        - [ ] update Command Registry to use hashmap for mapping name to dependency objects 
+        - [x] update Command Registry to use hashmap for mapping name to dependency objects 
     - [ ] edit command buffer and shift data
     - [ ] command history
     - [ ] highlighting
@@ -21,6 +21,10 @@ todo:
          
     - [ ] Optional:
         - [ ] VIM keybinds?
+
+- [ ] CIU: 
+    - [ ] add <subsystem, color> map
+    - [ ] iterate over and print metadata available
 
 - [ ] CommandList: 
     - [ ] System:

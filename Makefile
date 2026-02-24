@@ -16,6 +16,8 @@ OBJECTS = obj/loader.o \
 					obj/hardwarecommunication/interruptstubs.o \
 					obj/hardwarecommunication/interrupts.o \
 					obj/drivers/timer.o \
+					obj/ciu/ciu.o \
+					obj/ciu/officer.o \
 					obj/syscalls.o \
 					obj/multitasking.o \
 					obj/drivers/amd_am79c973.o \

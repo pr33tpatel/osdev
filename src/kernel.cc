@@ -1,4 +1,5 @@
 #include <asciiart.h>
+#include <ciu/ciu.h>
 #include <cli/commandregistry.h>
 #include <cli/shell.h>
 #include <common/types.h>
@@ -39,6 +40,7 @@ using namespace os::hardwarecommunication;
 using namespace os::gui;
 using namespace os::net;
 using namespace os::cli;
+using namespace os::ciu;
 
 
 // Console Event Handlers
@@ -403,6 +405,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   }
   */
 
+
+  CIU::Init();
   // system dependencies
   commandRegistry.InjectDependency("SYS.SHELL", &shell);
   commandRegistry.InjectDependency("SYS.PCI", &PCIController);
@@ -412,7 +416,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   // network dependencies
   commandRegistry.InjectDependency("NET.ARP", &arp);
   commandRegistry.InjectDependency("NET.IPV4", &ipv4);
-  commandRegistry.InjectDependency("NET.ICMP", &icmp);
+  // commandRegistry.InjectDependency("NET.ICMP", &icmp);
 
   // process dependencies
   commandRegistry.InjectDependency("PROC.TASKMANAGER", &taskManager);

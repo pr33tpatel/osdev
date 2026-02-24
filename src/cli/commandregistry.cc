@@ -1,6 +1,5 @@
 #include <cli/commandregistry.h>
 
-
 using namespace os;
 using namespace os::common;
 using namespace os::cli;
@@ -8,6 +7,9 @@ using namespace os::utils;
 using namespace os::net;
 using namespace os::hardwarecommunication;
 using namespace os::drivers;
+using namespace os::ciu;
+
+static CIUOfficer officer("SHELL");
 
 namespace os {
 namespace cli {
@@ -56,7 +58,10 @@ bool CommandRegistry::ValidateSystemDependencies() {
   const char* systemDeps[] = {"SYS.SHELL", "SYS.PCI", "SYS.HEAP", "SYS.TERMINAL"};
   uint32_t count = sizeof(systemDeps) / sizeof(const char*);
   bool validDep = ValidateGroup(systemDeps, count);
-  if (!validDep) printf(BLACK_COLOR, LIGHT_RED_COLOR, "[SHELL] SYSTEM COMMANDS UNAVAILABLE\n\n");
+  if (!validDep) {
+    printf(BLACK_COLOR, LIGHT_RED_COLOR, "[SHELL] SYSTEM COMMANDS UNAVAILABLE\n\n");
+    officer.warning("SHELL_NOT_INITALIZED", "SHELL COMMANDS UNAVAILABLE");
+  }
   if (validDep) printf(BLACK_COLOR, LIGHT_CYAN_COLOR, "[SHELL] SYSTEM COMMANDS AVAILABLE\n\n");
   return validDep;
 }
@@ -66,7 +71,10 @@ bool CommandRegistry::ValidateNetworkDependencies() {
   const char* networkDeps[] = {"NET.ARP", "NET.IPV4", "NET.ICMP"};
   uint32_t count = sizeof(networkDeps) / sizeof(const char*);
   bool validDep = ValidateGroup(networkDeps, count);
-  if (!validDep) printf(BLACK_COLOR, LIGHT_RED_COLOR, "[SHELL] NETWORK COMMANDS UNAVAILABLE\n\n");
+  if (!validDep) {
+    printf(BLACK_COLOR, LIGHT_RED_COLOR, "[SHELL] NETWORK COMMANDS UNAVAILABLE\n\n");
+    officer.warning("NETWORK_NOT_INITALIZED", "NETWORK COMMANDS UNAVAILABLE");
+  }
   if (validDep) printf(BLACK_COLOR, LIGHT_CYAN_COLOR, "[SHELL] NETWORK COMMANDS AVAILABLE\n\n");
   return validDep;
 }
