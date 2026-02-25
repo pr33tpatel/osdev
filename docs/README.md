@@ -1,6 +1,7 @@
 # DracOS Documentation
 
-Welcome to the DracOS documentation. This folder contains design notes and implementation guides for the kernel and subsystems.
+Welcome to the DracOS documentation. 
+> where scholars come to research elements of the machine
 
 ## Core architecture
 
@@ -10,6 +11,7 @@ Welcome to the DracOS documentation. This folder contains design notes and imple
 - [Hardware communication](hardwarecommunication.md)
 - [Storage (ATA)](storage.md)
 - [Network stack](network.md)
+- [Central Intelligence Unit(CIU)](ciu.md)
 
 ## User interaction
 
@@ -17,8 +19,7 @@ Welcome to the DracOS documentation. This folder contains design notes and imple
 - [GUI subsystem](gui.md)
 - [ASCII art / branding](asciiart.md)
 
-## Libraries and utilities
+## Custom libraries and utilities
 
 - [Utils library](utils.md)
 - [Data structures](ds.md)
-- [T3 protocol (thread-to-thread docs)](T3_protocol.md)
