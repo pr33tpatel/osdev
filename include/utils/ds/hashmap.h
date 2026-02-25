@@ -85,21 +85,6 @@ class HashMap {
     count++;
   }
 
-  bool Get(const K& key, V& outValue) {
-    common::uint32_t index = GetBucketIndex(key);
-    if (buckets[index] == 0) return false;
-
-    HashNode searchNode;
-    searchNode.key = key;
-
-    typename LinkedList<HashNode>::Node* existingNode = buckets[index]->Find(searchNode);
-
-    if (existingNode != 0) {
-      outValue = existingNode->data.value;
-      return true;
-    }
-    return false;
-  }
 
   void Remove(const K& key) {
     common::uint32_t index = GetBucketIndex(key);
@@ -136,6 +121,11 @@ class HashMap {
     return count == 0;
   }
 
+
+  bool isEmpty() const {
+    return count == 0;
+  }
+
   /**
    * [deletes all buckets and resets HashMap to empty state]
    */
@@ -149,14 +139,58 @@ class HashMap {
     count = 0;  // reset count
   }
 
+
+  bool Get(const K& key, V& outValue) {
+    return GetImpl(key, outValue);
+  }
+  bool Get(const K& key, V& outValue) const {
+    return const_cast<HashMap<K, V, MaxSize>*>(this)->GetImpl(key, outValue);
+  }
+  void GetKeys(LinkedList<K>& dest) {
+    GetKeysImpl(dest);
+  }
+  void GetKeys(LinkedList<K>& dest) const {
+    const_cast<HashMap<K, V, MaxSize>*>(this)->GetKeysImpl(dest);
+  }
+  void GetValues(LinkedList<V>& dest) {
+    GetValuesImpl(dest);
+  }
+  void GetValues(LinkedList<V>& dest) const {
+    const_cast<HashMap<K, V, MaxSize>*>(this)->GetValuesImpl(dest);
+  }
+  void GetPairs(LinkedList<Pair<K, V>>& dest) {
+    GetPairsImpl(dest);
+  }
+  void GetPairs(LinkedList<Pair<K, V>>& dest) const {
+    const_cast<HashMap<K, V, MaxSize>*>(this)->GetPairsImpl(dest);
+  }
+
+ private:
+  bool GetImpl(const K& key, V& outValue) {
+    common::uint32_t index = GetBucketIndex(key);
+    if (buckets[index] == 0) return false;
+
+    HashNode searchNode;
+    searchNode.key = key;
+
+    typename LinkedList<HashNode>::Node* existingNode = buckets[index]->Find(searchNode);
+
+    if (existingNode != 0) {
+      outValue = existingNode->data.value;
+      return true;
+    }
+    return false;
+  }
+
+
   /**
    * [populates provided LinkedList (dest) with all keys in HashMap],
    * Usage:
    * LinkedList<const char*> myKeys;
    * myMap.GetKeys(myKeys);
    */
-  void GetKeys(LinkedList<K>& dest) {
-    for (common::uint32_t i = 0; i < capacity; i++)
+  void GetKeysImpl(LinkedList<K>& dest) {
+    for (common::uint32_t i = 0; i < capacity; i++) {
       if (buckets[i] != 0) {
         typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
         while (temp != 0) {
@@ -164,6 +198,7 @@ class HashMap {
           temp = temp->next;
         }
       }
+    }
   }
 
   /**
@@ -172,8 +207,8 @@ class HashMap {
    * LinkedList<const char*> myValues;
    * myMap.GetValues(myValues);
    */
-  void GetValues(LinkedList<V>& dest) {
-    for (common::uint32_t i = 0; i < capacity; i++)
+  void GetValuesImpl(LinkedList<V>& dest) {
+    for (common::uint32_t i = 0; i < capacity; i++) {
       if (buckets[i] != 0) {
         typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
         while (temp != 0) {
@@ -181,9 +216,10 @@ class HashMap {
           temp = temp->next;
         }
       }
+    }
   }
 
-  void GetPairs(LinkedList<Pair<K, V>>& dest) {
+  void GetPairsImpl(LinkedList<Pair<K, V>>& dest) {
     for (common::uint32_t i = 0; i < capacity; i++) {
       if (buckets[i] != 0) {
         typename LinkedList<HashNode>::Node* temp = buckets[i]->head;
