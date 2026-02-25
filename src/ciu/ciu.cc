@@ -8,6 +8,7 @@ using namespace os::utils;
 bool CIU::ready = false;
 ds::HashMap<uint32_t, CIURouteFlags> CIU::routingMap;
 ds::HashMap<uint8_t, CIUColor> CIU::colorMap;
+ds::HashMap<common::uint32_t, CIUColor> CIU::subsystemColorMap;
 
 
 void CIU::Init() {
@@ -59,6 +60,12 @@ void CIU::SetupDefaultColors() {
   colorMap.Insert((uint8_t)CIUSeverity::Warning, {YELLOW_COLOR, BLACK_COLOR});
   colorMap.Insert((uint8_t)CIUSeverity::Error, {LIGHT_RED_COLOR, BLACK_COLOR});
   colorMap.Insert((uint8_t)CIUSeverity::Critical, {WHITE_COLOR, RED_COLOR});
+
+  subsystemColorMap.Insert(Hasher<const char*>::Hash("SHELL"), {LIGHT_CYAN_COLOR, BLACK_COLOR});
+  subsystemColorMap.Insert(Hasher<const char*>::Hash("MEMORY"), {LIGHT_GREEN_COLOR, BLACK_COLOR});
+  subsystemColorMap.Insert(Hasher<const char*>::Hash("STORAGE"), {BROWN_COLOR, BLACK_COLOR});
+  subsystemColorMap.Insert(Hasher<const char*>::Hash("KERNEL"), {LIGHT_MAGENTA_COLOR, BLACK_COLOR});
+  subsystemColorMap.Insert(Hasher<const char*>::Hash("NETWORK"), {LIGHT_BLUE_COLOR, BLACK_COLOR});
 }
 
 
@@ -81,6 +88,15 @@ CIURouteFlags CIU::Resolve(const CIUReport& report) {
 CIUColor CIU::GetSeverityColor(CIUSeverity severity) {
   CIUColor color;
   if (colorMap.Get((uint8_t)severity, color)) {
+    return color;
+  }
+  return {LIGHT_GRAY_COLOR, BLACK_COLOR};
+}
+
+
+CIUColor CIU::GetSubsystemColor(const char* subsystemName) {
+  CIUColor color;
+  if (subsystemColorMap.Get(Hasher<const char*>::Hash(subsystemName), color)) {
     return color;
   }
   return {LIGHT_GRAY_COLOR, BLACK_COLOR};
@@ -115,10 +131,40 @@ void CIU::SinkMainTerminal(const CIUReport& report) {
   /* Format := [SUBSYSTEM][SEVERITY] message (code) */
 
   CIUColor severityColor = GetSeverityColor(report.severity);
+  CIUColor subsystemColor = GetSubsystemColor(report.subsystem);
   CIUColor labelColor = {LIGHT_GRAY_COLOR, BLACK_COLOR};
 
-  printf(labelColor.fg, labelColor.bg, "[%s]", report.subsystem);
-  printf(severityColor.fg, severityColor.bg, "[%s]:", SeverityToString(report.severity));
-  printf(severityColor.fg, severityColor.bg, "%s", report.message);
-  printf(labelColor.fg, labelColor.bg, " (%s)\n", report.code);
+  // main fields
+  if ((strlen(report.subsystem))) {
+    printf(subsystemColor.fg, subsystemColor.bg, "[%s]", report.subsystem);
+  }
+  if ((strlen(SeverityToString(report.severity)))) {
+    printf(severityColor.fg, severityColor.bg, "[%s]:", SeverityToString(report.severity));
+  }
+  if ((strlen(report.message))) {
+    printf(severityColor.fg, severityColor.bg, "%s", report.message);
+  }
+  if ((strlen(report.code))) {
+    printf(labelColor.fg, labelColor.bg, " (%s)", report.code);
+  }
+  printf("\n");
+
+  // metadata fields
+  if (!report.metadataMap.isEmpty()) {
+    ds::LinkedList<const char*> keys;
+    report.metadataMap.GetKeys(keys);
+    // printf(labelColor.fg, labelColor.bg, "{\n");
+    auto* node = keys.head;
+    while (node != 0) {
+      const char* keyName = node->data;
+      const char* value = 0;
+      if (report.metadataMap.Get(keyName, value)) {
+        printf(labelColor.fg, labelColor.bg, "{%s=", keyName);
+        printf(labelColor.fg, labelColor.bg, "%s}", value);
+        if (node->next != 0) printf(labelColor.fg, labelColor.bg, "\n");
+        node = node->next;
+      }
+    }
+    printf(labelColor.fg, labelColor.bg, "\n");
+  }
 }

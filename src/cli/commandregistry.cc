@@ -73,7 +73,12 @@ bool CommandRegistry::ValidateNetworkDependencies() {
   bool validDep = ValidateGroup(networkDeps, count);
   if (!validDep) {
     printf(BLACK_COLOR, LIGHT_RED_COLOR, "[SHELL] NETWORK COMMANDS UNAVAILABLE\n\n");
-    officer.warning("NETWORK_NOT_INITALIZED", "NETWORK COMMANDS UNAVAILABLE");
+    CIUReport report(CIUSeverity::Warning, "SHELL", "", "NETWORK COMMANDS UNAVAILABLE");
+    report.meta("PHASE", "boot")
+        .meta("CATEGORY", "init")
+        .meta("MODULE", __FILE_NAME__)
+        .meta("FUNCTION", __func__);
+    officer.send(report);
   }
   if (validDep) printf(BLACK_COLOR, LIGHT_CYAN_COLOR, "[SHELL] NETWORK COMMANDS AVAILABLE\n\n");
   return validDep;

@@ -24,10 +24,12 @@ class CIU {
   static bool ready;
   static os::utils::ds::HashMap<common::uint32_t, CIURouteFlags> routingMap;
   static os::utils::ds::HashMap<common::uint8_t, CIUColor> colorMap;
+  static os::utils::ds::HashMap<common::uint32_t, CIUColor> subsystemColorMap;
   static void SetupDefaultRoutes();
   static void SetupDefaultColors();
   static CIURouteFlags Resolve(const CIUReport& report);
   static CIUColor GetSeverityColor(CIUSeverity severity);
+  static CIUColor GetSubsystemColor(const char* subsystemName);
   static common::uint32_t MakeRouteKey(const char* subsystem, CIUSeverity severity);
   static const char* SeverityToString(CIUSeverity severity);
   static void SinkMainTerminal(const CIUReport& report);

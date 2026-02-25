@@ -23,8 +23,9 @@ todo:
         - [ ] VIM keybinds?
 
 - [ ] CIU: 
-    - [ ] add <subsystem, color> map
-    - [ ] iterate over and print metadata available
+    - [x] add <subsystem, color> map
+    - [x] iterate over and print metadata available
+    - [ ] add separate Central Intellgience Terminal
 
 - [ ] CommandList: 
     - [ ] System:

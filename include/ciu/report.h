@@ -3,6 +3,8 @@
 
 #include <common/types.h>
 #include <utils/ds/hashmap.h>
+#include <utils/ds/linkedlist.h>
+#include <utils/ds/pair.h>
 
 namespace os {
 namespace ciu {
