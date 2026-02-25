@@ -412,6 +412,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   commandRegistry.InjectDependency("SYS.PCI", &PCIController);
   commandRegistry.InjectDependency("SYS.HEAP", &heap);
   commandRegistry.InjectDependency("SYS.TERMINAL", &terminal);
+  commandRegistry.InjectDependency("SYS.TIMER", &timer);
 
   // network dependencies
   commandRegistry.InjectDependency("NET.ARP", &arp);

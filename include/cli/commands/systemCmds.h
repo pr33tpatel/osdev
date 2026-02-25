@@ -4,7 +4,9 @@
 #include <cli/command.h>
 #include <common/types.h>
 #include <drivers/terminal.h>
+#include <drivers/timer.h>
 #include <hardwarecommunication/pci.h>
+#include <memorymanagement.h>
 
 
 namespace os {

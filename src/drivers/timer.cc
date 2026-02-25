@@ -7,7 +7,9 @@ using namespace os::hardwarecommunication;
 using namespace os::utils;
 
 ProgrammableIntervalTimer::ProgrammableIntervalTimer(InterruptManager* interrupts, uint32_t frequency)
-    : InterruptHandler(interrupts, interrupts->HardwareInterruptOffset() + 0), dataPort(0x40), commandPort(0x43) {
+    : InterruptHandler(interrupts, interrupts->HardwareInterruptOffset() + 0),
+      dataPort(0x40),
+      commandPort(0x43) {
   ticks = 0;  // initalize ticks to be 0 at boot
   uint32_t internalOscillator = 1193182;
   uint32_t divisor = internalOscillator / frequency;
@@ -21,7 +23,7 @@ ProgrammableIntervalTimer::ProgrammableIntervalTimer(InterruptManager* interrupt
   dataPort.Write(divisor_lowByte);
   dataPort.Write(divisor_highByte);
 
-  printf(GREEN_COLOR, BLACK_COLOR, "[PIT] PIT initalized at %dHz\n", frequency);
+  printf(LIGHT_GRAY_COLOR, BLACK_COLOR, "[PIT] PIT initalized at %dHz\n", frequency);
 }
 
 uint32_t ProgrammableIntervalTimer::HandleInterrupt(uint32_t esp) {

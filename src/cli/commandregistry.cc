@@ -1,5 +1,7 @@
 #include <cli/commandregistry.h>
 
+#include "cli/commands/systemCmds.h"
+
 using namespace os;
 using namespace os::common;
 using namespace os::cli;
@@ -55,7 +57,7 @@ void* CommandRegistry::GetDependency(const char* depName) {
 
 
 bool CommandRegistry::ValidateSystemDependencies() {
-  const char* systemDeps[] = {"SYS.SHELL", "SYS.PCI", "SYS.HEAP", "SYS.TERMINAL"};
+  const char* systemDeps[] = {"SYS.SHELL", "SYS.PCI", "SYS.HEAP", "SYS.TERMINAL", "SYS.TIMER"};
   uint32_t count = sizeof(systemDeps) / sizeof(const char*);
   bool validDep = ValidateGroup(systemDeps, count);
   if (!validDep) {
@@ -122,10 +124,14 @@ bool CommandRegistry::ValidateAllDependencies() {
 
 bool CommandRegistry::RegisterSystemCommands() {
   if (!ValidateSystemDependencies()) return false;
-  Shell* shell = (Shell*)GetDependency("SYS.SHELL");
-  Terminal* terminal = (Terminal*)GetDependency("SYS.TERMINAL");
+  auto* shell = (Shell*)GetDependency("SYS.SHELL");
+  auto* terminal = (Terminal*)GetDependency("SYS.TERMINAL");
+  auto* pci = (PeripheralComponentInterconnectController*)GetDependency("SYS.PCI");
+  auto* heap = (MemoryManager*)GetDependency("SYS.HEAP");
+  auto* sysTimer = (ProgrammableIntervalTimer*)GetDependency("SYS.TIMER");
 
-  if (!shell || !terminal) {
+
+  if (!shell || !terminal || !pci || !heap || !sysTimer) {
     printf(RED_COLOR, BLACK_COLOR, "[ERROR] UNABLE TO FETCH ALL SYSTSEM DEPENDENCIES\n");
     return false;
   }
@@ -158,7 +164,7 @@ bool CommandRegistry::RegisterNetworkCommands() {
 
 
   // printf(BLACK_COLOR, LIGHT_CYAN_COLOR, "[SHELL] NETWORK COMMANDS REGISTERED\n");
-  return false;
+  return true;
 }
 
 bool CommandRegistry::RegisterProcessCommands() {
