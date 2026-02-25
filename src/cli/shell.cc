@@ -28,12 +28,20 @@ void Shell::RegisterCommand(Command* cmd) {
 void Shell::ExecuteCommand() {
   if (commandbuffer[0] == '\0') return;
 
-  char* cmdName = strtok(commandbuffer, " ");
-  if (cmdName == 0) return;  // user inputted only spaces
-  // char* args = strtok(0, " ");
+  char* p = commandbuffer;
+  while (*p != '\0' && *p != ' ') p++;
 
-  char* args = commandbuffer + strlen(cmdName) + 1;
-  while (args[0] == ' ') args++;  // skip over spaces
+  char* args;
+  if (*p == '\0') {
+    args = (char*)"";  // no space found, command has no arguments
+  } else {
+    *p = '\0';  // null-terimate the cmdName (e.g "ping\0 ...")
+    p++;
+    while (*p == ' ') p++;  // skips spaces between args
+    args = p;
+  }
+
+  const char* cmdName = commandbuffer;
 
   Command* cmdPtr = 0;
   if (commandMap.Get(cmdName, cmdPtr) && cmdPtr != 0) {
@@ -133,11 +141,10 @@ void Shell::OnKeyDown(char c) {
   if (c == '\n') {  // 'Enter' is pressed
     putChar('\n');  // print new line if 'Enter'
 
-    if (bufferIndex > 0) {  // if there is data in the buffer, echo out the command received
+    if (bufferIndex > 0) {
       commandbuffer[bufferIndex] = '\0';  // signal end of command
       ExecuteCommand();
       bufferIndex = 0;  // reset buffer index
-      // PrintPreviousCmd();
     }
     PrintPrompt();
   }
