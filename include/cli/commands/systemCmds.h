@@ -3,6 +3,7 @@
 
 #include <cli/command.h>
 #include <common/types.h>
+#include <drivers/terminal.h>
 #include <hardwarecommunication/pci.h>
 
 

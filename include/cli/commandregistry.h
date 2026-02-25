@@ -4,6 +4,7 @@
 #include <ciu/officer.h>
 #include <cli/command.h>
 #include <cli/commands/networkCmds.h>
+#include <cli/commands/systemCmds.h>
 #include <cli/shell.h>
 #include <common/types.h>
 #include <memorymanagement.h>

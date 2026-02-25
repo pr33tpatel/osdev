@@ -40,6 +40,7 @@ OBJECTS = obj/loader.o \
 					obj/cli/shell.o \
 					obj/cli/commandregistry.o \
 					obj/cli/commands/networkCmds.o \
+					obj/cli/commands/systemCmds.o \
 					obj/kernel.o \
 
 

@@ -416,7 +416,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
   // network dependencies
   commandRegistry.InjectDependency("NET.ARP", &arp);
   commandRegistry.InjectDependency("NET.IPV4", &ipv4);
-  // commandRegistry.InjectDependency("NET.ICMP", &icmp);
+  commandRegistry.InjectDependency("NET.ICMP", &icmp);
 
   // process dependencies
   commandRegistry.InjectDependency("PROC.TASKMANAGER", &taskManager);

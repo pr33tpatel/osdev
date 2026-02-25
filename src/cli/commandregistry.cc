@@ -125,7 +125,15 @@ bool CommandRegistry::RegisterSystemCommands() {
   Shell* shell = (Shell*)GetDependency("SYS.SHELL");
   Terminal* terminal = (Terminal*)GetDependency("SYS.TERMINAL");
 
-  if (!shell || !terminal) return false;
+  if (!shell || !terminal) {
+    printf(RED_COLOR, BLACK_COLOR, "[ERROR] UNABLE TO FETCH ALL SYSTSEM DEPENDENCIES\n");
+    return false;
+  }
+
+  // SYSTEM COMMANDS
+  shell->RegisterCommand(new whoami());
+  shell->RegisterCommand(new echo());
+  shell->RegisterCommand(new clear());
 
   return true;
 }
@@ -145,6 +153,7 @@ bool CommandRegistry::RegisterNetworkCommands() {
     return false;
   }
 
+  // NETOWRK COMMANDS
   shell->RegisterCommand(new Ping(icmp));
 
 
