@@ -11,9 +11,6 @@
 > hand-built, x86, ring 0, bare-metal machine
 
 DracOS is a 32-bit operating system written from scratch in C++ and a small amount of assembly.  
-It boots on bare metal, brings up its own drivers, and speaks directly to the hardware it runs on.
-
-The focus is on understanding the machine end to end: from the first instruction after the bootloader to the shell prompt, with no opaque layers in between.
 
 ---
 
@@ -28,13 +25,13 @@ This project is a record of my experimentation, exploration, and implementations
 
 ---
 
-## What’s wired up
+## Machine Internals
 
 - **Kernel core**
   - Multiboot-compatible entry via GRUB
   - 32-bit protected mode
   - GDT, IDT, PIC setup and hardware interrupt handling
-  - Basic syscall and multitasking scaffolding
+  - Multitasking 
 
 - **Memory**
   - Custom heap allocator (`MemoryManager`) with chunk splitting and coalescing
@@ -71,16 +68,18 @@ This project is a record of my experimentation, exploration, and implementations
 - `docs/` – Design and implementation notes for subsystems
 - `obj/` – Object files (created by the build)
 - `mykernel.bin` – Linked kernel image
-- `mykernel.iso` / `myos.iso` – Bootable ISO images
+- `mykernel.iso` / `DracOS-v{x.y.z}.iso` – Bootable ISO images
 - `Image.img` – Raw disk image used by QEMU
 - `.clang-format` – C++ formatting rules
 
 For subsystem internals, see:
 
 - [`docs/kernel.md`](docs/kernel.md) – Kernel and boot path
-- [`docs/memorymanagement.md`](docs/memorymanagement.md) – Heap and memory manager
 - [`docs/storage.md`](docs/storage.md) – ATA / storage layer
+- [`docs/network.md`](docs/network.md) – Network Stack
 - [`docs/cli.md`](docs/cli.md) – Shell and command system
+- [`docs/ciu.md`](docs/ciu.md) – Central Intelligence Unit
+- [`docs/memorymanagement.md`](docs/memorymanagement.md) – Heap and memory manager
 - [`docs/utils.md`](docs/utils.md) – Utils library
 - [`docs/ds.md`](docs/ds.md) – Data structures
 - [`docs/development.md`](docs/development.md) – Build, run, QEMU, and tooling
@@ -151,20 +150,7 @@ More details live in [`docs/development.md`](docs/development.md).
 DracOS is not chasing feature parity with general-purpose operating systems.
 Each component is built to expose how the machine actually behaves, not to hide it behind layers of abstraction.
 
-If you care about system architecuture, interrupts, framebuffers, packets on the wire, and heap internals, there is something here for you to read or modify.
-
----
-
-## Code style
-
-The codebase uses `.clang-format` with a C++ style derived from Google’s guidelines:
-
-- 2-space indentation, no tabs
-- Left-aligned pointers (`char* ptr`)
-- 105-character column limit (to fit long namespaces and paths)
-- Arguments and parameters split vertically instead of being crammed into one line
-
-Run `clang-format` on changed files before committing to keep the tree consistent.
+The focus is on system architecuture, interrupts, framebuffers, packets on the wire, heap internals, etc. 
 
 ---
 
